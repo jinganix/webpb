@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package ImportPathNotFoundProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message ImportPathNotFound {
+  option (m_opts).opt = {extends: "BadImport.Extends"};
+
+  required int32 foo_2 = 1;
+  required string bar_2 = 2;
+}

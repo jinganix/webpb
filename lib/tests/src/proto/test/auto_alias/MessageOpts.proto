@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+package MessageOptsProto;
+
+option java_package = "auto.alias.message";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).java = {
+  import: 'com.fasterxml.jackson.annotation.JsonProperty'
+};
+
+message Level3 {
+  option (m_opts).ts = {auto_alias: true};
+  option (m_opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'};
+
+  required int32 test1 = 1;
+}
+
+message Level2 {
+  required int32 test1 = 1;
+  required Level3 test2 = 2;
+  repeated Level3 test3 = 3;
+}
+
+message Level1 {
+  option (m_opts).ts = {auto_alias: true};
+  option (m_opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'};
+
+  required int32 test1 = 1;
+  required Level2 test2 = 2;
+  repeated Level2 test3 = 3;
+  required Level3 test4 = 4;
+  map<int32, Level3> test5 = 5;
+  map<string, Level3> test6 = 6;
+}

@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package BadAnnotationProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message BadAnnotation {
+  option (m_opts).java = {annotation: "BadAnnotation"};
+
+  required int32 foo_2 = 1;
+  required string bar_2 = 2;
+}

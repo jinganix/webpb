@@ -1,0 +1,146 @@
+syntax = "proto2";
+
+option java_package = "io.github.jinganix.webpb.utilities.descriptor";
+
+import "google/protobuf/descriptor.proto";
+
+// file options
+extend google.protobuf.FileOptions {
+  optional FileOpts f_opts = 1000;
+}
+
+message FileOpts {
+  optional OptFileOpts opt = 1000;
+  optional JavaFileOpts java = 1001;
+  optional TsFileOpts ts = 1002;
+}
+
+message OptFileOpts {
+}
+
+message JavaFileOpts {
+  optional bool gen_getter = 1000 [default = true];
+
+  optional bool gen_setter = 1001 [default = true];
+
+  repeated string import = 1002;
+
+  repeated string annotation = 1003;
+
+  optional string auto_alias = 1004;
+}
+
+message TsFileOpts {
+  repeated string import = 1000;
+
+  optional bool int64_as_string = 1001;
+
+  optional bool auto_alias = 1002;
+}
+
+// message options
+extend google.protobuf.MessageOptions {
+  optional MessageOpts m_opts = 1000;
+}
+
+message MessageOpts {
+  optional OptMessageOpts opt = 1000;
+  optional JavaMessageOpts java = 1001;
+  optional TsMessageOpts ts = 1002;
+}
+
+message OptMessageOpts {
+  optional string method = 1001;
+
+  optional string path = 1002;
+
+  optional string context = 1003;
+
+  optional string extends = 1004;
+
+  repeated string implements = 1005;
+}
+
+message JavaMessageOpts {
+  repeated string annotation = 1000;
+
+  optional string auto_alias = 1001;
+}
+
+message TsMessageOpts {
+  optional bool auto_alias = 1000;
+}
+
+// enum options
+extend google.protobuf.EnumOptions {
+  optional EnumOpts e_opts = 1000;
+}
+
+message EnumOpts {
+  optional OptEnumOpts opt = 1000;
+  optional JavaEnumOpts java = 1001;
+  optional TsEnumOpts ts = 1002;
+}
+
+message OptEnumOpts {
+  optional bool string_value = 1000;
+}
+
+message JavaEnumOpts {
+  repeated string annotation = 1000;
+
+  repeated string implements = 1001;
+}
+
+message TsEnumOpts {
+}
+
+// field options
+extend google.protobuf.FieldOptions {
+  optional FieldOpts opts = 1000;
+}
+
+message FieldOpts {
+  optional OptFieldOpts opt = 1000;
+  optional JavaFieldOpts java = 1001;
+  optional TsFieldOpts ts = 1002;
+}
+
+message OptFieldOpts {
+  optional bool omitted = 1000;
+  optional bool in_query = 1001;
+}
+
+message JavaFieldOpts {
+  repeated string annotation = 1000;
+
+  optional string auto_alias = 1001;
+}
+
+message TsFieldOpts {
+  optional bool as_string = 1000;
+  optional string alias = 1001;
+  optional bool auto_alias = 1002;
+}
+
+// enum value options
+extend google.protobuf.EnumValueOptions {
+  optional EnumValueOpts v_opts = 1000;
+}
+
+message EnumValueOpts {
+  optional OptEnumValueOpts opt = 1000;
+  optional JavaEnumValueOpts java = 1001;
+  optional TsEnumValueOpts ts = 1002;
+}
+
+message OptEnumValueOpts {
+  optional string value = 1000;
+}
+
+message JavaEnumValueOpts {
+  repeated string annotation = 1000;
+}
+
+message TsEnumValueOpts {
+}
