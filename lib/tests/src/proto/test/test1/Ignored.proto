@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package IgnoredProto;
+
+import "imports/WebpbOptions.proto";
+
+option java_package = "com.google.protobuf.test";
+
+message IgnoreTest {
+  required int32 test1 = 1;
+}

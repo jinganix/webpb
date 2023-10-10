@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package Include2Proto;
+
+option java_package = "include2";
+
+import "imports/WebpbOptions.proto";
+import "webpb/WebpbExtend.proto";
+
+message Message {
+  required int32 id = 1;
+
+  message Nested {
+    required int32 test1 = 1;
+  }
+}

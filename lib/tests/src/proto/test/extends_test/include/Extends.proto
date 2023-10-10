@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package ExtendsProto;
+
+option java_package = "extend.test.include";
+
+import "webpb/WebpbExtend.proto";
+
+message Extends {
+  required int32 foo_1 = 1;
+  required string bar_1 = 2;
+}

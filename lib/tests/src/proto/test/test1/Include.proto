@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package IncludeProto;
+
+option java_package = "include";
+
+import "imports/WebpbOptions.proto";
+import "webpb/WebpbExtend.proto";
+
+message Message {
+  required int32 id = 1;
+
+  message Nested {
+    required int32 test1 = 1;
+  }
+}
+
+enum Enum {
+  option (e_opts).java = {
+    annotation: '@JsonDeserialize(using = EnumerationDeserializer.class)'
+    annotation: '@JsonSerialize(using = EnumerationSerializer.class)',
+  };
+
+  DEFAULT = 0;
+}

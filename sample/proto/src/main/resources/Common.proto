@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package CommonProto;
+
+option java_package = "io.github.jinganix.webpb.sample.proto.common";
+
+import "webpb/WebpbExtend.proto";
+import "WebpbOptions.proto";
+
+message PageablePb {
+  optional bool pagination = 1;
+  optional int32 page = 2 [(opts).java = {annotation: '@Range(min = 1, max = 1000)'}];
+  optional int32 size = 3 [(opts).java = {annotation: '@Range(min = 1, max = 10)'}];
+  optional string sort = 4;
+}
+
+message PagingPb {
+  required int32 page = 1;
+  required int32 size = 2;
+  required int32 totalCount = 3;
+  required int32 totalPage = 4;
+}

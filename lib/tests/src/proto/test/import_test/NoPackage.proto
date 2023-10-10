@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package NoPackageProto;
+
+option java_package = "";
+
+message NoPackageTest {
+  required int32 foo = 1;
+}
+
+message NoPackage {
+  required int32 foo_1 = 1;
+  required string bar_2 = 2;
+  required NoPackageTest test = 3;
+}
