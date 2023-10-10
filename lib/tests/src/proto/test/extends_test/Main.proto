@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+package MainProto;
+
+option java_package = "extend.test.main";
+
+import "webpb/WebpbExtend.proto";
+import "include/Extends.proto";
+import "include2/Extends2.proto";
+
+option (f_opts).java = {
+  import: "com.abc.Custom"
+};
+option (f_opts).ts = {
+  import: "import { Custom } from 'external/custom'"
+};
+
+message Main1 {
+  option (m_opts).opt = {extends: "Extends"};
+
+  required int32 foo_2 = 1;
+  required string bar_2 = 2;
+}
+
+message Main2 {
+  option (m_opts).opt = {extends: "ExtendsProto.Extends"};
+
+  required int32 foo_2 = 1;
+  required string bar_2 = 2;
+}
+
+
+message Main3 {
+  option (m_opts).opt = {extends: "Extends2Proto.Extends"};
+
+  required int32 foo_2 = 1;
+  required string bar_2 = 2;
+}
+
+message Main4 {
+  option (m_opts).opt = {extends: "Custom"};
+
+  required int32 foo_2 = 1;
+  required string bar_2 = 2;
+}
