@@ -18,28 +18,47 @@
 
 package io.github.jinganix.webpb.dump;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.PrintStream;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Main")
 class MainTest {
 
-  @Test
-  void shouldConstructSuccess() {
-    assertDoesNotThrow(Main::new);
+  @Nested
+  @DisplayName("when called")
+  class WhenCalled {
+
+    @Test
+    @DisplayName("then concrete")
+    void thenConcrete() {
+      assertThatCode(Main::new).doesNotThrowAnyException();
+    }
   }
 
-  @Test
-  void shouldCallMainSuccess() throws Exception {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(outputStream));
-    InputStream inputStream = getClass().getResourceAsStream("test.dump");
-    System.setIn(inputStream);
-    Main.main(null);
-    assertTrue(outputStream.toByteArray().length > 0);
+  @Nested
+  @DisplayName("main")
+  class MainMethod {
+
+    @Nested
+    @DisplayName("when called")
+    class WhenCalled {
+
+      @Test
+      @DisplayName("then no errors")
+      void thenNoErrors() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        System.setIn(getClass().getResourceAsStream("test.dump"));
+
+        assertThatCode(() -> Main.main(null)).doesNotThrowAnyException();
+        assertThat(outputStream.toByteArray()).isNotEmpty();
+      }
+    }
   }
 }

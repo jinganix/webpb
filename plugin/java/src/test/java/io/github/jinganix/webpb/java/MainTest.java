@@ -18,21 +18,46 @@
 
 package io.github.jinganix.webpb.java;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import io.github.jinganix.webpb.tests.Dump;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Main")
 class MainTest {
 
-  @Test
-  void shouldConstructSuccess() {
-    assertDoesNotThrow(Main::new);
+  @Nested
+  @DisplayName("constructor")
+  class Constructor {
+
+    @Nested
+    @DisplayName("when called")
+    class WhenCalled {
+
+      @Test
+      @DisplayName("then concrete")
+      void thenConcrete() {
+        assertThatCode(Main::new).doesNotThrowAnyException();
+      }
+    }
   }
 
-  @Test
-  void shouldGenerateSuccess() {
-    Dump.test1.pipe();
-    assertDoesNotThrow(() -> Main.main(null));
+  @Nested
+  @DisplayName("main")
+  class MainMethod {
+
+    @Nested
+    @DisplayName("when called")
+    class WhenCalled {
+
+      @Test
+      @DisplayName("then no errors")
+      void thenNoErrors() {
+        Dump.test1.pipe();
+        assertThatCode(() -> Main.main(null)).doesNotThrowAnyException();
+      }
+    }
   }
 }

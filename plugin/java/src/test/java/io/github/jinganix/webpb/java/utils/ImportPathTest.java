@@ -18,46 +18,123 @@
 
 package io.github.jinganix.webpb.java.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 @DisplayName("ImportPath")
 class ImportPathTest {
 
-  @Test
+  @Nested
+  @DisplayName("constructor")
+  class Constructor {
+
+    @Nested
+    @DisplayName("when path is a.b.c")
+    class WhenPathIsABC {
+
+      @Test
+      @DisplayName("then concrete")
+      void thenConcrete() {
+        ImportPath importPath = new ImportPath("a.b.c");
+        assertThat(importPath.getPath()).isEqualTo("a.b.c");
+        assertThat(importPath.getIdentifier()).isEqualTo("c");
+      }
+    }
+
+    @Nested
+    @DisplayName("when path is a..b")
+    class WhenPathIsAB {
+
+      @Test
+      @DisplayName("then throw")
+      void thenThrow() {
+        assertThatThrownBy(() -> new ImportPath("a..b"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Invalid import path: a..b");
+      }
+    }
+  }
+
+  @Nested
   @DisplayName("equals")
-  void equalsTest() {
+  class Equals {
+
     ImportPath importPath = new ImportPath("a.b.c");
-    assertEquals(new ImportPath("a.b.c"), importPath);
-    assertNotEquals(new ImportPath("a.b"), importPath);
-    assertFalse(importPath.equals(new ImportPathTest()));
+
+    @Nested
+    @DisplayName("when path is a.b.c")
+    class WhenPathIsABC {
+
+      @Test
+      @DisplayName("then equal")
+      void thenEqual() {
+        assertThat(importPath.equals(new ImportPath("a.b.c"))).isTrue();
+      }
+    }
+
+    @Nested
+    @DisplayName("when path is a.b")
+    class WhenPathIsAB {
+
+      @Test
+      @DisplayName("then not equal")
+      void thenNotEqual() {
+        assertThat(importPath.equals(new ImportPath("a.b"))).isFalse();
+      }
+    }
+
+    @Nested
+    @DisplayName("when path is different class")
+    class WhenPathIsDifferentClass {
+
+      @Test
+      @DisplayName("then not equal")
+      void thenNotEqual() {
+        assertThat(importPath.equals(new ImportPathTest())).isFalse();
+      }
+    }
   }
 
-  @Test
-  void shouldTestConstructSuccessTest() {
-    ImportPath importPath = new ImportPath("a.b.c");
-    assertEquals("a.b.c", importPath.getPath());
-    assertEquals("c", importPath.getIdentifier());
+  static class TestArgumentsProvider implements ArgumentsProvider {
 
-    assertThrows(RuntimeException.class, () -> new ImportPath("a..b"), "Invalid name: a..b");
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+      return Stream.of(
+          Arguments.of("a.b.c", "c", "c"),
+          Arguments.of("a.b.c", "c.d", "c.d"),
+          Arguments.of("a.b.c", "b.c.d", "c.d"),
+          Arguments.of("a.b", "b.c", "b.c"),
+          Arguments.of("a.b.c", "e.c.d", null),
+          Arguments.of("a.b.c", "e.d", null),
+          Arguments.of("a.b.c", "c\\", null),
+          Arguments.of("a.b.c", "c..d", null));
+    }
   }
 
-  @Test
-  void shouldResolveSuccessTest() {
-    assertEquals("c", new ImportPath("a.b.c").relative("c"));
-    assertEquals("c.d", new ImportPath("a.b.c").relative("c.d"));
-    assertEquals("c.d", new ImportPath("a.b.c").relative("b.c.d"));
-    assertEquals("b.c", new ImportPath("a.b").relative("b.c"));
+  @Nested
+  @DisplayName("resolve")
+  class Resolve {
 
-    assertNull(new ImportPath("a.b.c").relative("e.c.d"));
-    assertNull(new ImportPath("a.b.c").relative("e.d"));
-    assertNull(new ImportPath("a.b.c").relative("c\\"));
-    assertNull(new ImportPath("a.b.c").relative("c..d"));
+    @Nested
+    @DisplayName("when paths provided")
+    class WhenDumpPathsProvided {
+
+      @ParameterizedTest(name = "{0}.relative({1} => {2}")
+      @DisplayName("then return relative path")
+      @ArgumentsSource(TestArgumentsProvider.class)
+      void thenReturnRelativePath(String path, String name, String expected) {
+        assertThat(new ImportPath(path).relative(name)).isEqualTo(expected);
+      }
+    }
   }
 }
