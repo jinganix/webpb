@@ -18,36 +18,54 @@
 
 package io.github.jinganix.webpb.utilities.test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 import io.github.jinganix.webpb.tests.Dump;
 import java.io.ByteArrayInputStream;
-import org.junit.jupiter.api.Assertions;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 @DisplayName("TestUtils")
 class TestUtilsTest {
 
-  @Test
-  void shouldCreateRequestContextSuccess() {
-    Assertions.assertDoesNotThrow(() -> TestUtils.createRequest(Dump.test1));
-  }
+  @Nested
+  @DisplayName("createRequest")
+  class CreateRequest {
 
-  @Test
-  void shouldCreateRequestThrowExceptionWhenInputError() {
-    System.setIn(new ByteArrayInputStream("abc".getBytes()));
-    Dump dump = Mockito.mock(Dump.class);
-    assertThrows(RuntimeException.class, () -> TestUtils.createRequest(dump));
-  }
+    @Nested
+    @DisplayName("when dump is valid")
+    class WhenDumpIsValid {
 
-  @Test
-  void shouldCompareToFileSuccess() {
-    Assertions.assertTrue(TestUtils.compareToFile("abcd\"ef\"g'hi'", "/compare.txt", false));
-    Assertions.assertFalse(TestUtils.compareToFile("abcd\"ef\"g'hi'", "/compare.txt", true));
-    assertThrows(RuntimeException.class, () -> TestUtils.compareToFile("", "/any", true));
+      @Test
+      @DisplayName("then create")
+      void thenCreate() {
+        assertThat(TestUtils.createRequest(Dump.test1)).isNotNull();
+      }
+    }
+
+    @Nested
+    @DisplayName("when dump is invalid")
+    class WhenDumpIsInvalid {
+
+      @Test
+      @DisplayName("then throw error")
+      void thenThrowError() {
+        System.setIn(new ByteArrayInputStream("abc".getBytes()));
+        Dump dump = Mockito.mock(Dump.class);
+        assertThatThrownBy(() -> TestUtils.createRequest(dump))
+            .isInstanceOf(RuntimeException.class);
+      }
+    }
   }
 
   @Nested
@@ -61,7 +79,27 @@ class TestUtilsTest {
       @Test
       @DisplayName("then throw exception")
       void thenThrowExceptionTest() {
-        assertThrows(RuntimeException.class, () -> TestUtils.readFile("non_exists"));
+        assertThatThrownBy(() -> TestUtils.readFile("non_exists"))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessage("File not found: non_exists");
+      }
+    }
+
+    @Nested
+    @DisplayName("when failed read stream")
+    class WhenFailedToReadStream {
+
+      @Test
+      @DisplayName("then throw exception")
+      void thenThrowExceptionTest() {
+        try (MockedStatic<IOUtils> ioUtils = Mockito.mockStatic(IOUtils.class)) {
+          ioUtils
+              .when(() -> IOUtils.toString(any(InputStream.class), eq(StandardCharsets.UTF_8)))
+              .thenThrow(new IOException());
+          assertThatThrownBy(() -> TestUtils.readFile("/foo.test"))
+              .isInstanceOf(RuntimeException.class)
+              .hasCauseInstanceOf(IOException.class);
+        }
       }
     }
   }

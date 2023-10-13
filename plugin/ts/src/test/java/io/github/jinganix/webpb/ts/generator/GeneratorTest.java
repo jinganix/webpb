@@ -19,16 +19,71 @@
 package io.github.jinganix.webpb.ts.generator;
 
 import static io.github.jinganix.webpb.utilities.test.TestUtils.createRequest;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.test.TestUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
+@DisplayName("Generator")
 class GeneratorTest {
+
+  static class TestArgumentsProvider implements ArgumentsProvider {
+
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+      List<Arguments> argumentsList = new ArrayList<>();
+      for (Dump dump : Dump.values()) {
+        RequestContext request = createRequest(dump);
+        for (FileDescriptor fileDescriptor : request.getTargetDescriptors()) {
+          String prefix = "/" + dump.name().toLowerCase() + "/";
+          String filename = prefix + fileDescriptor.getPackage() + ".ts";
+          argumentsList.add(Arguments.of(dump.name(), filename, fileDescriptor));
+        }
+      }
+      return argumentsList.stream();
+    }
+  }
+
+  @Nested
+  @DisplayName("generate")
+  class AutoAlias {
+
+    @Nested
+    @DisplayName("when dump files provided")
+    class WhenDumpFilesProvided {
+
+      Generator generator = new Generator();
+
+      @ParameterizedTest(name = "{0} => {1}")
+      @DisplayName("then generate expected")
+      @ArgumentsSource(TestArgumentsProvider.class)
+      void thenGenerateExpected(String dump, String filename, FileDescriptor fileDescriptor) {
+        assertThat(dump).isNotEmpty();
+        String expected;
+        try {
+          expected = TestUtils.readFile(filename);
+        } catch (NullPointerException e) {
+          expected = null;
+        }
+        assertThat(generator.generate(fileDescriptor)).isEqualTo(expected);
+      }
+    }
+  }
 
   @Test
   void test() {

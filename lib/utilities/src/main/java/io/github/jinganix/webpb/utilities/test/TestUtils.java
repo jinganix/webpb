@@ -20,6 +20,7 @@ package io.github.jinganix.webpb.utilities.test;
 
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
@@ -51,37 +52,13 @@ public class TestUtils {
    * @return file content
    */
   public static String readFile(String filename) {
-    try {
-      InputStream inputStream = TestUtils.class.getResourceAsStream(filename);
-      if (inputStream == null) {
-        throw new NullPointerException("file not exists: " + filename);
-      }
-      return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    InputStream inputStream = TestUtils.class.getResourceAsStream(filename);
+    if (inputStream == null) {
+      throw new NullPointerException("File not found: " + filename);
     }
-  }
-
-  /**
-   * Compare text to a file content.
-   *
-   * @param text text to compare
-   * @param filename file to compare
-   * @param exactly ignore spaces/tabs/newlines when not exactly
-   * @return true if same
-   */
-  public static boolean compareToFile(String text, String filename, boolean exactly) {
     try {
-      InputStream inputStream = TestUtils.class.getResourceAsStream(filename);
-      if (inputStream == null) {
-        throw new NullPointerException("file not exists: " + filename);
-      }
-      String content = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-      if (exactly) {
-        return text.equals(content);
-      }
-      return text.replaceAll("\\s+", "").equals(content.replaceAll("\\s+", ""));
-    } catch (Exception e) {
+      return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
