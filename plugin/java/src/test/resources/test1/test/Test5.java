@@ -4,9 +4,11 @@
 
 package test;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 import test.message.InterfaceB;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public enum Test5 implements Enumeration<String>, InterfaceA, InterfaceB {
 
   test5_1("text1"),

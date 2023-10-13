@@ -4,8 +4,10 @@
 
 package test;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public enum Test3 implements Enumeration<String> {
 
   test3_1("test3_1"),

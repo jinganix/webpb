@@ -18,9 +18,11 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(using = EnumerationDeserializer.class)
 @JsonSerialize(using = EnumerationSerializer.class)
 enum LongEnum implements Enumeration<Long> {

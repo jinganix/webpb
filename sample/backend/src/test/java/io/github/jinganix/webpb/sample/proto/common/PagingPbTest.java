@@ -18,20 +18,28 @@
 
 package io.github.jinganix.webpb.sample.proto.common;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("PagingPb")
 class PagingPbTest {
 
-  @Test
-  void test() {
-    PagingPb pb = new PagingPb().setPage(11).setSize(22).setTotalCount(33).setTotalPage(44);
-    assertNotNull(pb.webpbMeta());
-    assertEquals(11, pb.getPage());
-    assertEquals(22, pb.getSize());
-    assertEquals(33, pb.getTotalCount());
-    assertEquals(44, pb.getTotalPage());
+  @Nested
+  @DisplayName("when update props")
+  class WhenUpdateProps {
+
+    @Test
+    @DisplayName("then get the prop by getters")
+    void thenGetThePropByGetters() {
+      PagingPb pb = new PagingPb().setPage(11).setSize(22).setTotalCount(33).setTotalPage(44);
+      assertThat(pb.webpbMeta()).isNotNull();
+      assertThat(pb.getPage()).isEqualTo(11);
+      assertThat(pb.getSize()).isEqualTo(22);
+      assertThat(pb.getTotalCount()).isEqualTo(33);
+      assertThat(pb.getTotalPage()).isEqualTo(44);
+    }
   }
 }
