@@ -18,7 +18,7 @@
 
 package io.github.jinganix.webpb.commons;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,53 +29,65 @@ class UrlSegmentTest {
 
   @Nested
   @DisplayName("constructor")
-  class ConstructorTest {
+  class Constructor {
 
     @Nested
     @DisplayName("when value is {")
-    class WhenValueIsLeftParenthesisTest {
+    class WhenValueIsLeftParenthesis {
 
       @Test
       @DisplayName("then is not accessor")
       void thenAccessorIsTrueTest() {
         UrlSegment urlSegment = new UrlSegment("", "", "{");
-        assertFalse(urlSegment.isAccessor());
+        assertThat(urlSegment.isAccessor()).isFalse();
       }
     }
 
     @Nested
     @DisplayName("when value is }")
-    class WhenValueIsRightParenthesisTest {
+    class WhenValueIsRightParenthesis {
 
       @Test
       @DisplayName("then is not accessor")
       void thenAccessorIsTrueTest() {
         UrlSegment urlSegment = new UrlSegment("", "", "}");
-        assertFalse(urlSegment.isAccessor());
+        assertThat(urlSegment.isAccessor()).isFalse();
       }
     }
 
     @Nested
     @DisplayName("when key is null")
-    class WhenKeyIsNullTest {
+    class WhenKeyIsNull {
 
       @Test
       @DisplayName("then is not query")
       void thenQueryIsTrueTest() {
         UrlSegment urlSegment = new UrlSegment("", null, "{}");
-        assertFalse(urlSegment.isQuery());
+        assertThat(urlSegment.isQuery()).isFalse();
       }
     }
 
     @Nested
     @DisplayName("when key is empty")
-    class WhenKeyIsEmptyTest {
+    class WhenKeyIsEmpty {
 
       @Test
       @DisplayName("then is not query")
       void thenQueryIsTrueTest() {
         UrlSegment urlSegment = new UrlSegment("", "", "{}");
-        assertFalse(urlSegment.isQuery());
+        assertThat(urlSegment.isQuery()).isFalse();
+      }
+    }
+
+    @Nested
+    @DisplayName("when key is foo")
+    class WhenKeyIsFoo {
+
+      @Test
+      @DisplayName("then is not query")
+      void thenQueryIsTrueTest() {
+        UrlSegment urlSegment = new UrlSegment("", "foo", "{}");
+        assertThat(urlSegment.isQuery()).isTrue();
       }
     }
   }

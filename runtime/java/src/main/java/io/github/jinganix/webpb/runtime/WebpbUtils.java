@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.jinganix.webpb.commons.SegmentGroup;
 import io.github.jinganix.webpb.commons.UrlSegment;
-import io.github.jinganix.webpb.commons.Utils;
 import io.github.jinganix.webpb.runtime.common.InQuery;
 import io.github.jinganix.webpb.runtime.common.MessageContext;
 import java.lang.reflect.Field;
@@ -157,10 +156,12 @@ public class WebpbUtils {
     if ("/".equals(file)) {
       return baseUrl.toString();
     }
-    URL url =
-        Utils.uncheckedCall(
-            () -> new URL(baseUrl.getProtocol(), baseUrl.getHost(), baseUrl.getPort(), file, null));
-    return url.toString();
+    try {
+      URL url = new URL(baseUrl.getProtocol(), baseUrl.getHost(), baseUrl.getPort(), file, null);
+      return url.toString();
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -360,7 +361,7 @@ public class WebpbUtils {
     }
     StringBuilder builder = new StringBuilder();
     for (String segment : segments) {
-      segment = Utils.orEmpty(segment);
+      segment = (segment == null) ? "" : segment;
       trimSlash(builder);
       if (segment.startsWith("/")) {
         builder.append(segment);

@@ -26,6 +26,7 @@ import kotlin.reflect.full.memberProperties
 object Vers {
   private var initialized = false
 
+  lateinit var versionAssertj: String
   lateinit var versionCommonsIo: String
   lateinit var versionCommonsLang3: String
   lateinit var versionCompileTesting: String

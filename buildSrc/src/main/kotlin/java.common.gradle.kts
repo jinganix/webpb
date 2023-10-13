@@ -1,6 +1,7 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import utils.Props
 import utils.Vers
+import utils.Vers.versionAssertj
 import utils.Vers.versionJacocoAgent
 import utils.Vers.versionJakartaXml
 import utils.Vers.versionLombok
@@ -48,6 +49,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:${versionLombok}")
   testAnnotationProcessor("org.projectlombok:lombok:${versionLombok}")
   testCompileOnly("org.projectlombok:lombok:${versionLombok}")
+  testImplementation("org.assertj:assertj-core:${versionAssertj}")
   testImplementation("org.mockito:mockito-core:${versionMockitoCore}")
   testImplementation("org.mockito:mockito-inline:${versionMockitoInline}")
 }
