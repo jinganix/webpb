@@ -18,7 +18,7 @@
 
 package io.github.jinganix.webpb.ts.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +38,7 @@ class TsUtilsTest {
       @Test
       @DisplayName("then return a.Ib")
       void thenReturnInterfaceName() {
-        assertEquals("a.Ib", TsUtils.toInterfaceName("a.b"));
+        assertThat(TsUtils.toInterfaceName("a.b")).isEqualTo("a.Ib");
       }
     }
 
@@ -49,7 +49,7 @@ class TsUtilsTest {
       @Test
       @DisplayName("then return Ib")
       void thenReturnInterfaceName() {
-        assertEquals("Ib", TsUtils.toInterfaceName("b"));
+        assertThat(TsUtils.toInterfaceName("b")).isEqualTo("Ib");
       }
     }
   }

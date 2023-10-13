@@ -18,8 +18,7 @@
 
 package io.github.jinganix.webpb.ts.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,70 +35,69 @@ class ImportsTest {
 
     @Nested
     @DisplayName("when name equals this package")
-    class WhenNameEqualsThisPackageTest {
+    class WhenNameEqualsThisPackage {
 
       @Test
       @DisplayName("then do not import")
       void thenDoNotImportTest() {
         Imports imports = new Imports("a", new ArrayList<>(), new ArrayList<>());
         imports.importPath(new ImportPath("a", "./a"));
-        assertTrue(imports.toList().isEmpty());
+        assertThat(imports.toList()).isEmpty();
       }
     }
   }
 
   @Nested
   @DisplayName("importType")
-  class ImportTypeTest {
+  class ImportType {
 
     @Nested
     @DisplayName("when type starts with this package")
-    class WhenTypeOrPackageStartsWithThisPackageTest {
+    class WhenTypeOrPackageStartsWithThisPackage {
 
       @Test
       @DisplayName("then do not import")
       void thenDoNotImportTest() {
         Imports imports = new Imports("a", new ArrayList<>(), new ArrayList<>());
         imports.importType("a/b");
-        assertTrue(imports.toList().isEmpty());
+        assertThat(imports.toList()).isEmpty();
       }
     }
 
     @Nested
     @DisplayName("when type is found")
-    class WhenTypeIsFoundTest {
+    class WhenTypeIsFound {
 
       @Test
       @DisplayName("then import the package")
       void thenImportThePackageTest() {
         Imports imports = new Imports("a", new ArrayList<>(), Arrays.asList("c/d", "c/e", "c/f"));
-        assertEquals("c.e", imports.importType("e"));
-        assertEquals(1, imports.toList().size());
-        assertEquals("import * as c from \"c\";", imports.toList().get(0));
+        assertThat(imports.importType("e")).isEqualTo("c.e");
+        assertThat(imports.toList()).containsExactly("import * as c from \"c\";");
       }
     }
 
     @Nested
     @DisplayName("when type is not found")
-    class WhenTypeIsNotFoundTest {
+    class WhenTypeIsNotFound {
 
       @Test
       @DisplayName("then not export")
-      void thenThrowException() {
+      void thenNotExport() {
         Imports imports = new Imports("a", new ArrayList<>(), new ArrayList<>());
-        assertEquals("f", imports.importType("f"));
-        assertTrue(imports.toList().isEmpty());
+        assertThat(imports.importType("f")).isEqualTo("f");
+        assertThat(imports.toList()).isEmpty();
       }
     }
   }
 
   @Nested
   @DisplayName("toList")
-  class ToListTest {
+  class ToList {
 
     @Nested
     @DisplayName("when import path has order")
-    class WhenImportPathHasOrderTest {
+    class WhenImportPathHasOrder {
 
       @Test
       @DisplayName("then import list is sorted")
@@ -107,9 +105,8 @@ class ImportsTest {
         Imports imports = new Imports("p", new ArrayList<>(), new ArrayList<>());
         imports.importPath(new ImportPath("a", "./a", 2));
         imports.importPath(new ImportPath("b", "./b", 1));
-        assertEquals(2, imports.toList().size());
-        assertEquals("import * as b from \"./b\";", imports.toList().get(0));
-        assertEquals("import * as a from \"./a\";", imports.toList().get(1));
+        assertThat(imports.toList())
+            .containsExactly("import * as b from \"./b\";", "import * as a from \"./a\";");
       }
     }
   }
