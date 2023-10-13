@@ -15,6 +15,7 @@ dependencies {
   implementation("com.google.protobuf:protobuf-java:${versionProtobufJava}")
   implementation("org.apache.commons:commons-lang3:${versionCommonsLang3}")
   testImplementation("org.junit.jupiter:junit-jupiter-api:${versionJupiter}")
+  testImplementation("org.junit.jupiter:junit-jupiter-params:${versionJupiter}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${versionJupiter}")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

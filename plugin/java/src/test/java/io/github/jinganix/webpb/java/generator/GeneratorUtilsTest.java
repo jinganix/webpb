@@ -18,8 +18,8 @@
 
 package io.github.jinganix.webpb.java.generator;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.jinganix.webpb.java.utils.GeneratorUtils;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("AnnotationUtils")
+@DisplayName("GeneratorUtils")
 class GeneratorUtilsTest {
 
   @Nested
@@ -42,8 +42,8 @@ class GeneratorUtilsTest {
       @Test
       @DisplayName("then throw exception")
       void thenThrowExceptionTest() {
-        assertThrows(
-            RuntimeException.class, () -> GeneratorUtils.exists(Collections.emptyList(), "a..."));
+        assertThatThrownBy(() -> GeneratorUtils.exists(Collections.emptyList(), "a..."))
+            .isInstanceOf(RuntimeException.class);
       }
     }
 
@@ -54,9 +54,8 @@ class GeneratorUtilsTest {
       @Test
       @DisplayName("then throw exception")
       void thenThrowExceptionTest() {
-        assertThrows(
-            RuntimeException.class,
-            () -> GeneratorUtils.exists(Collections.singletonList("a..."), "@Anno"));
+        assertThatThrownBy(() -> GeneratorUtils.exists(Collections.singletonList("a..."), "@Anno"))
+            .isInstanceOf(RuntimeException.class);
       }
     }
 
@@ -67,7 +66,7 @@ class GeneratorUtilsTest {
       @Test
       @DisplayName("then return true")
       void thenReturnTrue() {
-        assertTrue(GeneratorUtils.exists(Arrays.asList("@Anno1", "@Anno2"), "@Anno2"));
+        assertThat(GeneratorUtils.exists(Arrays.asList("@Anno1", "@Anno2"), "@Anno2")).isTrue();
       }
     }
   }
