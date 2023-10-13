@@ -18,6 +18,8 @@
 
 package io.github.jinganix.webpb.java.generator;
 
+import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getOpts;
+
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
@@ -25,7 +27,9 @@ import io.github.jinganix.webpb.java.utils.GeneratorUtils;
 import io.github.jinganix.webpb.java.utils.Imports;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.EnumOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.EnumValueOpts;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FileOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.JavaEnumOpts;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.JavaFileOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptEnumValueOpts;
 import io.github.jinganix.webpb.utilities.utils.OptionUtils;
 import io.github.jinganix.webpb.utilities.utils.Templates;
@@ -34,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 /** Generator for enum definition. */
@@ -45,6 +50,10 @@ public class EnumGenerator {
 
   private final Imports imports;
 
+  private final JavaFileOpts webpbOpts;
+
+  private final JavaFileOpts fileOpts;
+
   /**
    * Constructor.
    *
@@ -53,6 +62,8 @@ public class EnumGenerator {
   public EnumGenerator(FileDescriptor fileDescriptor) {
     this.fileDescriptor = fileDescriptor;
     this.imports = new Imports(fileDescriptor);
+    this.webpbOpts = OptionUtils.getWebpbOpts(fileDescriptor, FileOpts::hasJava).getJava();
+    this.fileOpts = OptionUtils.getOpts(fileDescriptor, FileOpts::hasJava).getJava();
   }
 
   /**
@@ -80,8 +91,11 @@ public class EnumGenerator {
   }
 
   private List<String> getAnnotations(EnumDescriptor enumDescriptor) {
-    JavaEnumOpts enumOpts = OptionUtils.getOpts(enumDescriptor, EnumOpts::hasJava).getJava();
-    return enumOpts.getAnnotationList().stream()
+    return Stream.of(
+            webpbOpts.getAnnotationList(),
+            fileOpts.getAnnotationList(),
+            getOpts(enumDescriptor, EnumOpts::hasJava).getJava().getAnnotationList())
+        .flatMap(List::stream)
         .map(imports::importAnnotation)
         .collect(Collectors.toList());
   }

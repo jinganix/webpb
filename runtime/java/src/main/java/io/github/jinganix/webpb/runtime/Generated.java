@@ -16,21 +16,17 @@
  * https://github.com/jinganix/webpb
  */
 
-package io.github.jinganix.webpb.sample.proto.store;
+package io.github.jinganix.webpb.runtime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.Test;
-
-class StoreVisitResponseTest {
-
-  @Test
-  void test() {
-    StoreVisitResponse response = new StoreVisitResponse().setStore(null).setGreeting("hello");
-    assertNotNull(response.webpbMeta());
-    assertNull(response.getStore());
-    assertEquals("hello", response.getGreeting());
-  }
-}
+/**
+ * When this annotation appears, some code style and coverage tools will ignore and skip processing
+ * it.
+ */
+@Target({ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE})
+@Retention(RetentionPolicy.CLASS)
+public @interface Generated {}

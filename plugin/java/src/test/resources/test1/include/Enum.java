@@ -4,12 +4,14 @@
 
 package include;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 import io.github.jinganix.webpb.runtime.enumeration.EnumerationDeserializer;
 import io.github.jinganix.webpb.runtime.enumeration.EnumerationSerializer;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(using = EnumerationDeserializer.class)
 @JsonSerialize(using = EnumerationSerializer.class)
 public enum Enum implements Enumeration<Integer> {

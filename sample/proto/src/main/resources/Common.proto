@@ -7,7 +7,10 @@ option java_package = "io.github.jinganix.webpb.sample.proto.common";
 import "webpb/WebpbExtend.proto";
 import "WebpbOptions.proto";
 
+// It should be ignored by jacoco, as it is marked with @Generated
 message PageablePb {
+  option (m_opts).java = {annotation: '@Generated'};
+
   optional bool pagination = 1;
   optional int32 page = 2 [(opts).java = {annotation: '@Range(min = 1, max = 1000)'}];
   optional int32 size = 3 [(opts).java = {annotation: '@Range(min = 1, max = 10)'}];
