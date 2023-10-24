@@ -8,10 +8,10 @@
         "postinstall": "husky install"
     },
     "devDependencies": {
-        "@commitlint/config-conventional": "~17.8.0",
-        "@commitlint/cz-commitlint": "~17.8.0",
+        "@commitlint/config-conventional": "~18.0.0",
+        "@commitlint/cz-commitlint": "~18.0.0",
         "commitizen": "~4.3.0",
-        "commitlint": "~17.8.0",
+        "commitlint": "~18.0.0",
         "husky": "~8.0.3"
     },
     "config": {
