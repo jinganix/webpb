@@ -19,7 +19,6 @@ module.exports = {
   }),
   preset: "ts-jest",
   rootDir: "./",
-  setupFiles: ["./test/setup/jsdom.ts"],
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   testMatch: ["<rootDir>/test/**/*(*.)@(test).ts"],
 };

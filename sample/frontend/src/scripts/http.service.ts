@@ -1,5 +1,5 @@
-import axios, { Method } from "axios";
 import { WebpbMessage } from "webpb";
+import axios, { Method } from "axios";
 import { logger } from "./logger";
 
 export class HttpService {
