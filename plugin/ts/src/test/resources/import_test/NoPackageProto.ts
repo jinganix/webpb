@@ -49,6 +49,7 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
 
   protected constructor(p?: INoPackage) {
     Webpb.assign(p, this, []);
+    p?.test !== undefined && (this.test = NoPackageTest.create(p.test));
     this.webpbMeta = () => (p && {
       class: "NoPackage",
       context: "",

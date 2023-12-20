@@ -20,6 +20,7 @@ export class ImportTest extends NoPackageProto.NoPackage implements IImportTest,
   protected constructor(p?: IImportTest) {
     super();
     Webpb.assign(p, this, []);
+    p?.no_package !== undefined && (this.no_package = NoPackageProto.NoPackage.create(p.no_package));
     this.webpbMeta = () => (p && {
       class: "ImportTest",
       context: "",

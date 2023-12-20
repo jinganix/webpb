@@ -168,7 +168,7 @@ public class MessageGenerator {
       if (isAutoAlias(descriptor, fieldDescriptor)) {
         return true;
       }
-      if (!DescriptorUtils.isMessage(fieldDescriptor)) {
+      if (!isMessage(fieldDescriptor)) {
         continue;
       }
       if (hasAlias(fieldDescriptor.getMessageType())) {
@@ -214,7 +214,7 @@ public class MessageGenerator {
     List<Map<String, String>> aliasMsgs = new ArrayList<>();
     for (FieldDescriptor field : descriptor.getFields()) {
       FieldDescriptor value = field.isMapField() ? getMapValueDescriptor(field) : field;
-      if (!DescriptorUtils.isMessage(value)) {
+      if (!isMessage(value)) {
         continue;
       }
       String type = toType(value, false);
@@ -284,6 +284,13 @@ public class MessageGenerator {
       data.put("type", getFieldType(field));
       data.put("name", field.getName());
       data.put("optional", field.isOptional());
+      if (containsMessage(field)) {
+        String msgType = toType(field.isMapField() ? getMapValueDescriptor(field) : field, false);
+        if (!UNKNOWN.equals(msgType)) {
+          data.put("msgType", msgType);
+        }
+      }
+      data.put("collection", field.isMapField() ? "map" : field.isRepeated() ? "list" : "none");
       if (field.hasDefaultValue()) {
         Object value = field.getDefaultValue();
         data.put("default", field.getJavaType() == STRING ? "\"" + value + "\"" : value);
@@ -302,6 +309,19 @@ public class MessageGenerator {
       return toType(field, true) + "[]";
     }
     return toType(field, true);
+  }
+
+  private boolean containsMessage(FieldDescriptor field) {
+    if (!isMessage(field)) {
+      return false;
+    }
+    field = field.isMapField() ? getMapValueDescriptor(field) : field;
+    FieldDescriptor.Type type = field.getType();
+    if (TYPES.containsKey(type)) {
+      return false;
+    }
+    String fullName = getFieldTypeFullName(field);
+    return !"google.protobuf.Any".equals(fullName);
   }
 
   private String toType(FieldDescriptor field, boolean toI) {

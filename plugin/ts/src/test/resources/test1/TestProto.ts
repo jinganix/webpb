@@ -62,6 +62,8 @@ export class Test2 extends AbstractClass implements ITest2, Webpb.WebpbMessage {
   protected constructor(p?: ITest2) {
     super();
     Webpb.assign(p, this, []);
+    p?.test3 !== undefined && (this.test3 = Test6.create(p.test3));
+    p?.test4 !== undefined && (this.test4 = Webpb.mapValues(p.test4, x => Test1.create(x)));
     this.webpbMeta = () => (p && {
       class: "Test2",
       context: "/test",
@@ -210,6 +212,15 @@ export class Test implements ITest, Webpb.WebpbMessage {
 
   protected constructor(p?: ITest) {
     Webpb.assign(p, this, ["test1", "test9"]);
+    p?.test2 !== undefined && (this.test2 = IncludeProto.Message.create(p.test2));
+    p?.test4 !== undefined && (this.test4 = Test4.create(p.test4));
+    p?.test6 !== undefined && (this.test6 = Webpb.mapValues(p.test6, x => IncludeProto.Message.create(x)));
+    p?.test8 !== undefined && (this.test8 = Test.NestedTest.create(p.test8));
+    p?.test11 !== undefined && (this.test11 = p.test11.map(x => IncludeProto.Message.create(x)));
+    p?.test12 !== undefined && (this.test12 = IncludeProto.Message.Nested.create(p.test12));
+    p?.test13 !== undefined && (this.test13 = p.test13.map(x => Include2Proto.Message.create(x)));
+    p?.test14 !== undefined && (this.test14 = Include2Proto.Message.Nested.create(p.test14));
+    p?.test17 !== undefined && (this.test17 = Test.Test17.create(p.test17));
     this.webpbMeta = () => (p && {
       class: "Test",
       context: "/test",
@@ -224,14 +235,14 @@ export class Test implements ITest, Webpb.WebpbMessage {
 
   static fromAlias(data: Record<string, unknown>): Test {
     const p = Webpb.toAlias(data, {});
-    p.test11 && (p.test11 = p.test11.map(e => IncludeProto.Message.fromAlias(e)));
+    p.test11 && (p.test11 = p.test11.map(x => IncludeProto.Message.fromAlias(x)));
     p.test12 && (p.test12 = IncludeProto.Message.Nested.fromAlias(p.test12));
-    p.test13 && (p.test13 = p.test13.map(e => Include2Proto.Message.fromAlias(e)));
+    p.test13 && (p.test13 = p.test13.map(x => Include2Proto.Message.fromAlias(x)));
     p.test14 && (p.test14 = Include2Proto.Message.Nested.fromAlias(p.test14));
     p.test17 && (p.test17 = Test.Test17.fromAlias(p.test17));
     p.test2 && (p.test2 = IncludeProto.Message.fromAlias(p.test2));
     p.test4 && (p.test4 = Test4.fromAlias(p.test4));
-    p.test6 && (p.test6 = Webpb.mapValues(p.test6, e => IncludeProto.Message.fromAlias(e)));
+    p.test6 && (p.test6 = Webpb.mapValues(p.test6, x => IncludeProto.Message.fromAlias(x)));
     p.test8 && (p.test8 = Test.NestedTest.fromAlias(p.test8));
     return Test.create(p);
   }
