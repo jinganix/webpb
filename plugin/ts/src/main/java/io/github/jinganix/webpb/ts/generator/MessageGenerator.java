@@ -281,7 +281,7 @@ public class MessageGenerator {
     List<Map<String, Object>> fields = new ArrayList<>();
     for (FieldDescriptor field : descriptor.getFields()) {
       Map<String, Object> data = new HashMap<>();
-      data.put("type", getFieldTsType(field));
+      data.put("type", getFieldType(field));
       data.put("name", field.getName());
       data.put("optional", field.isOptional());
       if (containsMessage(field)) {
@@ -300,7 +300,7 @@ public class MessageGenerator {
     return fields;
   }
 
-  private String getFieldTsType(FieldDescriptor field) {
+  private String getFieldType(FieldDescriptor field) {
     if (field.isMapField()) {
       FieldDescriptor key = getMapKeyDescriptor(field);
       FieldDescriptor value = getMapValueDescriptor(field);
