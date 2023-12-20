@@ -54,6 +54,8 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel2) {
     Webpb.assign(p, this, []);
+    p?.test2 !== undefined && (this.test2 = Level3.create(p.test2));
+    p?.test3 !== undefined && (this.test3 = p.test3.map(x => Level3.create(x)));
     this.webpbMeta = () => (p && {
       class: "Level2",
       context: "",
@@ -73,16 +75,19 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
       "c": "test3",
     });
     p.test2 && (p.test2 = Level3.fromAlias(p.test2));
-    p.test3 && (p.test3 = p.test3.map(e => Level3.fromAlias(e)));
+    p.test3 && (p.test3 = p.test3.map(x => Level3.fromAlias(x)));
     return Level2.create(p);
   }
 
   toWebpbAlias(): unknown {
-    return Webpb.toAlias(this, {
+    const p = Webpb.toAlias(this, {
       "test1": "a",
       "test2": "b",
       "test3": "c",
     });
+    p.b && (p.b = p.b.toWebpbAlias());
+    p.c && (p.c = p.c.map(x => x.toWebpbAlias()));
+    return p;
   }
 }
 
@@ -106,6 +111,11 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel1) {
     Webpb.assign(p, this, []);
+    p?.test2 !== undefined && (this.test2 = Level2.create(p.test2));
+    p?.test3 !== undefined && (this.test3 = p.test3.map(x => Level2.create(x)));
+    p?.test4 !== undefined && (this.test4 = Level3.create(p.test4));
+    p?.test5 !== undefined && (this.test5 = Webpb.mapValues(p.test5, x => Level3.create(x)));
+    p?.test6 !== undefined && (this.test6 = Webpb.mapValues(p.test6, x => Level3.create(x)));
     this.webpbMeta = () => (p && {
       class: "Level1",
       context: "",
@@ -128,15 +138,15 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
       "f": "test6",
     });
     p.test2 && (p.test2 = Level2.fromAlias(p.test2));
-    p.test3 && (p.test3 = p.test3.map(e => Level2.fromAlias(e)));
+    p.test3 && (p.test3 = p.test3.map(x => Level2.fromAlias(x)));
     p.test4 && (p.test4 = Level3.fromAlias(p.test4));
-    p.test5 && (p.test5 = Webpb.mapValues(p.test5, e => Level3.fromAlias(e)));
-    p.test6 && (p.test6 = Webpb.mapValues(p.test6, e => Level3.fromAlias(e)));
+    p.test5 && (p.test5 = Webpb.mapValues(p.test5, x => Level3.fromAlias(x)));
+    p.test6 && (p.test6 = Webpb.mapValues(p.test6, x => Level3.fromAlias(x)));
     return Level1.create(p);
   }
 
   toWebpbAlias(): unknown {
-    return Webpb.toAlias(this, {
+    const p = Webpb.toAlias(this, {
       "test1": "a",
       "test2": "b",
       "test3": "c",
@@ -144,5 +154,11 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
       "test5": "e",
       "test6": "f",
     });
+    p.b && (p.b = p.b.toWebpbAlias());
+    p.c && (p.c = p.c.map(x => x.toWebpbAlias()));
+    p.d && (p.d = p.d.toWebpbAlias());
+    p.e && (p.e = Webpb.mapValues(p.e, x => x.toWebpbAlias()));
+    p.f && (p.f = Webpb.mapValues(p.f, x => x.toWebpbAlias()));
+    return p;
   }
 }

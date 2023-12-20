@@ -20,7 +20,6 @@ package io.github.jinganix.webpb.ts.generator;
 
 import static io.github.jinganix.webpb.utilities.test.TestUtils.createRequest;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.tests.Dump;
@@ -29,10 +28,8 @@ import io.github.jinganix.webpb.utilities.test.TestUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -81,25 +78,6 @@ class GeneratorTest {
           expected = null;
         }
         assertThat(generator.generate(fileDescriptor)).isEqualTo(expected);
-      }
-    }
-  }
-
-  @Test
-  void test() {
-    for (Dump dump : Dump.values()) {
-      RequestContext context = createRequest(dump);
-      Generator generator = Generator.create();
-      for (FileDescriptor fileDescriptor : context.getTargetDescriptors()) {
-        String content = generator.generate(fileDescriptor);
-        if (StringUtils.isEmpty(content)) {
-          continue;
-        }
-        String prefix = "/" + dump.name().toLowerCase() + "/";
-        String filename = prefix + fileDescriptor.getPackage() + ".ts";
-        String expected = TestUtils.readFile(filename);
-
-        assertEquals(expected, content);
       }
     }
   }

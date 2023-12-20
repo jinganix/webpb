@@ -1,3 +1,4 @@
+import utils.Props.jacocoMinCoverage
 import utils.createConfiguration
 import utils.extractDependencies
 
@@ -69,7 +70,7 @@ val coverageVerification by tasks.registering(JacocoCoverageVerification::class)
   generateJacocoReport(this)
 
   violationRules {
-    rule { limit { minimum = BigDecimal.valueOf(utils.Props.jacocoMinCoverage) } }
+    rule { limit { minimum = BigDecimal.valueOf(jacocoMinCoverage) } }
   }
 }
 

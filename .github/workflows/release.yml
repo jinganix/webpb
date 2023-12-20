@@ -113,7 +113,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ACTION_TOKEN }}
 
-
   bump-snapshot:
     name: Bump snapshot version
     needs: [update-release]
