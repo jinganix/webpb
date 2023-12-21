@@ -12,6 +12,7 @@ jobs:
   commitlint:
     name: Check Commit Message
     runs-on: ubuntu-latest
+    if: "${{ !startsWith(github.event.pull_request.title, 'chore: release') }}"
     steps:
       - uses: actions/checkout@v4
         with:
