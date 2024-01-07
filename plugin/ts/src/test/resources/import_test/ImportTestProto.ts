@@ -20,24 +20,27 @@ export class ImportTest extends NoPackageProto.NoPackage implements IImportTest,
   protected constructor(p?: IImportTest) {
     super();
     Webpb.assign(p, this, []);
-    p?.no_package !== undefined && (this.no_package = NoPackageProto.NoPackage.create(p.no_package));
-    this.webpbMeta = () => (p && {
-      class: "ImportTest",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    p?.no_package && (this.no_package = NoPackageProto.NoPackage.create(p.no_package));
+    this.webpbMeta = () =>
+      ({
+        class: "ImportTest",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IImportTest): ImportTest {
+  static create(p?: IImportTest): ImportTest {
     return new ImportTest(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): ImportTest {
-    return ImportTest.create(data as any);
+  static fromAlias(data?: unknown): ImportTest {
+    const p = data as Record<string, unknown>;
+    p?.no_package && (p.no_package = NoPackageProto.NoPackage.fromAlias(p.no_package));
+    return Object.assign(new ImportTest(), p);
   }
 
   toWebpbAlias(): unknown {
-    return this;
+    return Webpb.toAlias(this, {});
   }
 }

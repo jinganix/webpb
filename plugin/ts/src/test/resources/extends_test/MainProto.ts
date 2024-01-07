@@ -20,20 +20,21 @@ export class Main1 extends Extends2Proto.Extends implements IMain1, Webpb.WebpbM
   protected constructor(p?: IMain1) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Main1",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Main1",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IMain1): Main1 {
+  static create(p?: IMain1): Main1 {
     return new Main1(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Main1 {
-    return Main1.create(data as any);
+  static fromAlias(data?: unknown): IMain1 {
+    return Main1.create(data as IMain1);
   }
 
   toWebpbAlias(): unknown {
@@ -54,20 +55,21 @@ export class Main2 extends ExtendsProto.Extends implements IMain2, Webpb.WebpbMe
   protected constructor(p?: IMain2) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Main2",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Main2",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IMain2): Main2 {
+  static create(p?: IMain2): Main2 {
     return new Main2(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Main2 {
-    return Main2.create(data as any);
+  static fromAlias(data?: unknown): IMain2 {
+    return Main2.create(data as IMain2);
   }
 
   toWebpbAlias(): unknown {
@@ -88,20 +90,21 @@ export class Main3 extends Extends2Proto.Extends implements IMain3, Webpb.WebpbM
   protected constructor(p?: IMain3) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Main3",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Main3",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IMain3): Main3 {
+  static create(p?: IMain3): Main3 {
     return new Main3(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Main3 {
-    return Main3.create(data as any);
+  static fromAlias(data?: unknown): IMain3 {
+    return Main3.create(data as IMain3);
   }
 
   toWebpbAlias(): unknown {
@@ -122,20 +125,21 @@ export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
   protected constructor(p?: IMain4) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Main4",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Main4",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IMain4): Main4 {
+  static create(p?: IMain4): Main4 {
     return new Main4(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Main4 {
-    return Main4.create(data as any);
+  static fromAlias(data?: unknown): IMain4 {
+    return Main4.create(data as IMain4);
   }
 
   toWebpbAlias(): unknown {

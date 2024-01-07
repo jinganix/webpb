@@ -14,20 +14,21 @@ export class IgnoreTest implements IIgnoreTest, Webpb.WebpbMessage {
 
   protected constructor(p?: IIgnoreTest) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "IgnoreTest",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "IgnoreTest",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IIgnoreTest): IgnoreTest {
+  static create(p?: IIgnoreTest): IgnoreTest {
     return new IgnoreTest(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): IgnoreTest {
-    return IgnoreTest.create(data as any);
+  static fromAlias(data?: unknown): IIgnoreTest {
+    return IgnoreTest.create(data as IIgnoreTest);
   }
 
   toWebpbAlias(): unknown {

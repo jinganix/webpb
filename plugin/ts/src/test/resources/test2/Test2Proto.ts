@@ -18,20 +18,21 @@ export class Test implements ITest, Webpb.WebpbMessage {
 
   protected constructor(p?: ITest) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Test",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Test",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ITest): Test {
+  static create(p?: ITest): Test {
     return new Test(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Test {
-    return Test.create(data as any);
+  static fromAlias(data?: unknown): ITest {
+    return Test.create(data as ITest);
   }
 
   toWebpbAlias(): unknown {

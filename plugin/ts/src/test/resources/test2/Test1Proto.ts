@@ -10,21 +10,23 @@ export interface ITest {
 export class Test implements ITest, Webpb.WebpbMessage {
   webpbMeta: () => Webpb.WebpbMeta;
 
-  protected constructor() {
-    this.webpbMeta = () => ({
-      class: "Test",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+  protected constructor(p?: ITest) {
+    Webpb.assign(p, this, []);
+    this.webpbMeta = () =>
+      ({
+        class: "Test",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(): Test {
-    return new Test();
+  static create(p?: ITest): Test {
+    return new Test(p);
   }
 
-  static fromAlias(_data?: Record<string, unknown>): Test {
-    return Test.create();
+  static fromAlias(data?: unknown): ITest {
+    return Test.create(data as ITest);
   }
 
   toWebpbAlias(): unknown {

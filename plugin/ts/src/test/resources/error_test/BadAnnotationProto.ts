@@ -16,20 +16,21 @@ export class BadAnnotation implements IBadAnnotation, Webpb.WebpbMessage {
 
   protected constructor(p?: IBadAnnotation) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "BadAnnotation",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "BadAnnotation",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IBadAnnotation): BadAnnotation {
+  static create(p?: IBadAnnotation): BadAnnotation {
     return new BadAnnotation(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): BadAnnotation {
-    return BadAnnotation.create(data as any);
+  static fromAlias(data?: unknown): IBadAnnotation {
+    return BadAnnotation.create(data as IBadAnnotation);
   }
 
   toWebpbAlias(): unknown {

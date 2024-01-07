@@ -16,20 +16,21 @@ export class Extends implements IExtends, Webpb.WebpbMessage {
 
   protected constructor(p?: IExtends) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Extends",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Extends",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IExtends): Extends {
+  static create(p?: IExtends): Extends {
     return new Extends(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Extends {
-    return Extends.create(data as any);
+  static fromAlias(data?: unknown): IExtends {
+    return Extends.create(data as IExtends);
   }
 
   toWebpbAlias(): unknown {

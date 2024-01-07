@@ -14,20 +14,21 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel3) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Level3",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Level3",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ILevel3): Level3 {
+  static create(p?: ILevel3): Level3 {
     return new Level3(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Level3 {
-    return Level3.create(data as any);
+  static fromAlias(data?: unknown): ILevel3 {
+    return Level3.create(data as ILevel3);
   }
 
   toWebpbAlias(): unknown {
@@ -49,34 +50,35 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel2) {
     Webpb.assign(p, this, []);
-    p?.test2 !== undefined && (this.test2 = Level3.create(p.test2));
-    p?.test3 !== undefined && (this.test3 = p.test3.map(x => Level3.create(x)));
-    this.webpbMeta = () => (p && {
-      class: "Level2",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    p?.test2 && (this.test2 = Level3.create(p.test2));
+    p?.test3 && (this.test3 = p.test3.map((x) => Level3.create(x)));
+    this.webpbMeta = () =>
+      ({
+        class: "Level2",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ILevel2): Level2 {
+  static create(p?: ILevel2): Level2 {
     return new Level2(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Level2 {
+  static fromAlias(data?: unknown): Level2 {
     const p = Webpb.toAlias(data, {
       "b": "test2",
-    });
-    p.test2 && (p.test2 = Level3.fromAlias(p.test2));
-    p.test3 && (p.test3 = p.test3.map(x => Level3.fromAlias(x)));
-    return Level2.create(p);
+    }) as Record<string, unknown>;
+    p?.test2 && (p.test2 = Level3.fromAlias(p.test2));
+    p?.test3 && (p.test3 = (p.test3 as Webpb.WebpbMessage[]).map((x) => Level3.fromAlias(x)));
+    return Object.assign(new Level2(), p);
   }
 
   toWebpbAlias(): unknown {
     const p = Webpb.toAlias(this, {
       "test2": "b",
-    });
-    p.b && (p.b = p.b.toWebpbAlias());
+    }) as Record<string, unknown>;
+    p.b && (p.b = (p.b as Webpb.WebpbMessage).toWebpbAlias());
     return p;
   }
 }
@@ -101,42 +103,43 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel1) {
     Webpb.assign(p, this, []);
-    p?.test2 !== undefined && (this.test2 = Level2.create(p.test2));
-    p?.test3 !== undefined && (this.test3 = p.test3.map(x => Level2.create(x)));
-    p?.test4 !== undefined && (this.test4 = Level3.create(p.test4));
-    p?.test5 !== undefined && (this.test5 = Webpb.mapValues(p.test5, x => Level3.create(x)));
-    p?.test6 !== undefined && (this.test6 = Webpb.mapValues(p.test6, x => Level3.create(x)));
-    this.webpbMeta = () => (p && {
-      class: "Level1",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    p?.test2 && (this.test2 = Level2.create(p.test2));
+    p?.test3 && (this.test3 = p.test3.map((x) => Level2.create(x)));
+    p?.test4 && (this.test4 = Level3.create(p.test4));
+    p?.test5 && (this.test5 = Webpb.mapValues(p.test5, (x) => Level3.create(x)));
+    p?.test6 && (this.test6 = Webpb.mapValues(p.test6, (x) => Level3.create(x)));
+    this.webpbMeta = () =>
+      ({
+        class: "Level1",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ILevel1): Level1 {
+  static create(p?: ILevel1): Level1 {
     return new Level1(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Level1 {
+  static fromAlias(data?: unknown): Level1 {
     const p = Webpb.toAlias(data, {
       "a": "test1",
       "e": "test5",
-    });
-    p.test2 && (p.test2 = Level2.fromAlias(p.test2));
-    p.test3 && (p.test3 = p.test3.map(x => Level2.fromAlias(x)));
-    p.test4 && (p.test4 = Level3.fromAlias(p.test4));
-    p.test5 && (p.test5 = Webpb.mapValues(p.test5, x => Level3.fromAlias(x)));
-    p.test6 && (p.test6 = Webpb.mapValues(p.test6, x => Level3.fromAlias(x)));
-    return Level1.create(p);
+    }) as Record<string, unknown>;
+    p?.test2 && (p.test2 = Level2.fromAlias(p.test2));
+    p?.test3 && (p.test3 = (p.test3 as Webpb.WebpbMessage[]).map((x) => Level2.fromAlias(x)));
+    p?.test4 && (p.test4 = Level3.fromAlias(p.test4));
+    p?.test5 && (p.test5 = Webpb.mapValues(p.test5, (x) => Level3.fromAlias(x)));
+    p?.test6 && (p.test6 = Webpb.mapValues(p.test6, (x) => Level3.fromAlias(x)));
+    return Object.assign(new Level1(), p);
   }
 
   toWebpbAlias(): unknown {
     const p = Webpb.toAlias(this, {
       "test1": "a",
       "test5": "e",
-    });
-    p.e && (p.e = Webpb.mapValues(p.e, x => x.toWebpbAlias()));
+    }) as Record<string, unknown>;
+    p.e && (p.e = Webpb.mapValues(p.e, (x) => x.toWebpbAlias()));
     return p;
   }
 }
