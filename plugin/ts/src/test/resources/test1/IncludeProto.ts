@@ -14,20 +14,21 @@ export class Message implements IMessage, Webpb.WebpbMessage {
 
   protected constructor(p?: IMessage) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Message",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Message",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IMessage): Message {
+  static create(p?: IMessage): Message {
     return new Message(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Message {
-    return Message.create(data as any);
+  static fromAlias(data?: unknown): IMessage {
+    return Message.create(data as IMessage);
   }
 
   toWebpbAlias(): unknown {
@@ -46,20 +47,21 @@ export namespace Message {
 
     protected constructor(p?: INested) {
       Webpb.assign(p, this, []);
-      this.webpbMeta = () => (p && {
-        class: "Nested",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+      this.webpbMeta = () =>
+        ({
+          class: "Nested",
+          context: "",
+          method: "",
+          path: "",
+        }) as Webpb.WebpbMeta;
     }
 
-    static create(p: INested): Nested {
+    static create(p?: INested): Nested {
       return new Nested(p);
     }
 
-    static fromAlias(data: Record<string, unknown>): Nested {
-      return Nested.create(data as any);
+    static fromAlias(data?: unknown): INested {
+      return Nested.create(data as INested);
     }
 
     toWebpbAlias(): unknown {

@@ -14,20 +14,21 @@ export class Test9 implements ITest9, Webpb.WebpbMessage {
 
   protected constructor(p?: ITest9) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Test9",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Test9",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ITest9): Test9 {
+  static create(p?: ITest9): Test9 {
     return new Test9(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Test9 {
-    return Test9.create(data as any);
+  static fromAlias(data?: unknown): ITest9 {
+    return Test9.create(data as ITest9);
   }
 
   toWebpbAlias(): unknown {

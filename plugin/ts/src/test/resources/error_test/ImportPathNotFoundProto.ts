@@ -18,20 +18,21 @@ export class ImportPathNotFound extends BadImport.Extends implements IImportPath
   protected constructor(p?: IImportPathNotFound) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "ImportPathNotFound",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "ImportPathNotFound",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: IImportPathNotFound): ImportPathNotFound {
+  static create(p?: IImportPathNotFound): ImportPathNotFound {
     return new ImportPathNotFound(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): ImportPathNotFound {
-    return ImportPathNotFound.create(data as any);
+  static fromAlias(data?: unknown): IImportPathNotFound {
+    return ImportPathNotFound.create(data as IImportPathNotFound);
   }
 
   toWebpbAlias(): unknown {

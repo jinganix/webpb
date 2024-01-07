@@ -272,7 +272,7 @@ public class MessageGenerator {
     if (value.contains(".")) {
       builder.append("Webpb.getter(p, \"").append(value).append("\")");
     } else {
-      builder.append("p.").append(value);
+      builder.append("p?.").append(value);
     }
     return builder.toString();
   }

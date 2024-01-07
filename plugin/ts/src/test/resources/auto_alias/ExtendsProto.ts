@@ -15,23 +15,24 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel3) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Level3",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Level3",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ILevel3): Level3 {
+  static create(p?: ILevel3): Level3 {
     return new Level3(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Level3 {
+  static fromAlias(data?: unknown): Level3 {
     const p = Webpb.toAlias(data, {
       "a": "foo_1",
-    });
-    return Level3.create(p);
+    }) as Record<string, unknown>;
+    return Object.assign(new Level3(), p);
   }
 
   toWebpbAlias(): unknown {
@@ -52,24 +53,25 @@ export class Level2 extends ExtendsProto.Level3 implements ILevel2, Webpb.WebpbM
   protected constructor(p?: ILevel2) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Level2",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Level2",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ILevel2): Level2 {
+  static create(p?: ILevel2): Level2 {
     return new Level2(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Level2 {
+  static fromAlias(data?: unknown): Level2 {
     const p = Webpb.toAlias(data, {
       "a": "foo_1",
       "b": "foo_2",
-    });
-    return Level2.create(p);
+    }) as Record<string, unknown>;
+    return Object.assign(new Level2(), p);
   }
 
   toWebpbAlias(): unknown {
@@ -93,26 +95,27 @@ export class Level1 extends ExtendsProto.Level2 implements ILevel1, Webpb.WebpbM
   protected constructor(p?: ILevel1) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "Level1",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "Level1",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: ILevel1): Level1 {
+  static create(p?: ILevel1): Level1 {
     return new Level1(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): Level1 {
+  static fromAlias(data?: unknown): Level1 {
     const p = Webpb.toAlias(data, {
       "b": "foo_1",
       "a": "foo_2",
       "c": "foo_3",
       "d": "foo_4",
-    });
-    return Level1.create(p);
+    }) as Record<string, unknown>;
+    return Object.assign(new Level1(), p);
   }
 
   toWebpbAlias(): unknown {

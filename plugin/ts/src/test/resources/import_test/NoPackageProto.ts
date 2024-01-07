@@ -14,20 +14,21 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
 
   protected constructor(p?: INoPackageTest) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () => (p && {
-      class: "NoPackageTest",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    this.webpbMeta = () =>
+      ({
+        class: "NoPackageTest",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: INoPackageTest): NoPackageTest {
+  static create(p?: INoPackageTest): NoPackageTest {
     return new NoPackageTest(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): NoPackageTest {
-    return NoPackageTest.create(data as any);
+  static fromAlias(data?: unknown): INoPackageTest {
+    return NoPackageTest.create(data as INoPackageTest);
   }
 
   toWebpbAlias(): unknown {
@@ -49,24 +50,27 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
 
   protected constructor(p?: INoPackage) {
     Webpb.assign(p, this, []);
-    p?.test !== undefined && (this.test = NoPackageTest.create(p.test));
-    this.webpbMeta = () => (p && {
-      class: "NoPackage",
-      context: "",
-      method: "",
-      path: "",
-    }) as Webpb.WebpbMeta;
+    p?.test && (this.test = NoPackageTest.create(p.test));
+    this.webpbMeta = () =>
+      ({
+        class: "NoPackage",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
-  static create(p: INoPackage): NoPackage {
+  static create(p?: INoPackage): NoPackage {
     return new NoPackage(p);
   }
 
-  static fromAlias(data: Record<string, unknown>): NoPackage {
-    return NoPackage.create(data as any);
+  static fromAlias(data?: unknown): NoPackage {
+    const p = data as Record<string, unknown>;
+    p?.test && (p.test = NoPackageTest.fromAlias(p.test));
+    return Object.assign(new NoPackage(), p);
   }
 
   toWebpbAlias(): unknown {
-    return this;
+    return Webpb.toAlias(this, {});
   }
 }
