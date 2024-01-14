@@ -36,6 +36,7 @@ import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
 import io.github.jinganix.webpb.processor.misc.JvmOpens;
+import io.github.jinganix.webpb.processor.misc.TreeMakerImport;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,6 +60,7 @@ public class WebpbRequestMappingProcessor extends AbstractProcessor {
     JvmOpens.addOpens(WebpbRequestMappingProcessor.class);
   }
 
+  private final TreeMakerImport treeMakerImport = new TreeMakerImport();
   private Trees trees;
   private TreeMaker treeMaker;
   private Names names;
@@ -184,7 +186,8 @@ public class WebpbRequestMappingProcessor extends AbstractProcessor {
 
   private List<JCTree> addImport(List<JCTree> trees, String identifier, String name) {
     JCTree.JCImport jcImport =
-        treeMaker.Import(
+        treeMakerImport.Import(
+            treeMaker,
             treeMaker.Select(treeMaker.Ident(names.fromString(identifier)), names.fromString(name)),
             false);
     ArrayList<JCTree> jcTrees = new ArrayList<>();
