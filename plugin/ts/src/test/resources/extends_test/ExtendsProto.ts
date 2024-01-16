@@ -14,6 +14,11 @@ export class Extends implements IExtends, Webpb.WebpbMessage {
   bar_1!: string;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Extends";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IExtends) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -22,7 +27,7 @@ export class Extends implements IExtends, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IExtends): Extends {

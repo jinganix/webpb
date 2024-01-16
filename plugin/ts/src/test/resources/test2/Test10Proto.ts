@@ -12,6 +12,11 @@ export class Test10 implements ITest10, Webpb.WebpbMessage {
   test1!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Test10";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: ITest10) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -20,7 +25,7 @@ export class Test10 implements ITest10, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ITest10): Test10 {

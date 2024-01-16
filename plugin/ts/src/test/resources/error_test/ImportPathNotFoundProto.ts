@@ -15,6 +15,11 @@ export class ImportPathNotFound extends BadImport.Extends implements IImportPath
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "ImportPathNotFound";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IImportPathNotFound) {
     super();
     Webpb.assign(p, this, []);
@@ -24,7 +29,7 @@ export class ImportPathNotFound extends BadImport.Extends implements IImportPath
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IImportPathNotFound): ImportPathNotFound {

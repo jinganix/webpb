@@ -12,6 +12,11 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
   foo!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "NoPackageTest";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: INoPackageTest) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -20,7 +25,7 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: INoPackageTest): NoPackageTest {
@@ -48,6 +53,11 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
   test!: INoPackageTest;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "NoPackage";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: INoPackage) {
     Webpb.assign(p, this, []);
     p?.test && (this.test = NoPackageTest.create(p.test));
@@ -57,7 +67,7 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: INoPackage): NoPackage {

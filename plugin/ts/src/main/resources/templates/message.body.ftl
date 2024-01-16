@@ -9,6 +9,15 @@ export class ${className}<#if extend??> extends ${extend}</#if> implements I${cl
 </#list>
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "${className}";
+  static CONTEXT = "${context}";
+  static METHOD = "${method}";
+<#if path?has_content>
+  static PATH = "${path.raw}";
+<#else>
+  static PATH = "";
+</#if>
+
   protected constructor(p?: I${className}) {
 <#if extend??>    super();
 </#if>    Webpb.assign(p, this, [<#list omitted as o>"${o}"<#sep>, </#sep></#list>]);
@@ -37,7 +46,7 @@ export class ${className}<#if extend??> extends ${extend}</#if> implements I${cl
 <#else>
         path: "",
 </#if>
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: I${className}): ${className} {
