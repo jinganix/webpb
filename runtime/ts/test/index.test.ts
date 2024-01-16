@@ -2,7 +2,9 @@ import { assign, getter, mapValues, query, toAlias } from '../src';
 
 describe('index', () => {
   it('should assign to null success', () => {
-    expect(() => assign(null, {})).not.toThrow();
+    const dest = {};
+    assign(null, dest);
+    expect(dest).toEqual({});
   });
 
   it('should assign to object success', () => {
@@ -26,14 +28,14 @@ describe('index', () => {
 
   it('should getter return null when data not object', function () {
     expect(getter('', 'a')).toEqual(null);
-    expect(getter([], 'a')).toEqual(null);
+    expect(getter([], 'a')).toEqual(undefined);
     expect(getter(0, 'a')).toEqual(null);
   });
 
   it('should getter return value success', function () {
     expect(getter({ a: 1 }, 'a')).toEqual(1);
     expect(getter({ a: { b: 1 } }, 'a.b')).toEqual(1);
-    expect(getter({ a: 1 }, 'b')).toEqual(null);
+    expect(getter({ a: 1 }, 'b')).toEqual(undefined);
   });
 
   it('should format query success', function () {

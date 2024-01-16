@@ -8,7 +8,7 @@ type AnyObject = Record<string | number, unknown>;
 export interface WebpbMessage {
   webpbMeta(): WebpbMeta;
 
-  toWebpbAlias(): any;
+  toWebpbAlias(): unknown;
 }
 
 export interface WebpbMeta {
@@ -21,21 +21,22 @@ export interface WebpbMeta {
   path: string;
 }
 
-export function assign(src: any, dest: any, omitted?: string[]): void {
-  if (src && typeof src === 'object' && typeof dest === 'object') {
-    for (let ks = Object.keys(src), i = 0; i < ks.length; ++i) {
-      if (src[ks[i]] != undefined && !isOmitted(ks[i], omitted)) {
-        dest[ks[i]] = src[ks[i]];
-      }
+export function assign(src: unknown, dest: unknown, excludes?: string[]): void {
+  if (!src || !dest || typeof src !== "object" || typeof dest !== "object") {
+    return;
+  }
+  for (const [key, value] of Object.entries(src)) {
+    if (value !== undefined && !isExcluded(key, excludes)) {
+      (dest as Record<string, unknown>)[key] = value;
     }
   }
 }
 
-function isOmitted(k: string, omitted: string[] | undefined): boolean {
-  if (!omitted) {
+function isExcluded(k: string, excludes?: string[]): boolean {
+  if (!excludes) {
     return false;
   }
-  for (const o of omitted) {
+  for (const o of excludes) {
     if (o === k) {
       return true;
     }
@@ -43,47 +44,44 @@ function isOmitted(k: string, omitted: string[] | undefined): boolean {
   return false;
 }
 
-export function getter(data: any, path: string): any {
-  if (data === null || data === undefined) {
+export function getter(data: unknown, path: string): unknown {
+  if (data === null || data === undefined || typeof data !== "object") {
     return null;
   }
-  if (typeof data !== 'object') {
-    return null;
-  }
-  for (const k of path.split('.')) {
-    data = data[k];
+  for (const key of path.split(".")) {
+    data = (data as Record<string, unknown>)[key];
     if (data === null || data === undefined) {
-      return null;
+      return data;
     }
   }
   return data;
 }
 
-export function query(pre: string, params: { [key: string]: any }): string {
-  let str = '';
-  for (const key of Object.keys(params)) {
-    const v = params[key];
-    if (v === null || v === undefined || v === '' || typeof v === 'function') {
+export function query(pre: string, params: { [key: string]: unknown }): string {
+  const queries: string[] = [];
+  for (const [key, value] of Object.entries(params)) {
+    if (value === null || value === undefined || typeof value === "function") {
       continue;
     }
-    const encoded = encodeURIComponent(v);
+    const encoded = encodeURIComponent(String(value));
     if (encoded) {
-      str += `${pre}${key}=${encodeURIComponent(v)}`;
-      pre = '&';
+      queries.push(`${key}=${encoded}`);
     }
   }
-  return str;
+  return queries.length ? `${pre}${queries.join("&")}` : "";
 }
 
-export function toAlias(data: any, aliases: { [key: string]: string }): any {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+export function toAlias(
+  data: unknown,
+  aliases: { [key: string]: string },
+): unknown {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
     return data;
   }
   const obj: Record<string, unknown> = {};
-  for (const key of Object.keys(data)) {
-    const value = data[key];
-    const toAlias = value['toAlias'];
-    if (typeof toAlias === 'function') {
+  for (const [key, value] of Object.entries(data)) {
+    const toAlias = (value as { toAlias: () => unknown })["toAlias"];
+    if (typeof toAlias === "function") {
       obj[key] = toAlias();
     } else if (aliases && aliases[key]) {
       obj[aliases[key]] = value;

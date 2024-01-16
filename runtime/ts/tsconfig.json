@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "lib": ["ES2017"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "commonjs",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -20,7 +20,7 @@
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "es6",
+    "target": "es5",
     "typeRoots": [
       "node_modules/@types"
     ]

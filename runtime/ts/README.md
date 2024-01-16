@@ -1,2 +1,5 @@
-# webpb-runtime
-Webpb runtime library for npm
+# webpb
+
+The webpb runtime library
+
+To view more, please visit: https://github.com/jinganix/webpb
