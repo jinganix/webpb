@@ -5,39 +5,70 @@ module.exports = {
     node: true,
   },
   extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:prettier/recommended",
   ],
-  parser: '@typescript-eslint/parser',
-  plugins: ['import', 'import-quotes', 'no-null', 'sort-keys-fix'],
-  root: true,
-  rules: {
-    '@typescript-eslint/camelcase': 'off',
-    '@typescript-eslint/member-delimiter-style': 'off',
-    '@typescript-eslint/no-use-before-define': 'off',
-    '@typescript-eslint/semi': 'off',
-    'import-quotes/import-quotes': [1, 'single'],
-    'import/newline-after-import': 'error',
-    'import/order': [
-      'error',
-      {
-        groups: [
-          ['builtin', 'external'],
-          'internal',
-          ['index', 'parent', 'sibling'],
+  overrides: [
+    {
+      files: ["*.ts", "*.tsx"],
+      rules: {
+        "@typescript-eslint/explicit-function-return-type": [
+          "error",
+          {
+            allowConciseArrowFunctionExpressionsStartingWithVoid: true,
+            allowDirectConstAssertionInArrowFunctions: true,
+            allowExpressions: true,
+            allowHigherOrderFunctions: true,
+            allowTypedFunctionExpressions: true,
+          },
+        ],
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            argsIgnorePattern: "_",
+          },
+        ],
+        "@typescript-eslint/quotes": [
+          "error",
+          "double",
+          {
+            allowTemplateLiterals: true,
+          },
         ],
       },
-    ],
-    'max-len': [
-      'error',
+    },
+  ],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    createDefaultProgram: true,
+    project: ["./tsconfig.json"],
+  },
+  plugins: ["import", "sort-keys-fix"],
+  root: true,
+  rules: {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
       {
-        code: 80,
+        argsIgnorePattern: "_",
+      },
+    ],
+    "import/newline-after-import": "error",
+    "import/order": [
+      "error",
+      {
+        groups: [["builtin", "external"], "internal", ["index", "parent", "sibling"]],
+      },
+    ],
+    "max-len": [
+      "error",
+      {
+        code: 100,
         ignoreStrings: true,
         ignoreUrls: true,
       },
     ],
-    'require-jsdoc': [
-      'error',
+    "require-jsdoc": [
+      "error",
       {
         require: {
           ArrowFunctionExpression: false,
@@ -48,8 +79,8 @@ module.exports = {
         },
       },
     ],
-    semi: 'off',
-    'sort-keys': ['error'],
-    'sort-keys-fix/sort-keys-fix': 'warn',
+    semi: "off",
+    "sort-keys": ["error"],
+    "sort-keys-fix/sort-keys-fix": "warn",
   },
 };
