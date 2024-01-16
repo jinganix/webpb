@@ -33,6 +33,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.Type.SINT64;
 import static com.google.protobuf.Descriptors.FieldDescriptor.Type.STRING;
 import static com.google.protobuf.Descriptors.FieldDescriptor.Type.UINT32;
 import static com.google.protobuf.Descriptors.FieldDescriptor.Type.UINT64;
+import static io.github.jinganix.webpb.java.utils.GeneratorUtils.getJavaPackage;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getGenericDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapKeyDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapValueDescriptor;
@@ -45,9 +46,7 @@ import io.github.jinganix.webpb.java.utils.GeneratorUtils;
 import io.github.jinganix.webpb.java.utils.Imports;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FileOpts;
-import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.JavaFieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.JavaFileOpts;
-import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.JavaMessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptFieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptMessageOpts;
@@ -110,7 +109,7 @@ public class MessageGenerator {
    */
   public MessageGenerator(FileDescriptor fileDescriptor) {
     this.fileDescriptor = fileDescriptor;
-    this.imports = new Imports(fileDescriptor);
+    this.imports = new Imports(getJavaPackage(fileDescriptor), Imports.getLookup(fileDescriptor));
     this.webpbOpts = OptionUtils.getWebpbOpts(fileDescriptor, FileOpts::hasJava).getJava();
     this.fileOpts = OptionUtils.getOpts(fileDescriptor, FileOpts::hasJava).getJava();
   }
@@ -152,7 +151,7 @@ public class MessageGenerator {
   private Map<String, Object> getMessageData(Descriptor descriptor, int level) {
     OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
     Map<String, Object> data = new HashMap<>();
-    data.put("msgAnnos", getMsgAnnotations(descriptor));
+    data.put("msgAnnos", getMessageAnnotations(descriptor));
     data.put("className", descriptor.getName());
     data.put("extend", getExtend(descriptor));
     data.put("implements", getImplements(descriptor));
@@ -167,13 +166,14 @@ public class MessageGenerator {
     return data;
   }
 
-  private List<String> getMsgAnnotations(Descriptor descriptor) {
+  private List<String> getMessageAnnotations(Descriptor descriptor) {
     return Stream.of(
-            webpbOpts.getAnnotationList(),
+            getOpts(descriptor, MessageOpts::hasJava).getJava().getAnnotationList(),
             fileOpts.getAnnotationList(),
-            getOpts(descriptor, MessageOpts::hasJava).getJava().getAnnotationList())
+            webpbOpts.getAnnotationList())
         .flatMap(List::stream)
         .map(imports::importAnnotation)
+        .filter(new AnnotationDistinctFilter(imports, webpbOpts.getRepeatableAnnotationList()))
         .collect(Collectors.toList());
   }
 
@@ -235,35 +235,24 @@ public class MessageGenerator {
   }
 
   private List<String> getFieldAnnotations(Descriptor descriptor, FieldDescriptor field, int i) {
-    JavaFieldOpts javaFieldOpts = getOpts(field, FieldOpts::hasJava).getJava();
-    List<String> annotations = new ArrayList<>(javaFieldOpts.getAnnotationList());
+    List<String> annotations =
+        Stream.of(
+                getOpts(field, FieldOpts::hasJava).getJava().getAnnotationList(),
+                getOpts(descriptor, MessageOpts::hasJava).getJava().getFieldAnnotationList(),
+                fileOpts.getFieldAnnotationList(),
+                webpbOpts.getFieldAnnotationList())
+            .flatMap(List::stream)
+            .map(x -> x.replace("{{_ALIAS_}}", Utils.toBase52(i)))
+            .map(x -> x.replace("{{_FIELD_NAME_}}", field.getName()))
+            .collect(Collectors.toList());
     OptFieldOpts optFieldOpts = getOpts(field, FieldOpts::hasOpt).getOpt();
     if (optFieldOpts.getInQuery()) {
       annotations.add("@" + Const.RUNTIME_PACKAGE + ".common.InQuery");
     }
-    String autoAlias = getAutoAliasAnnotation(descriptor, field);
-    if (StringUtils.isNotEmpty(autoAlias) && !GeneratorUtils.exists(annotations, autoAlias)) {
-      annotations.add(autoAlias.replace("{{_AUTO_ALIAS_}}", Utils.toBase52(i)));
-    }
-    return annotations.stream().map(imports::importAnnotation).collect(Collectors.toList());
-  }
-
-  private String getAutoAliasAnnotation(Descriptor descriptor, FieldDescriptor fieldDescriptor) {
-    JavaFieldOpts fieldOpts = getOpts(fieldDescriptor, FieldOpts::hasJava).getJava();
-    if (fieldOpts.hasAutoAlias()) {
-      return fieldOpts.getAutoAlias();
-    }
-    JavaMessageOpts messageOpts = getOpts(descriptor, MessageOpts::hasJava).getJava();
-    if (messageOpts.hasAutoAlias()) {
-      return messageOpts.getAutoAlias();
-    }
-    if (fileOpts.hasAutoAlias()) {
-      return fileOpts.getAutoAlias();
-    }
-    if (webpbOpts.hasAutoAlias()) {
-      return webpbOpts.getAutoAlias();
-    }
-    return "";
+    return annotations.stream()
+        .map(imports::importAnnotation)
+        .filter(new AnnotationDistinctFilter(imports, webpbOpts.getRepeatableAnnotationList()))
+        .collect(Collectors.toList());
   }
 
   private String toType(FieldDescriptor field) {

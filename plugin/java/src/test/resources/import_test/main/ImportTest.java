@@ -4,7 +4,6 @@
 
 package main;
 
-import NoPackage;
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbMeta;
 

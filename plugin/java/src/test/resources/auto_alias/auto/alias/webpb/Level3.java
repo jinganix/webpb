@@ -4,6 +4,7 @@
 
 package auto.alias.webpb;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.jinganix.webpb.runtime.WebpbMessage;
@@ -26,6 +27,7 @@ public class Level3 implements WebpbMessage {
   }
 
   @JsonProperty("a")
+  @JsonAlias("test1")
   private Integer test1;
 
   public Level3() {

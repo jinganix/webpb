@@ -16,15 +16,15 @@ message Level3 {
 
 message Level2 {
   required int32 test1 = 1;
-  required Level3 test2 = 2 [(opts).ts = {auto_alias: true}, (opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'}];
+  required Level3 test2 = 2 [(opts).ts = {auto_alias: true}, (opts).java = {annotation: '@JsonProperty("{{_ALIAS_}}")'}];
   repeated Level3 test3 = 3;
 }
 
 message Level1 {
-  required int32 test1 = 1 [(opts).ts = {auto_alias: true}, (opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'}];
+  required int32 test1 = 1 [(opts).ts = {auto_alias: true}, (opts).java = {annotation: '@JsonProperty("{{_ALIAS_}}")'}];
   required Level2 test2 = 2;
   repeated Level2 test3 = 3;
   required Level3 test4 = 4;
-  map<int32, Level3> test5 = 5 [(opts).ts = {auto_alias: true}, (opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'}];
+  map<int32, Level3> test5 = 5 [(opts).ts = {auto_alias: true}, (opts).java = {annotation: '@JsonProperty("{{_ALIAS_}}")'}];
   map<string, Level3> test6 = 6;
 }

@@ -4,6 +4,7 @@
 
 package auto.alias.extend;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbMeta;
@@ -23,9 +24,11 @@ public class Level1 extends Level2 implements WebpbMessage {
     return WEBPB_META;
   }
 
+  @JsonAlias("foo_3")
   @JsonProperty("c")
   private Integer foo_3;
 
+  @JsonAlias("foo_4")
   @JsonProperty("d")
   private Long foo_4;
 

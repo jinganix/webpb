@@ -8,7 +8,7 @@ import "webpb/WebpbExtend.proto";
 
 option (f_opts).ts = {auto_alias: true};
 option (f_opts).java = {
-  auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'
+  field_annotation: '@JsonProperty("{{_ALIAS_}}")'
   import: 'com.fasterxml.jackson.annotation.JsonProperty'
   import: 'lombok.ToString'
 };

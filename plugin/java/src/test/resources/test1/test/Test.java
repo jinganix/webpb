@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.ToString;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Test implements WebpbMessage {
 
   public static final String WEBPB_METHOD = "GET";

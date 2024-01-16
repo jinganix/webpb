@@ -27,7 +27,9 @@ message JavaFileOpts {
 
   repeated string annotation = 1003;
 
-  optional string auto_alias = 1004;
+  repeated string field_annotation = 1004;
+
+  repeated string repeatable_annotation = 1005;
 }
 
 message TsFileOpts {
@@ -64,7 +66,7 @@ message OptMessageOpts {
 message JavaMessageOpts {
   repeated string annotation = 1000;
 
-  optional string auto_alias = 1001;
+  repeated string field_annotation = 1001;
 }
 
 message TsMessageOpts {
@@ -113,8 +115,6 @@ message OptFieldOpts {
 
 message JavaFieldOpts {
   repeated string annotation = 1000;
-
-  optional string auto_alias = 1001;
 }
 
 message TsFieldOpts {
