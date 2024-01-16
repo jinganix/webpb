@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package AliasSkipProto;
+
+option java_package = "alias_skip";
+
+message AliasSkip {
+  required int32 a = 1;
+  required int32 b = 2;
+}

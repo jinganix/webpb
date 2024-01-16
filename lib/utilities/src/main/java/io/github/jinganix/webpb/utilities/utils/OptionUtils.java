@@ -38,9 +38,13 @@ import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptEnumValueOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptMessageOpts;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 /** Utilities to handle options. */
@@ -232,6 +236,7 @@ public class OptionUtils {
     do {
       OptMessageOpts messageOpts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
       if (!messageOpts.hasExtends()) {
+        Collections.reverse(descriptors);
         return descriptors;
       }
       descriptor = resolveMessage(descriptor.getFile(), messageOpts.getExtends());
@@ -242,13 +247,35 @@ public class OptionUtils {
   }
 
   /**
-   * Get extended fields of a message.
+   * Throw an exception when there are duplicated fields.
    *
    * @param descriptor {@link Descriptor}
-   * @return extended fields
    */
-  public static List<FieldDescriptor> getExtendedFields(Descriptor descriptor) {
-    return getExtendedMessages(descriptor).stream()
+  public static void checkDuplicatedFields(Descriptor descriptor) {
+    List<FieldDescriptor> fieldDescriptors = OptionUtils.getAllFields(descriptor);
+    Set<String> fieldNames = new HashSet<>();
+    for (FieldDescriptor fieldDescriptor : fieldDescriptors) {
+      if (fieldNames.contains(fieldDescriptor.getName())) {
+        throw new RuntimeException(
+            String.format(
+                "Duplicated field name `%s.%s` in %s",
+                descriptor.getName(),
+                fieldDescriptor.getName(),
+                fieldDescriptor.getFile().getFullName()));
+      }
+      fieldNames.add(fieldDescriptor.getName());
+    }
+  }
+
+  /**
+   * Get fields of message and the extended message.
+   *
+   * @param descriptor {@link Descriptor}
+   * @return all fields
+   */
+  public static List<FieldDescriptor> getAllFields(Descriptor descriptor) {
+    return Stream.of(getExtendedMessages(descriptor), Collections.singletonList(descriptor))
+        .flatMap(List::stream)
         .map(Descriptor::getFields)
         .flatMap(List::stream)
         .collect(Collectors.toList());
