@@ -16,6 +16,11 @@ export class Test1 implements ITest1, Webpb.WebpbMessage {
   test2!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Test1";
+  static CONTEXT = "/test";
+  static METHOD = "GET";
+  static PATH = "/test?a=123&b={test1}&c=321&d={test2}&e=456";
+
   protected constructor(p?: ITest1) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -30,7 +35,7 @@ export class Test1 implements ITest1, Webpb.WebpbMessage {
           "d": p?.test2,
           "e": "456",
         })}`,
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ITest1): Test1 {
@@ -60,6 +65,11 @@ export class Test2 extends AbstractClass implements ITest2, Webpb.WebpbMessage {
   test4!: Record<number, ITest1>;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Test2";
+  static CONTEXT = "/test";
+  static METHOD = "GET";
+  static PATH = "/test/{test2}?id={test1}&data1={test3.test1}&data2={test3.test2}";
+
   protected constructor(p?: ITest2) {
     super();
     Webpb.assign(p, this, []);
@@ -75,7 +85,7 @@ export class Test2 extends AbstractClass implements ITest2, Webpb.WebpbMessage {
           "data1": Webpb.getter(p, "test3.test1"),
           "data2": Webpb.getter(p, "test3.test2"),
         })}`,
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ITest2): Test2 {
@@ -108,6 +118,11 @@ export class Test4 implements ITest4, Webpb.WebpbMessage {
   test4!: string[];
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Test4";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: ITest4) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -116,7 +131,7 @@ export class Test4 implements ITest4, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ITest4): Test4 {
@@ -149,6 +164,11 @@ export class Test6 implements ITest6, Webpb.WebpbMessage {
   test2?: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Test6";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: ITest6) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -157,7 +177,7 @@ export class Test6 implements ITest6, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ITest6): Test6 {
@@ -217,6 +237,11 @@ export class Test implements ITest, Webpb.WebpbMessage {
   test19: string = "test19";
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Test";
+  static CONTEXT = "/test";
+  static METHOD = "GET";
+  static PATH = "/test/{test1}";
+
   protected constructor(p?: ITest) {
     Webpb.assign(p, this, ["test1", "test9"]);
     p?.test2 && (this.test2 = IncludeProto.Message.create(p.test2));
@@ -234,7 +259,7 @@ export class Test implements ITest, Webpb.WebpbMessage {
         context: "/test",
         method: "GET",
         path: `/test/${p?.test1}`,
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ITest): Test {
@@ -269,6 +294,11 @@ export namespace Test {
     test1!: number;
     webpbMeta: () => Webpb.WebpbMeta;
 
+    static CLASS = "NestedTest";
+    static CONTEXT = "/test";
+    static METHOD = "GET";
+    static PATH = "/test/nested/{test1}";
+
     protected constructor(p?: INestedTest) {
       Webpb.assign(p, this, []);
       this.webpbMeta = () =>
@@ -277,7 +307,7 @@ export namespace Test {
           context: "/test",
           method: "GET",
           path: `/test/nested/${p?.test1}`,
-        }) as Webpb.WebpbMeta;
+        } as Webpb.WebpbMeta);
     }
 
     static create(p?: INestedTest): NestedTest {
@@ -301,6 +331,11 @@ export namespace Test {
     test!: string;
     webpbMeta: () => Webpb.WebpbMeta;
 
+    static CLASS = "Test17";
+    static CONTEXT = "";
+    static METHOD = "";
+    static PATH = "";
+
     protected constructor(p?: ITest17) {
       Webpb.assign(p, this, []);
       this.webpbMeta = () =>
@@ -309,7 +344,7 @@ export namespace Test {
           context: "",
           method: "",
           path: "",
-        }) as Webpb.WebpbMeta;
+        } as Webpb.WebpbMeta);
     }
 
     static create(p?: ITest17): Test17 {

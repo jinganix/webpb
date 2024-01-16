@@ -17,6 +17,11 @@ export class Main1 extends Extends2Proto.Extends implements IMain1, Webpb.WebpbM
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Main1";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IMain1) {
     super();
     Webpb.assign(p, this, []);
@@ -26,7 +31,7 @@ export class Main1 extends Extends2Proto.Extends implements IMain1, Webpb.WebpbM
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IMain1): Main1 {
@@ -52,6 +57,11 @@ export class Main2 extends ExtendsProto.Extends implements IMain2, Webpb.WebpbMe
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Main2";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IMain2) {
     super();
     Webpb.assign(p, this, []);
@@ -61,7 +71,7 @@ export class Main2 extends ExtendsProto.Extends implements IMain2, Webpb.WebpbMe
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IMain2): Main2 {
@@ -87,6 +97,11 @@ export class Main3 extends Extends2Proto.Extends implements IMain3, Webpb.WebpbM
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Main3";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IMain3) {
     super();
     Webpb.assign(p, this, []);
@@ -96,7 +111,7 @@ export class Main3 extends Extends2Proto.Extends implements IMain3, Webpb.WebpbM
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IMain3): Main3 {
@@ -122,6 +137,11 @@ export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Main4";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IMain4) {
     super();
     Webpb.assign(p, this, []);
@@ -131,7 +151,7 @@ export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IMain4): Main4 {

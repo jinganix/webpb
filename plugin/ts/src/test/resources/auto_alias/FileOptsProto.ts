@@ -12,6 +12,11 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
   test1!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Level3";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: ILevel3) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -20,7 +25,7 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ILevel3): Level3 {
@@ -53,6 +58,11 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
   test3!: ILevel3[];
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Level2";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: ILevel2) {
     Webpb.assign(p, this, []);
     p?.test2 && (this.test2 = Level3.create(p.test2));
@@ -63,7 +73,7 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ILevel2): Level2 {
@@ -111,6 +121,11 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
   test6!: Record<string, ILevel3>;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Level1";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: ILevel1) {
     Webpb.assign(p, this, []);
     p?.test2 && (this.test2 = Level2.create(p.test2));
@@ -124,7 +139,7 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: ILevel1): Level1 {

@@ -17,6 +17,11 @@ export class ImportTest extends NoPackageProto.NoPackage implements IImportTest,
   no_package!: NoPackageProto.INoPackage;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "ImportTest";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IImportTest) {
     super();
     Webpb.assign(p, this, []);
@@ -27,7 +32,7 @@ export class ImportTest extends NoPackageProto.NoPackage implements IImportTest,
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IImportTest): ImportTest {

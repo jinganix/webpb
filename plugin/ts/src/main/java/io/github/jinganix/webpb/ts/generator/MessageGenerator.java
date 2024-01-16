@@ -238,6 +238,7 @@ public class MessageGenerator {
     SegmentGroup group = SegmentGroup.of(path);
     DescriptorUtils.validation(group, descriptor);
     Map<String, Object> data = new HashMap<>();
+    data.put("raw", path);
     data.put("url", formatUrl(group));
     data.put("queries", getQueries(group));
     return data;

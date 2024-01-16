@@ -12,6 +12,11 @@ export class Message implements IMessage, Webpb.WebpbMessage {
   id!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
+  static CLASS = "Message";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
   protected constructor(p?: IMessage) {
     Webpb.assign(p, this, []);
     this.webpbMeta = () =>
@@ -20,7 +25,7 @@ export class Message implements IMessage, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IMessage): Message {
@@ -45,6 +50,11 @@ export namespace Message {
     test1!: number;
     webpbMeta: () => Webpb.WebpbMeta;
 
+    static CLASS = "Nested";
+    static CONTEXT = "";
+    static METHOD = "";
+    static PATH = "";
+
     protected constructor(p?: INested) {
       Webpb.assign(p, this, []);
       this.webpbMeta = () =>
@@ -53,7 +63,7 @@ export namespace Message {
           context: "",
           method: "",
           path: "",
-        }) as Webpb.WebpbMeta;
+        } as Webpb.WebpbMeta);
     }
 
     static create(p?: INested): Nested {
