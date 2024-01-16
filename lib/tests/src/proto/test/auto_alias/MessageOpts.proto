@@ -12,7 +12,7 @@ option (f_opts).java = {
 
 message Level3 {
   option (m_opts).ts = {auto_alias: true};
-  option (m_opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'};
+  option (m_opts).java = {field_annotation: '@JsonProperty("{{_ALIAS_}}")'};
 
   required int32 test1 = 1;
 }
@@ -25,7 +25,7 @@ message Level2 {
 
 message Level1 {
   option (m_opts).ts = {auto_alias: true};
-  option (m_opts).java = {auto_alias: '@JsonProperty("{{_AUTO_ALIAS_}}")'};
+  option (m_opts).java = {field_annotation: '@JsonProperty("{{_ALIAS_}}")'};
 
   required int32 test1 = 1;
   required Level2 test2 = 2;

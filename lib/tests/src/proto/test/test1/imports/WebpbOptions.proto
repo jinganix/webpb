@@ -7,18 +7,19 @@ option (f_opts).java = {
   annotation: '@JsonIgnoreProperties(ignoreUnknown = true)'
   gen_getter: false
   gen_setter: false
+  import: 'com.fasterxml.jackson.annotation.JsonAlias'
   import: 'com.fasterxml.jackson.annotation.JsonIgnoreProperties'
   import: 'com.fasterxml.jackson.annotation.JsonProperty'
   import: 'com.fasterxml.jackson.databind.annotation.JsonDeserialize'
   import: 'com.fasterxml.jackson.databind.annotation.JsonSerialize'
   import: 'com.fasterxml.jackson.databind.ser.std.ToStringSerializer'
+  import: 'io.github.jinganix.webpb.runtime.enumeration.EnumerationDeserializer'
+  import: 'io.github.jinganix.webpb.runtime.enumeration.EnumerationSerializer'
   import: 'jakarta.validation.constraints.NotNull'
   import: 'java.util.regex.Pattern'
   import: 'lombok.ToString'
-  import: 'io.github.jinganix.webpb.runtime.enumeration.EnumerationDeserializer'
-  import: 'io.github.jinganix.webpb.runtime.enumeration.EnumerationSerializer'
-  import: 'test.message.AbstractClass'
   import: 'test.InterfaceA'
+  import: 'test.message.AbstractClass'
   import: 'test.message.InterfaceB'
 };
 

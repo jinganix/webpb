@@ -18,12 +18,12 @@
 
 package io.github.jinganix.webpb.java.generator;
 
+import static io.github.jinganix.webpb.java.utils.GeneratorUtils.getJavaPackage;
 import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getOpts;
 
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
-import io.github.jinganix.webpb.java.utils.GeneratorUtils;
 import io.github.jinganix.webpb.java.utils.Imports;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.EnumOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.EnumValueOpts;
@@ -61,7 +61,7 @@ public class EnumGenerator {
    */
   public EnumGenerator(FileDescriptor fileDescriptor) {
     this.fileDescriptor = fileDescriptor;
-    this.imports = new Imports(fileDescriptor);
+    this.imports = new Imports(getJavaPackage(fileDescriptor), Imports.getLookup(fileDescriptor));
     this.webpbOpts = OptionUtils.getWebpbOpts(fileDescriptor, FileOpts::hasJava).getJava();
     this.fileOpts = OptionUtils.getOpts(fileDescriptor, FileOpts::hasJava).getJava();
   }
@@ -75,7 +75,7 @@ public class EnumGenerator {
   public String generate(EnumDescriptor enumDescriptor) {
     Map<String, Object> data = new HashMap<>();
     data.put("filename", enumDescriptor.getFile().getName());
-    data.put("package", GeneratorUtils.getJavaPackage(this.fileDescriptor));
+    data.put("package", getJavaPackage(this.fileDescriptor));
     data.put("msgAnnos", getAnnotations(enumDescriptor));
     data.put("className", enumDescriptor.getName());
     data.put("implements", getImplements(enumDescriptor));

@@ -11,8 +11,8 @@ import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbMeta;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Test4 implements WebpbMessage {
 
   public static final String WEBPB_METHOD = "";

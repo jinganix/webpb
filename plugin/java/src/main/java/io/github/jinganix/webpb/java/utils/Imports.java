@@ -41,7 +41,7 @@ public class Imports {
 
   private final List<ImportPath> imported = new ArrayList<>();
 
-  private final FileDescriptor fileDescriptor;
+  private final String javaPackage;
 
   private final List<ImportPath> lookup;
 
@@ -50,15 +50,22 @@ public class Imports {
   /**
    * Constructor.
    *
-   * @param fileDescriptor {@link FileDescriptor}
+   * @param javaPackage java package
+   * @param lookup list of {@link ImportPath}
    */
-  public Imports(FileDescriptor fileDescriptor) {
-    this.fileDescriptor = fileDescriptor;
-    this.lookup = getLookup(fileDescriptor);
+  public Imports(String javaPackage, List<ImportPath> lookup) {
+    this.javaPackage = javaPackage;
+    this.lookup = lookup;
     this.importMapper = new ImportMapper();
   }
 
-  private static List<ImportPath> getLookup(FileDescriptor fd) {
+  /**
+   * Get lookup paths.
+   *
+   * @param fd {@link FileDescriptor}
+   * @return list of {@link ImportPath}
+   */
+  public static List<ImportPath> getLookup(FileDescriptor fd) {
     return Stream.of(
             Arrays.asList(
                 "java.lang.Integer",
@@ -132,9 +139,6 @@ public class Imports {
     FileDescriptor fd = descriptor.getFile();
     String packageName = fd.getPackage();
     String relative = descriptor.getFullName().replace(packageName + ".", "");
-    if (this.fileDescriptor == fd) {
-      return relative;
-    }
     String prefix =
         StringUtils.isEmpty(GeneratorUtils.getJavaPackage(fd))
             ? ""
@@ -142,6 +146,22 @@ public class Imports {
     String fullPath = prefix + relative;
     String importPath = prefix + relative.split("\\.")[0];
     return checkAndImport(fullPath, importPath, relative);
+  }
+
+  /**
+   * Find qualified name in imported paths.
+   *
+   * @param name qualified or simple name
+   * @return qualified name or itself
+   */
+  public String importedQualifiedName(String name) {
+    for (ImportPath importPath : imported) {
+      String relative = importPath.relative(name);
+      if (relative != null) {
+        return importPath.getPath();
+      }
+    }
+    return name;
   }
 
   /**
@@ -164,7 +184,7 @@ public class Imports {
     String mapped = importMapper.map(importPath);
     int index = mapped.lastIndexOf(".");
     String importPackage = index < 0 ? mapped : mapped.substring(0, index);
-    if (importPackage.equals(GeneratorUtils.getJavaPackage(this.fileDescriptor))) {
+    if (importPackage.equals(this.javaPackage) || importPackage.equals(importPath)) {
       return relative;
     }
     String identifier = relative.split("\\.")[0];

@@ -18,44 +18,12 @@
 
 package io.github.jinganix.webpb.java.utils;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.google.protobuf.Descriptors;
-import java.util.List;
-import java.util.Objects;
 
 /** GeneratorUtils. */
 public class GeneratorUtils {
 
-  private static final JavaParser JAVA_PARSER = new JavaParser();
-
   private GeneratorUtils() {}
-
-  /**
-   * Check whether annotation exists in annotations.
-   *
-   * @param annotations list of annotations
-   * @param annotation annotation
-   * @return true if exists
-   */
-  public static boolean exists(List<String> annotations, String annotation) {
-    AnnotationExpr expr =
-        JAVA_PARSER
-            .parseAnnotation(annotation)
-            .getResult()
-            .orElseThrow(() -> new RuntimeException("Bad annotation:" + annotation));
-    for (String anno : annotations) {
-      AnnotationExpr iter =
-          JAVA_PARSER
-              .parseAnnotation(anno)
-              .getResult()
-              .orElseThrow(() -> new RuntimeException("Bad annotation:" + anno));
-      if (Objects.equals(iter.getName(), expr.getName())) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   public static String getJavaPackage(Descriptors.GenericDescriptor descriptor) {
     return descriptor.getFile().getOptions().getJavaPackage();
