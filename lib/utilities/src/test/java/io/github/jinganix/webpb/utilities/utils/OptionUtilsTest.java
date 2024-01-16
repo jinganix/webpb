@@ -21,6 +21,8 @@ package io.github.jinganix.webpb.utilities.utils;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveEnum;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveFile;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveMessage;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,6 +45,8 @@ import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FileOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.test.TestUtils;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -239,5 +243,39 @@ class OptionUtilsTest {
 
     EnumDescriptor descriptor3 = resolveEnum(context.getDescriptors(), "Enum");
     assertFalse(OptionUtils.isStringValue(descriptor3));
+  }
+
+  @Nested
+  @DisplayName("checkDuplicatedFields")
+  class CheckDuplicatedFields {
+
+    @Nested
+    @DisplayName("when there are duplicated fields")
+    class WhenThereAreDuplicatedFields {
+
+      @Test
+      @DisplayName("then throw exception")
+      void thenThrowException() {
+        RequestContext context = TestUtils.createRequest(Dump.error_test);
+        Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test2");
+        assertThatThrownBy(() -> OptionUtils.checkDuplicatedFields(descriptor))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Duplicated field name `Test2.foo` in DuplicatedFieldsError.proto");
+      }
+    }
+
+    @Nested
+    @DisplayName("when no duplicated fields")
+    class WhenNoDuplicatedFields {
+
+      @Test
+      @DisplayName("then not throw exception")
+      void thenNotThrowException() {
+        RequestContext context = TestUtils.createRequest(Dump.test1);
+        Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
+        assertThatCode(() -> OptionUtils.checkDuplicatedFields(descriptor))
+            .doesNotThrowAnyException();
+      }
+    }
   }
 }

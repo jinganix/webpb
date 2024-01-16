@@ -41,6 +41,7 @@ import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptFieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptMessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.TsFileOpts;
+import io.github.jinganix.webpb.utilities.utils.AliasUtils;
 import io.github.jinganix.webpb.utilities.utils.DescriptorUtils;
 import io.github.jinganix.webpb.utilities.utils.OptionUtils;
 import io.github.jinganix.webpb.utilities.utils.Templates;
@@ -132,6 +133,7 @@ public class MessageGenerator {
   }
 
   private Map<String, Object> getMessageData(Descriptor descriptor, int level) {
+    OptionUtils.checkDuplicatedFields(descriptor);
     OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
     Map<String, Object> data = new HashMap<>();
     data.put("extendI", TsUtils.toInterfaceName(getExtend(descriptor)));
@@ -186,17 +188,15 @@ public class MessageGenerator {
   }
 
   private Map<String, String> getAliases(Descriptor descriptor) {
+    Map<String, String> autoAliases = AliasUtils.getAutoAliases(descriptor);
+    List<FieldDescriptor> fields = OptionUtils.getAllFields(descriptor);
     Map<String, String> aliases = new TreeMap<>();
-    List<FieldDescriptor> fieldDescriptors =
-        new ArrayList<>(OptionUtils.getExtendedFields(descriptor));
-    fieldDescriptors.addAll(descriptor.getFields());
-    for (int i = 0; i < fieldDescriptors.size(); i++) {
-      FieldDescriptor fieldDescriptor = fieldDescriptors.get(i);
+    for (FieldDescriptor fieldDescriptor : fields) {
       String alias = getOpts(fieldDescriptor, FieldOpts::hasTs).getTs().getAlias();
       if (StringUtils.isNotEmpty(alias)) {
         aliases.put(fieldDescriptor.getName(), alias);
       } else if (isAutoAlias(descriptor, fieldDescriptor)) {
-        aliases.put(fieldDescriptor.getName(), Utils.toBase52(i));
+        aliases.put(fieldDescriptor.getName(), autoAliases.get(fieldDescriptor.getName()));
       }
     }
     return aliases;

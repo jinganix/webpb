@@ -20,12 +20,14 @@ package io.github.jinganix.webpb.ts.generator;
 
 import static io.github.jinganix.webpb.utilities.test.TestUtils.createRequest;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.test.TestUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +40,8 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 @DisplayName("Generator")
 class GeneratorTest {
+
+  static List<String> ERROR_FILES = Collections.singletonList("DuplicatedFieldsError.proto");
 
   static class TestArgumentsProvider implements ArgumentsProvider {
 
@@ -77,7 +81,12 @@ class GeneratorTest {
         } catch (NullPointerException e) {
           expected = null;
         }
-        assertThat(generator.generate(fileDescriptor)).isEqualTo(expected);
+        if (ERROR_FILES.contains(fileDescriptor.getName())) {
+          assertThatThrownBy(() -> generator.generate(fileDescriptor))
+              .isInstanceOf(RuntimeException.class);
+        } else {
+          assertThat(generator.generate(fileDescriptor)).isEqualTo(expected);
+        }
       }
     }
   }

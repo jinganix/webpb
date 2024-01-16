@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package DuplicatedFieldsErrorProto;
+
+option java_package = "test";
+
+import "webpb/WebpbExtend.proto";
+
+message Test1 {
+  required int32 foo = 1;
+}
+
+message Test2 {
+  option (m_opts).opt = {extends: "Test1"};
+
+  required int32 foo = 1;
+}

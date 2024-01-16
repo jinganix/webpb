@@ -50,6 +50,7 @@ import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.JavaFileOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptFieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptMessageOpts;
+import io.github.jinganix.webpb.utilities.utils.AliasUtils;
 import io.github.jinganix.webpb.utilities.utils.Const;
 import io.github.jinganix.webpb.utilities.utils.DescriptorUtils;
 import io.github.jinganix.webpb.utilities.utils.OptionUtils;
@@ -123,6 +124,7 @@ public class MessageGenerator {
   public String generate(Descriptor descriptor) {
     return generate(
         () -> {
+          OptionUtils.checkDuplicatedFields(descriptor);
           Map<String, Object> data = getMessageData(descriptor, 0);
           data.put("filename", descriptor.getFile().getName());
           data.put("package", GeneratorUtils.getJavaPackage(this.fileDescriptor));
@@ -202,15 +204,14 @@ public class MessageGenerator {
   }
 
   private List<Map<String, Object>> getFields(Descriptor descriptor) {
-    List<Map<String, Object>> fields = new ArrayList<>();
-    int indexOffset = OptionUtils.getExtendedFields(descriptor).size();
+    Map<String, String> autoAliases = AliasUtils.getAutoAliases(descriptor);
     List<FieldDescriptor> fieldDescriptors = getMemberFields(descriptor);
-    for (int i = 0; i < fieldDescriptors.size(); i++) {
-      FieldDescriptor field = fieldDescriptors.get(i);
+    List<Map<String, Object>> fields = new ArrayList<>();
+    for (FieldDescriptor field : fieldDescriptors) {
       Map<String, Object> data = new HashMap<>();
       data.put("type", getFieldType(field));
       data.put("name", field.getName());
-      data.put("annos", getFieldAnnotations(descriptor, field, i + indexOffset));
+      data.put("annos", getFieldAnnotations(descriptor, field, autoAliases.get(field.getName())));
       fields.add(data);
     }
     return fields;
@@ -234,7 +235,8 @@ public class MessageGenerator {
     return toType(field);
   }
 
-  private List<String> getFieldAnnotations(Descriptor descriptor, FieldDescriptor field, int i) {
+  private List<String> getFieldAnnotations(
+      Descriptor descriptor, FieldDescriptor field, String alias) {
     List<String> annotations =
         Stream.of(
                 getOpts(field, FieldOpts::hasJava).getJava().getAnnotationList(),
@@ -242,7 +244,7 @@ public class MessageGenerator {
                 fileOpts.getFieldAnnotationList(),
                 webpbOpts.getFieldAnnotationList())
             .flatMap(List::stream)
-            .map(x -> x.replace("{{_ALIAS_}}", Utils.toBase52(i)))
+            .map(x -> x.replace("{{_ALIAS_}}", alias))
             .map(x -> x.replace("{{_FIELD_NAME_}}", field.getName()))
             .collect(Collectors.toList());
     OptFieldOpts optFieldOpts = getOpts(field, FieldOpts::hasOpt).getOpt();

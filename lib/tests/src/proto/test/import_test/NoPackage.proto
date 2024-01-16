@@ -10,6 +10,6 @@ message NoPackageTest {
 
 message NoPackage {
   required int32 foo_1 = 1;
-  required string bar_2 = 2;
+  required string bar_1 = 2;
   required NoPackageTest test = 3;
 }

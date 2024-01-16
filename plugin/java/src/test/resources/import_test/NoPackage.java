@@ -22,16 +22,16 @@ public class NoPackage implements WebpbMessage {
 
   private Integer foo_1;
 
-  private String bar_2;
+  private String bar_1;
 
   private NoPackageTest test;
 
   public NoPackage() {
   }
 
-  public NoPackage(Integer foo_1, String bar_2, NoPackageTest test) {
+  public NoPackage(Integer foo_1, String bar_1, NoPackageTest test) {
     this.foo_1 = foo_1;
-    this.bar_2 = bar_2;
+    this.bar_1 = bar_1;
     this.test = test;
   }
 
@@ -44,12 +44,12 @@ public class NoPackage implements WebpbMessage {
     return this;
   }
 
-  public String getBar_2() {
-    return this.bar_2;
+  public String getBar_1() {
+    return this.bar_1;
   }
 
-  public NoPackage setBar_2(String bar_2) {
-    this.bar_2 = bar_2;
+  public NoPackage setBar_1(String bar_1) {
+    this.bar_1 = bar_1;
     return this;
   }
 

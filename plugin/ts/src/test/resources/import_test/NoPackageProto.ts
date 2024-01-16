@@ -43,13 +43,13 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
 
 export interface INoPackage {
   foo_1: number;
-  bar_2: string;
+  bar_1: string;
   test: INoPackageTest;
 }
 
 export class NoPackage implements INoPackage, Webpb.WebpbMessage {
   foo_1!: number;
-  bar_2!: string;
+  bar_1!: string;
   test!: INoPackageTest;
   webpbMeta: () => Webpb.WebpbMeta;
 

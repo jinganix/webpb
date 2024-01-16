@@ -125,8 +125,8 @@ export class Level1 extends ExtendsProto.Level2 implements ILevel1, Webpb.WebpbM
 
   static fromAlias(data?: unknown): Level1 {
     const p = Webpb.toAlias(data, {
-      "b": "foo_1",
-      "a": "foo_2",
+      "a": "foo_1",
+      "b": "foo_2",
       "c": "foo_3",
       "d": "foo_4",
     }) as Record<string, unknown>;
@@ -135,8 +135,8 @@ export class Level1 extends ExtendsProto.Level2 implements ILevel1, Webpb.WebpbM
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      "foo_1": "b",
-      "foo_2": "a",
+      "foo_1": "a",
+      "foo_2": "b",
       "foo_3": "c",
       "foo_4": "d",
     });
