@@ -10,6 +10,11 @@ repositories {
   gradlePluginPortal()
 }
 
+val versionJacoco: String by project
+jacoco {
+  toolVersion = versionJacoco
+}
+
 val buildSrcDependencies = extractDependencies(file("${rootDir}/buildSrc/build.gradle.kts"))
 
 dependencies {

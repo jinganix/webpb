@@ -33,9 +33,10 @@ object Vers {
   lateinit var versionCoverallsGradlePlugin: String
   lateinit var versionDependencyManagementPlugin: String
   lateinit var versionFreemarker: String
+  lateinit var versionGoogleJavaFormat: String
   lateinit var versionGradleVersionsPlugin: String
   lateinit var versionJackson: String
-  lateinit var versionJacocoAgent: String
+  lateinit var versionJacoco: String
   lateinit var versionJakartaServletApi: String
   lateinit var versionJakartaXml: String
   lateinit var versionJavaParser: String
