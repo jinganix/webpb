@@ -44,7 +44,7 @@ fun Project.hierarchicalGroup(): String {
 
 fun Project.signAndPublish(artifactId: String, configuration: Action<MavenPublication>) {
   val extension = project.the<PublishingExtension>()
-  val publicationName = "[_-]+[a-zA-Z]".toRegex().replace(artifactId) {
+  val publicationName = "[_-]+[a-zA-Z]".toRegex().replace(artifactId) { it ->
     it.value.replace("_", "").replace("-", "")
       .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
   }
