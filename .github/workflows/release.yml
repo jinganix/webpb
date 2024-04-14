@@ -239,7 +239,10 @@ jobs:
           distribution: 'temurin'
           java-version: 8
 
-      - name: Build and publish
+      - name: Build
+        run: ./gradlew build
+
+      - name: Publish
         run: ./gradlew publish
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}

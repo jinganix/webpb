@@ -1,12 +1,12 @@
 import utils.signAndPublish
 
 plugins {
-    id("java.library")
+  id("java.library")
 }
 
 signAndPublish("webpb-proto") {
-    from(components["java"])
-    pom {
-        description.set("The webpb common proto library")
-    }
+  from(components["java"])
+  pom {
+    description.set("The webpb common proto library")
+  }
 }
