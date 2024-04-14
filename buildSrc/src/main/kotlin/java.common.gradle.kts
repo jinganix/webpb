@@ -1,15 +1,16 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import java.io.FileInputStream
+import java.util.*
 import utils.Props
 import utils.Vers
 import utils.Vers.versionAssertj
-import utils.Vers.versionJacocoAgent
+import utils.Vers.versionGoogleJavaFormat
+import utils.Vers.versionJacoco
 import utils.Vers.versionJakartaXml
 import utils.Vers.versionLombok
 import utils.Vers.versionMockitoCore
 import utils.Vers.versionMockitoInline
 import utils.createConfiguration
-import java.io.FileInputStream
-import java.util.*
 
 plugins {
   if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) id("com.diffplug.spotless")
@@ -61,7 +62,7 @@ tasks.test {
 if (javaVersion == JavaVersion.VERSION_17) {
   extensions.findByType<SpotlessExtension>()?.java {
     targetExclude("build/**/*")
-    googleJavaFormat()
+    googleJavaFormat(versionGoogleJavaFormat)
   }
 
   tasks.check {
@@ -70,7 +71,7 @@ if (javaVersion == JavaVersion.VERSION_17) {
 }
 
 jacoco {
-  toolVersion = versionJacocoAgent
+  toolVersion = versionJacoco
 }
 
 tasks.jacocoTestReport {

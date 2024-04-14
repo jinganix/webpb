@@ -9,11 +9,12 @@ module.exports = merge(common, {
   devServer: {
     hot: true,
     port: 4200,
-    proxy: {
-      "/stores": {
+    proxy: [
+      {
+        context: ["/stores"],
         target: "http://localhost:8181",
       },
-    },
+    ],
   },
   devtool: "eval-cheap-source-map",
   mode: "development",
