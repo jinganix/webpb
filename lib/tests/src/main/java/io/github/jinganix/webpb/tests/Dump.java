@@ -23,6 +23,7 @@ import java.io.InputStream;
 /** Utilities to handle test dump files. */
 public enum Dump {
   auto_alias,
+  enumeration,
   error_test,
   extends_test,
   import_test,

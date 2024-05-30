@@ -1,10 +1,10 @@
-export enum ${className} {
+export const enum ${className} {
 <#list enums as enum>
   ${enum.name} = ${enum.value},
 </#list>
 }
 
-export const enum Const${className} {
+export enum Enum${className} {
 <#list enums as enum>
   ${enum.name} = ${enum.value},
 </#list>

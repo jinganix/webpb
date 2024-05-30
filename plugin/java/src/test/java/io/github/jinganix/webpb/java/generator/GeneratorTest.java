@@ -82,6 +82,33 @@ class GeneratorTest {
     }
   }
 
+  static class EnumeratationTestArgumentsProvider implements ArgumentsProvider {
+
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+      return getArgumentsList(Dump.enumeration).stream();
+    }
+  }
+
+  @Nested
+  @DisplayName("enumeration")
+  class Enumeration {
+
+    @Nested
+    @DisplayName("when dump files provided")
+    class WhenDumpFilesProvided {
+
+      @ParameterizedTest(name = "{1}")
+      @DisplayName("then generate expected")
+      @ArgumentsSource(EnumeratationTestArgumentsProvider.class)
+      void thenGenerateExpected(String dump, String key, String content, String expected) {
+        assertThat(dump).isEqualTo("enumeration");
+        assertThat(key).isNotEmpty();
+        assertThat(content).isEqualTo(expected);
+      }
+    }
+  }
+
   static class ExtendsTestArgumentsProvider implements ArgumentsProvider {
 
     @Override

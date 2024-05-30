@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package ConstEnum3Proto;
+
+option java_package = "constant.enum3";
+
+import "webpb/WebpbExtend.proto";
+
+enum ConstEnum3 {
+  DEFAULT = 0;
+}

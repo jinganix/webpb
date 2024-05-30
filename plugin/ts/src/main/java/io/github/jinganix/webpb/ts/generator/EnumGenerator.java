@@ -20,8 +20,11 @@ package io.github.jinganix.webpb.ts.generator;
 
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
+import com.google.protobuf.Descriptors.FileDescriptor;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.EnumValueOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptEnumValueOpts;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.TsFileOpts;
 import io.github.jinganix.webpb.utilities.utils.OptionUtils;
 import io.github.jinganix.webpb.utilities.utils.Templates;
 import java.util.ArrayList;
@@ -34,8 +37,19 @@ import org.apache.commons.lang3.StringUtils;
 public class EnumGenerator {
 
   private final Templates templates = new Templates();
-
+  private final TsFileOpts webpbOpts;
+  private final TsFileOpts fileOpts;
   private boolean stringValue;
+
+  /**
+   * Constructor.
+   *
+   * @param fd {@link FileDescriptor}
+   */
+  public EnumGenerator(FileDescriptor fd) {
+    this.webpbOpts = OptionUtils.getWebpbOpts(fd, WebpbExtend.FileOpts::hasTs).getTs();
+    this.fileOpts = OptionUtils.getOpts(fd, WebpbExtend.FileOpts::hasTs).getTs();
+  }
 
   /**
    * Generate enum declaration.
@@ -48,7 +62,20 @@ public class EnumGenerator {
     Map<String, Object> data = new HashMap<>();
     data.put("className", descriptor.getName());
     data.put("enums", getEnums(descriptor));
+    if (isDefaultConstEnum()) {
+      return templates.process("const.enum.ftl", data);
+    }
     return templates.process("enum.ftl", data);
+  }
+
+  private boolean isDefaultConstEnum() {
+    if (fileOpts.hasDefaultConstEnum()) {
+      return fileOpts.getDefaultConstEnum();
+    }
+    if (webpbOpts.hasDefaultConstEnum()) {
+      return webpbOpts.getDefaultConstEnum();
+    }
+    return false;
   }
 
   private List<Map<String, String>> getEnums(EnumDescriptor enumDescriptor) {
