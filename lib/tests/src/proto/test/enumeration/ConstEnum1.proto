@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+import "WebpbOptions.proto";
+
+enum Enum {
+  DEFAULT = 0;
+}
