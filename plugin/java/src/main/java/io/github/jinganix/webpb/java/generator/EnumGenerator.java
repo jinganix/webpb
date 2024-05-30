@@ -70,9 +70,10 @@ public class EnumGenerator {
    * Generate enum declaration.
    *
    * @param enumDescriptor {@link EnumDescriptor}
+   * @param ftlName template name
    * @return {@link String}
    */
-  public String generate(EnumDescriptor enumDescriptor) {
+  public String generate(EnumDescriptor enumDescriptor, String ftlName) {
     Map<String, Object> data = new HashMap<>();
     data.put("filename", enumDescriptor.getFile().getName());
     data.put("package", getJavaPackage(this.fileDescriptor));
@@ -83,7 +84,7 @@ public class EnumGenerator {
     data.put("valueType", getValueType(enumDescriptor));
     data.put("imports", imports.toList());
 
-    return templates.process("enum.ftl", data);
+    return templates.process(ftlName, data);
   }
 
   private String getValueType(EnumDescriptor enumDescriptor) {

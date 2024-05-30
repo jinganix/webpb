@@ -61,8 +61,14 @@ public final class Generator {
         fileMap.put(filename(javaPackage, descriptor.getName()), content);
       }
       for (EnumDescriptor enumDescriptor : fd.getEnumTypes()) {
-        String content = new EnumGenerator(fd).generate(enumDescriptor);
+        String content = new EnumGenerator(fd).generate(enumDescriptor, "enum.ftl");
         fileMap.put(filename(javaPackage, enumDescriptor.getName()), content);
+
+        content = new EnumGenerator(fd).generate(enumDescriptor, "enum.values.ftl");
+        fileMap.put(filename(javaPackage, enumDescriptor.getName() + "Values"), content);
+
+        content = new EnumGenerator(fd).generate(enumDescriptor, "enum.names.ftl");
+        fileMap.put(filename(javaPackage, enumDescriptor.getName() + "Names"), content);
       }
       return fileMap;
     } catch (Exception e) {
