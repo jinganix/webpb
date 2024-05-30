@@ -94,7 +94,7 @@ public final class Generator {
       messages.add(new MessageGenerator(imports, fd).generate(descriptor));
     }
     for (EnumDescriptor enumDescriptor : fd.getEnumTypes()) {
-      messages.add(new EnumGenerator().generate(enumDescriptor));
+      messages.add(new EnumGenerator(fd).generate(enumDescriptor));
     }
     Map<String, Object> data = new HashMap<>();
     data.put("filename", fd.getName());

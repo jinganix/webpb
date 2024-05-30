@@ -20,24 +20,18 @@ message OptFileOpts {
 
 message JavaFileOpts {
   optional bool gen_getter = 1000 [default = true];
-
   optional bool gen_setter = 1001 [default = true];
-
   repeated string import = 1002;
-
   repeated string annotation = 1003;
-
   repeated string field_annotation = 1004;
-
   repeated string repeatable_annotation = 1005;
 }
 
 message TsFileOpts {
   repeated string import = 1000;
-
   optional bool int64_as_string = 1001;
-
   optional bool auto_alias = 1002;
+  optional bool default_const_enum = 1003;
 }
 
 // message options
@@ -53,19 +47,14 @@ message MessageOpts {
 
 message OptMessageOpts {
   optional string method = 1001;
-
   optional string path = 1002;
-
   optional string context = 1003;
-
   optional string extends = 1004;
-
   repeated string implements = 1005;
 }
 
 message JavaMessageOpts {
   repeated string annotation = 1000;
-
   repeated string field_annotation = 1001;
 }
 
@@ -90,11 +79,11 @@ message OptEnumOpts {
 
 message JavaEnumOpts {
   repeated string annotation = 1000;
-
   repeated string implements = 1001;
 }
 
 message TsEnumOpts {
+  optional bool default_const_enum = 1001;
 }
 
 // field options

@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package ConstEnum2Proto;
+
+option java_package = "constant.enum2";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {
+  default_const_enum: true
+};
+
+enum ConstEnum2 {
+  DEFAULT = 0;
+}
