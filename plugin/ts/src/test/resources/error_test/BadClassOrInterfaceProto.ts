@@ -35,7 +35,7 @@ export class BadAnnotation extends ....BadClassOrInterface implements IBadAnnota
     return new BadAnnotation(p);
   }
 
-  static fromAlias(data?: unknown): IBadAnnotation {
+  static fromAlias(data?: unknown): BadAnnotation {
     return BadAnnotation.create(data as IBadAnnotation);
   }
 

@@ -11,6 +11,7 @@ import "include2/Extends2.proto";
 option (f_opts).java = {
   import: "com.abc.Custom"
 };
+
 option (f_opts).ts = {
   import: "import { Custom } from 'external/custom'"
 };

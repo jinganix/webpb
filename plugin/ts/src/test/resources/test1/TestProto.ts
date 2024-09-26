@@ -6,6 +6,30 @@ import * as Webpb from "webpb";
 import * as Include2Proto from "./Include2Proto";
 import * as IncludeProto from "./IncludeProto";
 
+export enum Test3 {
+  test3_1 = "test3_1",
+  test3_2 = "test3_2",
+  test3_3 = "test3_3",
+}
+
+export const enum ConstTest3 {
+  test3_1 = "test3_1",
+  test3_2 = "test3_2",
+  test3_3 = "test3_3",
+}
+
+export enum Test5 {
+  test5_1 = "text1",
+  test5_2 = "text2",
+  test5_3 = "test5_3",
+}
+
+export const enum ConstTest5 {
+  test5_1 = "text1",
+  test5_2 = "text2",
+  test5_3 = "test5_3",
+}
+
 export interface ITest1 {
   test1: string;
   test2: number;
@@ -42,7 +66,7 @@ export class Test1 implements ITest1, Webpb.WebpbMessage {
     return new Test1(p);
   }
 
-  static fromAlias(data?: unknown): ITest1 {
+  static fromAlias(data?: unknown): Test1 {
     return Test1.create(data as ITest1);
   }
 
@@ -184,7 +208,7 @@ export class Test6 implements ITest6, Webpb.WebpbMessage {
     return new Test6(p);
   }
 
-  static fromAlias(data?: unknown): ITest6 {
+  static fromAlias(data?: unknown): Test6 {
     return Test6.create(data as ITest6);
   }
 
@@ -314,7 +338,7 @@ export namespace Test {
       return new NestedTest(p);
     }
 
-    static fromAlias(data?: unknown): INestedTest {
+    static fromAlias(data?: unknown): NestedTest {
       return NestedTest.create(data as INestedTest);
     }
 
@@ -351,7 +375,7 @@ export namespace Test {
       return new Test17(p);
     }
 
-    static fromAlias(data?: unknown): ITest17 {
+    static fromAlias(data?: unknown): Test17 {
       return Test17.create(data as ITest17);
     }
 
@@ -359,28 +383,4 @@ export namespace Test {
       return this;
     }
   }
-}
-
-export enum Test3 {
-  test3_1 = "test3_1",
-  test3_2 = "test3_2",
-  test3_3 = "test3_3",
-}
-
-export const enum ConstTest3 {
-  test3_1 = "test3_1",
-  test3_2 = "test3_2",
-  test3_3 = "test3_3",
-}
-
-export enum Test5 {
-  test5_1 = "text1",
-  test5_2 = "text2",
-  test5_3 = "test5_3",
-}
-
-export const enum ConstTest5 {
-  test5_1 = "text1",
-  test5_2 = "text2",
-  test5_3 = "test5_3",
 }
