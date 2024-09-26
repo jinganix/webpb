@@ -51,6 +51,8 @@ message OptMessageOpts {
   optional string context = 1003;
   optional string extends = 1004;
   repeated string implements = 1005;
+  optional string sub_type = 1006;
+  repeated string sub_values = 1007;
 }
 
 message JavaMessageOpts {

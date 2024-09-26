@@ -32,7 +32,7 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
     return new NoPackageTest(p);
   }
 
-  static fromAlias(data?: unknown): INoPackageTest {
+  static fromAlias(data?: unknown): NoPackageTest {
     return NoPackageTest.create(data as INoPackageTest);
   }
 

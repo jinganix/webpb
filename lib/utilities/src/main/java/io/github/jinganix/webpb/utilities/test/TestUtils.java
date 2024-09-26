@@ -20,9 +20,11 @@ package io.github.jinganix.webpb.utilities.test;
 
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 /** Utilities for test. */
@@ -46,7 +48,7 @@ public class TestUtils {
   }
 
   /**
-   * Read an expected file content from resources dir.
+   * Read an file content from resources dir.
    *
    * @param filename filename to read
    * @return file content
@@ -58,6 +60,21 @@ public class TestUtils {
     }
     try {
       return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Write file content to resources dir.
+   *
+   * @param file {@link File} to write
+   * @param content file content
+   */
+  public static void writeFile(File file, String content) {
+    try {
+      FileUtils.forceMkdirParent(file);
+      FileUtils.writeStringToFile(file, content, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
