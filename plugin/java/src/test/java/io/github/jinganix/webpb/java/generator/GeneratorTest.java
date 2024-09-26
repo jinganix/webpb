@@ -25,6 +25,8 @@ import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.test.TestUtils;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,13 @@ class GeneratorTest {
       Map<String, String> fileMap = Generator.create().generate(fileDescriptor);
       for (Map.Entry<String, String> entry : fileMap.entrySet()) {
         String key = entry.getKey().replaceFirst("^/", "");
+        if ("true".equals(System.getenv().get("DUMP_TEST_FILES"))) {
+          if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+            String cwd = System.getProperty("user.dir");
+            File file = Paths.get(cwd, "src/test/resources", "/" + dump + "/" + key).toFile();
+            TestUtils.writeFile(file, entry.getValue());
+          }
+        }
         String expected = TestUtils.readFile("/" + dump + "/" + key);
         assertThat(entry.getValue()).isEqualTo(expected);
         argumentsList.add(Arguments.of(dump.name(), key, entry.getValue(), expected));

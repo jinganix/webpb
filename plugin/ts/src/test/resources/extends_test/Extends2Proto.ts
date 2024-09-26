@@ -34,7 +34,7 @@ export class Extends implements IExtends, Webpb.WebpbMessage {
     return new Extends(p);
   }
 
-  static fromAlias(data?: unknown): IExtends {
+  static fromAlias(data?: unknown): Extends {
     return Extends.create(data as IExtends);
   }
 
