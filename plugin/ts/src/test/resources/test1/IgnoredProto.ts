@@ -32,7 +32,7 @@ export class IgnoreTest implements IIgnoreTest, Webpb.WebpbMessage {
     return new IgnoreTest(p);
   }
 
-  static fromAlias(data?: unknown): IIgnoreTest {
+  static fromAlias(data?: unknown): IgnoreTest {
     return IgnoreTest.create(data as IIgnoreTest);
   }
 

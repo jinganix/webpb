@@ -32,7 +32,7 @@ export class Test10 implements ITest10, Webpb.WebpbMessage {
     return new Test10(p);
   }
 
-  static fromAlias(data?: unknown): ITest10 {
+  static fromAlias(data?: unknown): Test10 {
     return Test10.create(data as ITest10);
   }
 
