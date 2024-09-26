@@ -34,7 +34,7 @@ export class AliasSkip implements IAliasSkip, Webpb.WebpbMessage {
     return new AliasSkip(p);
   }
 
-  static fromAlias(data?: unknown): IAliasSkip {
+  static fromAlias(data?: unknown): AliasSkip {
     return AliasSkip.create(data as IAliasSkip);
   }
 

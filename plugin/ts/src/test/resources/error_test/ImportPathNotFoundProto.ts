@@ -36,7 +36,7 @@ export class ImportPathNotFound extends BadImport.Extends implements IImportPath
     return new ImportPathNotFound(p);
   }
 
-  static fromAlias(data?: unknown): IImportPathNotFound {
+  static fromAlias(data?: unknown): ImportPathNotFound {
     return ImportPathNotFound.create(data as IImportPathNotFound);
   }
 

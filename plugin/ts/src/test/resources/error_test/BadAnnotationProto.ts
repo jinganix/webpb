@@ -34,7 +34,7 @@ export class BadAnnotation implements IBadAnnotation, Webpb.WebpbMessage {
     return new BadAnnotation(p);
   }
 
-  static fromAlias(data?: unknown): IBadAnnotation {
+  static fromAlias(data?: unknown): BadAnnotation {
     return BadAnnotation.create(data as IBadAnnotation);
   }
 

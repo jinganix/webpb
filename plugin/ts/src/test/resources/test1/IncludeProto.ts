@@ -4,6 +4,14 @@
 
 import * as Webpb from "webpb";
 
+export enum Enum {
+  DEFAULT = 0,
+}
+
+export const enum ConstEnum {
+  DEFAULT = 0,
+}
+
 export interface IMessage {
   id: number;
 }
@@ -32,7 +40,7 @@ export class Message implements IMessage, Webpb.WebpbMessage {
     return new Message(p);
   }
 
-  static fromAlias(data?: unknown): IMessage {
+  static fromAlias(data?: unknown): Message {
     return Message.create(data as IMessage);
   }
 
@@ -70,7 +78,7 @@ export namespace Message {
       return new Nested(p);
     }
 
-    static fromAlias(data?: unknown): INested {
+    static fromAlias(data?: unknown): Nested {
       return Nested.create(data as INested);
     }
 
@@ -78,12 +86,4 @@ export namespace Message {
       return this;
     }
   }
-}
-
-export enum Enum {
-  DEFAULT = 0,
-}
-
-export const enum ConstEnum {
-  DEFAULT = 0,
 }
