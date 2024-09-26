@@ -7,7 +7,8 @@ export class ${className}<#if extend??> extends ${extend}</#if> implements I${cl
 <#list fields as field>
   ${field.name}<#if !field.default??>${field.optional?then("?", "!")}</#if>: ${field.type}<#if field.default??> = ${field.default}</#if>;
 </#list>
-  webpbMeta: () => Webpb.WebpbMeta;
+  webpbMeta: () => Webpb.WebpbMeta;<#if sub_type?has_content>
+  static fromAliases: Record<string, (data?: unknown) => ${className}> = {};</#if>
 
   static CLASS = "${className}";
   static CONTEXT = "${context}";
@@ -55,6 +56,13 @@ export class ${className}<#if extend??> extends ${extend}</#if> implements I${cl
 
 <#if aliases?has_content || aliasMsgs?has_content>
   static fromAlias(data?: unknown): ${className} {
+  <#if sub_type?has_content>
+    <#assign sub_key=(aliases?has_content && aliases[sub_type]?has_content)?then(aliases[sub_type], sub_type)>
+    const sub = this.fromAliases[(data as Record<string, string>)?.${sub_key}]?.(data);
+    if (sub) {
+      return sub;
+    }
+  </#if>
   <#if aliases?has_content>
     const p = Webpb.toAlias(data, {
     <#list aliases?keys as key>
@@ -76,7 +84,7 @@ export class ${className}<#if extend??> extends ${extend}</#if> implements I${cl
     return Object.assign(new ${className}(), p);
   }
 <#else>
-  static fromAlias(data?: unknown): I${className} {
+  static fromAlias(data?: unknown): ${className} {
     return ${className}.create(data as I${className});
   }
 </#if>
@@ -125,4 +133,8 @@ ${nested}
 
 </#sep>
 </#list>
-}</#if>
+}</#if><#if sub_values?has_content && extend??>
+
+<#list sub_values as sub_value>
+${extend}.fromAliases[${sub_value}] = ${className}.fromAlias;<#sep>
+</#sep></#list></#if>
