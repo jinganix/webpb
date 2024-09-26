@@ -38,7 +38,7 @@ export class Main1 extends Extends2Proto.Extends implements IMain1, Webpb.WebpbM
     return new Main1(p);
   }
 
-  static fromAlias(data?: unknown): IMain1 {
+  static fromAlias(data?: unknown): Main1 {
     return Main1.create(data as IMain1);
   }
 
@@ -78,7 +78,7 @@ export class Main2 extends ExtendsProto.Extends implements IMain2, Webpb.WebpbMe
     return new Main2(p);
   }
 
-  static fromAlias(data?: unknown): IMain2 {
+  static fromAlias(data?: unknown): Main2 {
     return Main2.create(data as IMain2);
   }
 
@@ -118,7 +118,7 @@ export class Main3 extends Extends2Proto.Extends implements IMain3, Webpb.WebpbM
     return new Main3(p);
   }
 
-  static fromAlias(data?: unknown): IMain3 {
+  static fromAlias(data?: unknown): Main3 {
     return Main3.create(data as IMain3);
   }
 
@@ -158,7 +158,7 @@ export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
     return new Main4(p);
   }
 
-  static fromAlias(data?: unknown): IMain4 {
+  static fromAlias(data?: unknown): Main4 {
     return Main4.create(data as IMain4);
   }
 

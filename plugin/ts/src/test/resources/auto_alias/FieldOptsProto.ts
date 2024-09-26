@@ -32,7 +32,7 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
     return new Level3(p);
   }
 
-  static fromAlias(data?: unknown): ILevel3 {
+  static fromAlias(data?: unknown): Level3 {
     return Level3.create(data as ILevel3);
   }
 

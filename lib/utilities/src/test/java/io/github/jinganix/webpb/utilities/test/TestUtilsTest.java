@@ -19,15 +19,20 @@
 package io.github.jinganix.webpb.utilities.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 
 import io.github.jinganix.webpb.tests.Dump;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,7 +66,7 @@ class TestUtilsTest {
       @DisplayName("then throw error")
       void thenThrowError() {
         System.setIn(new ByteArrayInputStream("abc".getBytes()));
-        Dump dump = Mockito.mock(Dump.class);
+        Dump dump = mock(Dump.class);
         assertThatThrownBy(() -> TestUtils.createRequest(dump))
             .isInstanceOf(RuntimeException.class);
       }
@@ -97,6 +102,52 @@ class TestUtilsTest {
               .when(() -> IOUtils.toString(any(InputStream.class), eq(StandardCharsets.UTF_8)))
               .thenThrow(new IOException());
           assertThatThrownBy(() -> TestUtils.readFile("/foo.test"))
+              .isInstanceOf(RuntimeException.class)
+              .hasCauseInstanceOf(IOException.class);
+        }
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("writeFile")
+  class WriteFileClassTest {
+
+    @Nested
+    @DisplayName("when write file")
+    class WhenWriteFile {
+
+      @Test
+      @DisplayName("then success")
+      void thenSuccess() {
+        try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
+          fileUtils
+              .when(
+                  () ->
+                      FileUtils.writeStringToFile(
+                          any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
+              .thenAnswer(x -> null);
+          assertThatCode(() -> TestUtils.writeFile(mock(File.class), "/hello"))
+              .doesNotThrowAnyException();
+        }
+      }
+    }
+
+    @Nested
+    @DisplayName("when failed write file")
+    class WhenFailedToWriteFile {
+
+      @Test
+      @DisplayName("then throw exception")
+      void thenThrowExceptionTest() {
+        try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
+          fileUtils
+              .when(
+                  () ->
+                      FileUtils.writeStringToFile(
+                          any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
+              .thenThrow(new IOException());
+          assertThatThrownBy(() -> TestUtils.writeFile(mock(File.class), "/hello"))
               .isInstanceOf(RuntimeException.class)
               .hasCauseInstanceOf(IOException.class);
         }
