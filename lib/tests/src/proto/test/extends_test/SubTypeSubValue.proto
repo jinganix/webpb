@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+package SubTypeSubValueProto;
+
+option java_package = "extend.test.main";
+
+import "webpb/WebpbExtend.proto";
+import "include/Extends.proto";
+import "include2/Extends2.proto";
+
+enum SubTypeSubValueType {
+  subTypeSubValue0 = 0;
+  subTypeSubValue1 = 1;
+  subTypeSubValue2 = 2;
+}
+
+message SubTypeSubValueSuper {
+  option (m_opts).opt = {sub_type: 'type'};
+
+  required SubTypeSubValueType type = 1;
+}
+
+message SubTypeSubValue0 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper"};
+
+  required int32 value = 1;
+}
+
+message SubTypeSubValue1 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'SubTypeSubValueType.subTypeSubValue0'};
+
+  required int32 value = 1;
+}
+
+message SubTypeSubValue2 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: [
+    'SubTypeSubValueType.subTypeSubValue1',
+    'SubTypeSubValueType.subTypeSubValue2'
+  ]};
+
+  required int32 value = 1;
+}
+
+message SubTypeSubValue3 {
+  required int32 value = 1;
+}

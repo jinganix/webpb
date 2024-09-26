@@ -32,7 +32,7 @@ export class Message implements IMessage, Webpb.WebpbMessage {
     return new Message(p);
   }
 
-  static fromAlias(data?: unknown): IMessage {
+  static fromAlias(data?: unknown): Message {
     return Message.create(data as IMessage);
   }
 
@@ -70,7 +70,7 @@ export namespace Message {
       return new Nested(p);
     }
 
-    static fromAlias(data?: unknown): INested {
+    static fromAlias(data?: unknown): Nested {
       return Nested.create(data as INested);
     }
 

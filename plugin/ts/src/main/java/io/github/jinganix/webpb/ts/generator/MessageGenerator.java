@@ -148,6 +148,8 @@ public class MessageGenerator {
     data.put("hasAlias", hasAlias(descriptor));
     data.put("aliases", getAliases(descriptor));
     data.put("aliasMsgs", getAliasMsgs(descriptor));
+    data.put("sub_type", getSubType(descriptor));
+    data.put("sub_values", getSubValues(descriptor));
     return data;
   }
 
@@ -208,6 +210,16 @@ public class MessageGenerator {
       return imports.importType(opts.getExtends());
     }
     return null;
+  }
+
+  private String getSubType(Descriptor descriptor) {
+    OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
+    return opts.getSubType();
+  }
+
+  private List<String> getSubValues(Descriptor descriptor) {
+    OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
+    return opts.getSubValuesList();
   }
 
   private List<Map<String, String>> getAliasMsgs(Descriptor descriptor) {
@@ -357,7 +369,7 @@ public class MessageGenerator {
 
     return descriptor.getNestedTypes().stream()
         .filter(e -> !mapFields.contains(e.getName()))
-        .map(e -> generate(() -> getMessageData(e, level), "nested.message.ftl", level))
+        .map(x -> generate(() -> getMessageData(x, level), "nested.message.ftl", level))
         .collect(Collectors.toList());
   }
 }

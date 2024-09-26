@@ -90,11 +90,11 @@ public final class Generator {
     }
     Imports imports = new Imports(fd.getPackage(), getImports(fd), getLookup(fd));
     List<String> messages = new ArrayList<>();
-    for (Descriptor descriptor : fd.getMessageTypes()) {
-      messages.add(new MessageGenerator(imports, fd).generate(descriptor));
-    }
     for (EnumDescriptor enumDescriptor : fd.getEnumTypes()) {
       messages.add(new EnumGenerator(fd).generate(enumDescriptor));
+    }
+    for (Descriptor descriptor : fd.getMessageTypes()) {
+      messages.add(new MessageGenerator(imports, fd).generate(descriptor));
     }
     Map<String, Object> data = new HashMap<>();
     data.put("filename", fd.getName());
