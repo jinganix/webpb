@@ -239,7 +239,8 @@ public class OptionUtils {
         Collections.reverse(descriptors);
         return descriptors;
       }
-      descriptor = resolveMessage(descriptor.getFile(), messageOpts.getExtends());
+      descriptor =
+          resolveMessage(Collections.singletonList(descriptor.getFile()), messageOpts.getExtends());
       if (descriptor != null) {
         descriptors.add(descriptor);
       }
@@ -258,7 +259,7 @@ public class OptionUtils {
       if (fieldNames.contains(fieldDescriptor.getName())) {
         throw new RuntimeException(
             String.format(
-                "Duplicated field name `%s.%s` in %s",
+                "Duplicated field name `%s.%s` in %s when extends",
                 descriptor.getName(),
                 fieldDescriptor.getName(),
                 fieldDescriptor.getFile().getFullName()));

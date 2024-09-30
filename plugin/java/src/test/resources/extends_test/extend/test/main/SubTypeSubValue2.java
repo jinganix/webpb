@@ -6,7 +6,12 @@ package extend.test.main;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbMeta;
+import io.github.jinganix.webpb.runtime.WebpbSubValue;
 
+@WebpbSubValue("1")
+@WebpbSubValue("subTypeSubValue1")
+@WebpbSubValue("2")
+@WebpbSubValue("subTypeSubValue2")
 public class SubTypeSubValue2 extends SubTypeSubValueSuper implements WebpbMessage {
 
   public static final String WEBPB_METHOD = "";

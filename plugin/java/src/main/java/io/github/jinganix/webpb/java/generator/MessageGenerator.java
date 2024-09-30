@@ -38,8 +38,10 @@ import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getGeneri
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapKeyDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapValueDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getOpts;
+import static java.util.Collections.singletonList;
 
 import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.java.utils.GeneratorUtils;
@@ -57,6 +59,7 @@ import io.github.jinganix.webpb.utilities.utils.OptionUtils;
 import io.github.jinganix.webpb.utilities.utils.Templates;
 import io.github.jinganix.webpb.utilities.utils.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -172,10 +175,31 @@ public class MessageGenerator {
     return Stream.of(
             getOpts(descriptor, MessageOpts::hasJava).getJava().getAnnotationList(),
             fileOpts.getAnnotationList(),
-            webpbOpts.getAnnotationList())
+            webpbOpts.getAnnotationList(),
+            getSubValueAnnotations(descriptor))
         .flatMap(List::stream)
         .map(imports::importAnnotation)
         .filter(new AnnotationDistinctFilter(imports, webpbOpts.getRepeatableAnnotationList()))
+        .collect(Collectors.toList());
+  }
+
+  private List<String> getSubValueAnnotations(Descriptor descriptor) {
+    return getSubValues(descriptor).stream()
+        .map(
+            subValue -> {
+              if (!subValue.contains(".")) {
+                return singletonList("@WebpbSubValue(\"" + subValue + "\")");
+              }
+              EnumValueDescriptor valueDescriptor =
+                  DescriptorUtils.resolveEnumValue(singletonList(descriptor.getFile()), subValue);
+              if (valueDescriptor == null) {
+                return singletonList("@WebpbSubValue(\"" + subValue + "\")");
+              }
+              return Arrays.asList(
+                  "@WebpbSubValue(\"" + valueDescriptor.getNumber() + "\")",
+                  "@WebpbSubValue(\"" + valueDescriptor.getName() + "\")");
+            })
+        .flatMap(List::stream)
         .collect(Collectors.toList());
   }
 
@@ -276,5 +300,10 @@ public class MessageGenerator {
         .filter(e -> !mapFields.contains(e.getName()))
         .map(e -> generate(() -> getMessageData(e, level), "nested.message.ftl", level))
         .collect(Collectors.toList());
+  }
+
+  private List<String> getSubValues(Descriptor descriptor) {
+    OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
+    return opts.getSubValuesList();
   }
 }

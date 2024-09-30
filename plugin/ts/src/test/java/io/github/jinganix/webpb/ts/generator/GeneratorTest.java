@@ -76,14 +76,6 @@ class GeneratorTest {
       @DisplayName("then generate expected")
       @ArgumentsSource(TestArgumentsProvider.class)
       void thenGenerateExpected(String dump, String filename, FileDescriptor fileDescriptor) {
-        if ("true".equals(System.getenv().get("DUMP_TEST_FILES"))) {
-          String content = generator.generate(fileDescriptor);
-          if (content != null && !content.isEmpty()) {
-            String cwd = System.getProperty("user.dir");
-            File file = Paths.get(cwd, "src/test/resources", filename).toFile();
-            TestUtils.writeFile(file, generator.generate(fileDescriptor));
-          }
-        }
         assertThat(dump).isNotEmpty();
         String expected;
         try {
@@ -95,6 +87,14 @@ class GeneratorTest {
           assertThatThrownBy(() -> generator.generate(fileDescriptor))
               .isInstanceOf(RuntimeException.class);
         } else {
+          if ("true".equals(System.getenv().get("DUMP_TEST_FILES"))) {
+            String content = generator.generate(fileDescriptor);
+            if (content != null && !content.isEmpty()) {
+              String cwd = System.getProperty("user.dir");
+              File file = Paths.get(cwd, "src/test/resources", filename).toFile();
+              TestUtils.writeFile(file, generator.generate(fileDescriptor));
+            }
+          }
           assertThat(generator.generate(fileDescriptor)).isEqualTo(expected);
         }
       }

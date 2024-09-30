@@ -7,6 +7,7 @@ option java_package = "extend.test.main";
 import "webpb/WebpbExtend.proto";
 import "include/Extends.proto";
 import "include2/Extends2.proto";
+import "AnotherEnum.proto";
 
 enum SubTypeSubValueType {
   subTypeSubValue0 = 0;
@@ -42,5 +43,23 @@ message SubTypeSubValue2 {
 }
 
 message SubTypeSubValue3 {
+  required int32 value = 1;
+}
+
+message SubTypeSubValue4 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'foo'};
+
+  required int32 value = 1;
+}
+
+message SubTypeSubValue5 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'foo.bar'};
+
+  required int32 value = 1;
+}
+
+message SubTypeSubValue6 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'AnotherEnum.Another.a'};
+
   required int32 value = 1;
 }

@@ -25,9 +25,11 @@ import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapKey
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapValueDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.isMessage;
 import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getOpts;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.commons.SegmentGroup;
@@ -219,7 +221,18 @@ public class MessageGenerator {
 
   private List<String> getSubValues(Descriptor descriptor) {
     OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
-    return opts.getSubValuesList();
+    return opts.getSubValuesList().stream()
+        .map(
+            subValue -> {
+              EnumValueDescriptor valueDescriptor =
+                  DescriptorUtils.resolveEnumValue(singletonList(descriptor.getFile()), subValue);
+              if (valueDescriptor != null) {
+                imports.importType(valueDescriptor.getType().getFullName());
+                return subValue;
+              }
+              return '"' + subValue + '"';
+            })
+        .collect(Collectors.toList());
   }
 
   private List<Map<String, String>> getAliasMsgs(Descriptor descriptor) {

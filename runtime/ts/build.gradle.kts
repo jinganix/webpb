@@ -1,10 +1,11 @@
 import org.apache.tools.ant.taskdefs.condition.Os
+import utils.which
 
 plugins {
   id("ts.runtime")
 }
 
-val npm = if (Os.isFamily(Os.FAMILY_WINDOWS)) "npm.cmd" else "npm"
+val npm = if (Os.isFamily(Os.FAMILY_WINDOWS)) "npm.cmd" else project.which("npm")
 
 task<Exec>("npmInstall") {
   val nodeModules = file("./node_modules")

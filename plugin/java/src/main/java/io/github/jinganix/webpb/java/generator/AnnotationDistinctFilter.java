@@ -20,6 +20,8 @@ package io.github.jinganix.webpb.java.generator;
 
 import com.github.javaparser.JavaParser;
 import io.github.jinganix.webpb.java.utils.Imports;
+import io.github.jinganix.webpb.utilities.utils.Const;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +34,7 @@ public class AnnotationDistinctFilter implements Predicate<String> {
 
   private final Imports imports;
 
-  private final List<String> repeatable;
+  private final List<String> repeatable = new ArrayList<>();
 
   private final Set<String> existingSet = new HashSet<>();
 
@@ -44,7 +46,8 @@ public class AnnotationDistinctFilter implements Predicate<String> {
    */
   public AnnotationDistinctFilter(Imports imports, List<String> repeatable) {
     this.imports = imports;
-    this.repeatable = repeatable;
+    this.repeatable.addAll(repeatable);
+    this.repeatable.add(Const.RUNTIME_PACKAGE + ".WebpbSubValue");
   }
 
   /**
