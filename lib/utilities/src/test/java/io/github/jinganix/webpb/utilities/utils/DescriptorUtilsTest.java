@@ -45,6 +45,7 @@ import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.commons.SegmentGroup;
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 class DescriptorUtilsTest {
@@ -89,6 +90,12 @@ class DescriptorUtilsTest {
   void shouldResolveEnumDescriptorSuccess() {
     RequestContext context = createRequest(Dump.test1);
     assertNotNull(resolveEnum(context.getDescriptors(), "Enum"));
+    FileDescriptor fileDescriptor =
+        context.getDescriptors().stream()
+            .filter(x -> "Test.proto".equals(x.getName()))
+            .findFirst()
+            .orElse(null);
+    assertNotNull(resolveEnum(Collections.singletonList(fileDescriptor), "Enum"));
     assertNull(resolveEnum(context.getDescriptors(), "NotExists"));
   }
 

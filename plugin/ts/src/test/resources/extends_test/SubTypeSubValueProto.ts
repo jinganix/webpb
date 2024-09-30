@@ -3,6 +3,7 @@
 // SubTypeSubValue.proto
 
 import * as Webpb from "webpb";
+import * as AnotherEnum from "./AnotherEnum";
 import * as SubTypeSubValueProto from "./SubTypeSubValueProto";
 
 export enum SubTypeSubValueType {
@@ -210,3 +211,123 @@ export class SubTypeSubValue3 implements ISubTypeSubValue3, Webpb.WebpbMessage {
     return this;
   }
 }
+
+export interface ISubTypeSubValue4 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+  value: number;
+}
+
+export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue4, Webpb.WebpbMessage {
+  value!: number;
+  webpbMeta: () => Webpb.WebpbMeta;
+
+  static CLASS = "SubTypeSubValue4";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
+  protected constructor(p?: ISubTypeSubValue4) {
+    super();
+    Webpb.assign(p, this, []);
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue4",
+        context: "",
+        method: "",
+        path: "",
+      } as Webpb.WebpbMeta);
+  }
+
+  static create(p?: ISubTypeSubValue4): SubTypeSubValue4 {
+    return new SubTypeSubValue4(p);
+  }
+
+  static fromAlias(data?: unknown): SubTypeSubValue4 {
+    return SubTypeSubValue4.create(data as ISubTypeSubValue4);
+  }
+
+  toWebpbAlias(): unknown {
+    return this;
+  }
+}
+
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo"] = SubTypeSubValue4.fromAlias;
+
+export interface ISubTypeSubValue5 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+  value: number;
+}
+
+export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue5, Webpb.WebpbMessage {
+  value!: number;
+  webpbMeta: () => Webpb.WebpbMeta;
+
+  static CLASS = "SubTypeSubValue5";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
+  protected constructor(p?: ISubTypeSubValue5) {
+    super();
+    Webpb.assign(p, this, []);
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue5",
+        context: "",
+        method: "",
+        path: "",
+      } as Webpb.WebpbMeta);
+  }
+
+  static create(p?: ISubTypeSubValue5): SubTypeSubValue5 {
+    return new SubTypeSubValue5(p);
+  }
+
+  static fromAlias(data?: unknown): SubTypeSubValue5 {
+    return SubTypeSubValue5.create(data as ISubTypeSubValue5);
+  }
+
+  toWebpbAlias(): unknown {
+    return this;
+  }
+}
+
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo.bar"] = SubTypeSubValue5.fromAlias;
+
+export interface ISubTypeSubValue6 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+  value: number;
+}
+
+export class SubTypeSubValue6 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue6, Webpb.WebpbMessage {
+  value!: number;
+  webpbMeta: () => Webpb.WebpbMeta;
+
+  static CLASS = "SubTypeSubValue6";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
+  protected constructor(p?: ISubTypeSubValue6) {
+    super();
+    Webpb.assign(p, this, []);
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue6",
+        context: "",
+        method: "",
+        path: "",
+      } as Webpb.WebpbMeta);
+  }
+
+  static create(p?: ISubTypeSubValue6): SubTypeSubValue6 {
+    return new SubTypeSubValue6(p);
+  }
+
+  static fromAlias(data?: unknown): SubTypeSubValue6 {
+    return SubTypeSubValue6.create(data as ISubTypeSubValue6);
+  }
+
+  toWebpbAlias(): unknown {
+    return this;
+  }
+}
+
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[AnotherEnum.Another.a] = SubTypeSubValue6.fromAlias;

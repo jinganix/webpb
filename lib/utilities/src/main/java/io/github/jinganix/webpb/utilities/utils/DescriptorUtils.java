@@ -23,6 +23,7 @@ import static com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
+import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.Descriptors.GenericDescriptor;
@@ -91,7 +92,7 @@ public class DescriptorUtils {
    * Filed type is enum.
    *
    * @param fieldDescriptor {@link FieldDescriptor}
-   * @return is enum
+   * @return true if is an enum
    */
   public static boolean isEnum(FieldDescriptor fieldDescriptor) {
     return fieldDescriptor.getJavaType() == ENUM;
@@ -101,26 +102,24 @@ public class DescriptorUtils {
    * Field type is message.
    *
    * @param fieldDescriptor {@link FieldDescriptor}
-   * @return is message
+   * @return true if is a message
    */
   public static boolean isMessage(FieldDescriptor fieldDescriptor) {
     return fieldDescriptor.getJavaType() == MESSAGE;
   }
 
-  /**
-   * Resolve a message descriptor by name recursively.
-   *
-   * @param fileDescriptor from file descriptor
-   * @param name message name
-   * @return {@link Descriptor} or null
-   */
-  public static Descriptor resolveMessage(FileDescriptor fileDescriptor, String name) {
-    for (Descriptor descriptor : fileDescriptor.getMessageTypes()) {
-      if (StringUtils.equalsIgnoreCase(name, descriptor.getName())) {
-        return descriptor;
+  private static boolean endsWithName(String fullName, String name) {
+    String[] p1 = fullName.split("\\.");
+    String[] p2 = name.split("\\.");
+    if (p1.length < p2.length) {
+      return false;
+    }
+    for (int i = 1; i <= p2.length; i++) {
+      if (!StringUtils.equals(p1[p1.length - i], p2[p2.length - i])) {
+        return false;
       }
     }
-    return resolveMessage(fileDescriptor.getDependencies(), name);
+    return true;
   }
 
   /**
@@ -132,7 +131,12 @@ public class DescriptorUtils {
    */
   public static Descriptor resolveMessage(List<FileDescriptor> descriptors, String name) {
     for (FileDescriptor fileDescriptor : descriptors) {
-      Descriptor descriptor = resolveMessage(fileDescriptor, name);
+      for (Descriptor descriptor : fileDescriptor.getMessageTypes()) {
+        if (endsWithName(descriptor.getFullName(), name)) {
+          return descriptor;
+        }
+      }
+      Descriptor descriptor = resolveMessage(fileDescriptor.getDependencies(), name);
       if (descriptor != null) {
         return descriptor;
       }
@@ -145,14 +149,44 @@ public class DescriptorUtils {
    *
    * @param descriptors from descriptors
    * @param name enum name
-   * @return {@link Descriptor} or null
+   * @return {@link EnumDescriptor} or null
    */
   public static EnumDescriptor resolveEnum(List<FileDescriptor> descriptors, String name) {
     for (FileDescriptor fileDescriptor : descriptors) {
-      for (EnumDescriptor descriptor : fileDescriptor.getEnumTypes()) {
-        if (StringUtils.equalsIgnoreCase(name, descriptor.getName())) {
-          return descriptor;
+      for (EnumDescriptor enumDescriptor : fileDescriptor.getEnumTypes()) {
+        if (endsWithName(enumDescriptor.getFullName(), name)) {
+          return enumDescriptor;
         }
+      }
+      EnumDescriptor enumDescriptor = resolveEnum(fileDescriptor.getDependencies(), name);
+      if (enumDescriptor != null) {
+        return enumDescriptor;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Resolve an {@link EnumValueDescriptor} by name recursively.
+   *
+   * @param descriptors from descriptors
+   * @param name enum name
+   * @return {@link EnumDescriptor} or null
+   */
+  public static EnumValueDescriptor resolveEnumValue(
+      List<FileDescriptor> descriptors, String name) {
+    for (FileDescriptor fileDescriptor : descriptors) {
+      for (EnumDescriptor enumDescriptor : fileDescriptor.getEnumTypes()) {
+        for (EnumValueDescriptor valueDescriptor : enumDescriptor.getValues()) {
+          if (endsWithName(valueDescriptor.getFullName(), name)) {
+            return valueDescriptor;
+          }
+        }
+      }
+      EnumValueDescriptor valueDescriptor =
+          resolveEnumValue(fileDescriptor.getDependencies(), name);
+      if (valueDescriptor != null) {
+        return valueDescriptor;
       }
     }
     return null;

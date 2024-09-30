@@ -260,7 +260,8 @@ class OptionUtilsTest {
         Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test2");
         assertThatThrownBy(() -> OptionUtils.checkDuplicatedFields(descriptor))
             .isInstanceOf(RuntimeException.class)
-            .hasMessage("Duplicated field name `Test2.foo` in DuplicatedFieldsError.proto");
+            .hasMessage(
+                "Duplicated field name `Test2.foo` in DuplicatedFieldsError.proto when extends");
       }
     }
 

@@ -75,6 +75,7 @@ public class Imports {
                 "java.util.Map",
                 Const.RUNTIME_PACKAGE + ".WebpbMessage",
                 Const.RUNTIME_PACKAGE + ".WebpbMeta",
+                Const.RUNTIME_PACKAGE + ".WebpbSubValue",
                 Const.RUNTIME_PACKAGE + ".common.InQuery",
                 Const.RUNTIME_PACKAGE + ".enumeration.Enumeration"),
             OptionUtils.getWebpbOpts(fd, WebpbExtend.FileOpts::hasJava).getJava().getImportList(),

@@ -8,9 +8,8 @@ import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbMeta;
 import io.github.jinganix.webpb.runtime.WebpbSubValue;
 
-@WebpbSubValue("0")
-@WebpbSubValue("subTypeSubValue0")
-public class SubTypeSubValue1 extends SubTypeSubValueSuper implements WebpbMessage {
+@WebpbSubValue("foo.bar")
+public class SubTypeSubValue5 extends SubTypeSubValueSuper implements WebpbMessage {
 
   public static final String WEBPB_METHOD = "";
 
@@ -27,10 +26,10 @@ public class SubTypeSubValue1 extends SubTypeSubValueSuper implements WebpbMessa
 
   private Integer value;
 
-  public SubTypeSubValue1() {
+  public SubTypeSubValue5() {
   }
 
-  public SubTypeSubValue1(Integer value) {
+  public SubTypeSubValue5(Integer value) {
     this.value = value;
   }
 
@@ -38,7 +37,7 @@ public class SubTypeSubValue1 extends SubTypeSubValueSuper implements WebpbMessa
     return this.value;
   }
 
-  public SubTypeSubValue1 setValue(Integer value) {
+  public SubTypeSubValue5 setValue(Integer value) {
     this.value = value;
     return this;
   }
