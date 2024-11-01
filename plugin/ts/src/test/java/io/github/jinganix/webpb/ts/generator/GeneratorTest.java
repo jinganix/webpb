@@ -64,7 +64,7 @@ class GeneratorTest {
 
   @Nested
   @DisplayName("generate")
-  class AutoAlias {
+  class Generate {
 
     @Nested
     @DisplayName("when dump files provided")

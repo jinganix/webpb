@@ -39,8 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 /** Generator to process {@link Descriptor}. */
 public final class Generator {
 
-  private final Templates templates = new Templates();
-
   /**
    * Create a generator.
    *
@@ -100,6 +98,6 @@ public final class Generator {
     data.put("filename", fd.getName());
     data.put("imports", imports.toList());
     data.put("messages", messages);
-    return templates.process("file.ftl", data);
+    return new Templates().process("file.ftl", data);
   }
 }

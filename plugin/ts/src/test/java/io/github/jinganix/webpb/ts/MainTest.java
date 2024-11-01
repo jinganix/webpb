@@ -55,7 +55,7 @@ class MainTest {
       @Test
       @DisplayName("then no errors")
       void thenNoErrors() {
-        Dump.test1.pipe();
+        Dump.extends_test.pipe();
         assertThatCode(() -> Main.main(null)).doesNotThrowAnyException();
       }
     }
