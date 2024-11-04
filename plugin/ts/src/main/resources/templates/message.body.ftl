@@ -1,13 +1,37 @@
-export interface I${className}<#if extend??> extends ${extendI}</#if> {
+export interface I${className}<#rt>
+<#if sub_type??>
+  <T extends ${sub_type} = ${sub_type}><#t>
+</#if>
+<#if extend??> extends ${extendI}<#rt>
+  <#if sub_values?has_content && extend??>
+    <<#list sub_values as sub_value>${sub_value}<#sep> | </#sep></#list>><#t>
+  </#if>
+</#if> {
 <#list fields as field>
+  <#if sub_type?? && sub_type_prop == field.name>
+  ${field.name}<#if field.optional>?</#if>: T;
+  <#else>
   ${field.name}<#if field.optional>?</#if>: ${field.type};
+  </#if>
 </#list>}
 
-export class ${className}<#if extend??> extends ${extend}</#if> implements I${className}, Webpb.WebpbMessage {
+export class ${className}<#rt>
+<#if sub_type??>
+  <T extends ${sub_type} = ${sub_type}><#t>
+</#if>
+<#if extend??> extends ${extend}<#rt>
+  <#if sub_values?has_content && extend??>
+    <<#list sub_values as sub_value>${sub_value}<#sep> | </#sep></#list>><#t>
+  </#if>
+</#if> implements I${className}<#if sub_type??><T></#if>, Webpb.WebpbMessage {
 <#list fields as field>
+  <#if sub_type?? && sub_type_prop == field.name>
+  ${field.name}<#if !field.default??>${field.optional?then("?", "!")}</#if>: T<#if field.default??> = ${field.default}</#if>;
+  <#else>
   ${field.name}<#if !field.default??>${field.optional?then("?", "!")}</#if>: ${field.type}<#if field.default??> = ${field.default}</#if>;
+  </#if>
 </#list>
-  webpbMeta: () => Webpb.WebpbMeta;<#if sub_type?has_content>
+  webpbMeta: () => Webpb.WebpbMeta;<#if sub_type_prop?has_content>
   static fromAliases: Record<string, (data?: unknown) => ${className}> = {};</#if>
 
   static CLASS = "${className}";
@@ -56,8 +80,8 @@ export class ${className}<#if extend??> extends ${extend}</#if> implements I${cl
 
 <#if aliases?has_content || aliasMsgs?has_content>
   static fromAlias(data?: unknown): ${className} {
-  <#if sub_type?has_content>
-    <#assign sub_key=(aliases?has_content && aliases[sub_type]?has_content)?then(aliases[sub_type], sub_type)>
+  <#if sub_type_prop?has_content>
+    <#assign sub_key=(aliases?has_content && aliases[sub_type_prop]?has_content)?then(aliases[sub_type_prop], sub_type_prop)>
     const sub = this.fromAliases[(data as Record<string, string>)?.${sub_key}]?.(data);
     if (sub) {
       return sub;

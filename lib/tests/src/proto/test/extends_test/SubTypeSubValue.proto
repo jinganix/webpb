@@ -15,6 +15,12 @@ enum SubTypeSubValueType {
   subTypeSubValue2 = 2;
 }
 
+message SubTypeSubValueStringSuper {
+  option (m_opts).opt = {sub_type: 'type'};
+
+  required string type = 1;
+}
+
 message SubTypeSubValueSuper {
   option (m_opts).opt = {sub_type: 'type'};
 

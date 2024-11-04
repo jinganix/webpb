@@ -19,9 +19,11 @@
 package io.github.jinganix.webpb.ts;
 
 import com.google.protobuf.Descriptors.FileDescriptor;
+import io.github.jinganix.webpb.ts.generator.ExtendsGenerator;
 import io.github.jinganix.webpb.ts.generator.Generator;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.utils.ResultWriter;
+import java.util.Map.Entry;
 
 /** The main class. */
 public class Main {
@@ -39,6 +41,9 @@ public class Main {
     for (FileDescriptor fileDescriptor : context.getTargetDescriptors()) {
       String content = generator.generate(fileDescriptor);
       writer.write(fileDescriptor.getPackage() + ".ts", content);
+    }
+    for (Entry<String, String> entry : new ExtendsGenerator().generate(context).entrySet()) {
+      writer.write(entry.getKey(), entry.getValue());
     }
   }
 }

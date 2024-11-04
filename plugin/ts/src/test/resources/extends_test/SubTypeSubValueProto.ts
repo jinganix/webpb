@@ -18,12 +18,50 @@ export const enum ConstSubTypeSubValueType {
   subTypeSubValue2 = 2,
 }
 
-export interface ISubTypeSubValueSuper {
-  type: SubTypeSubValueType;
+export interface ISubTypeSubValueStringSuper {
+  type: string;
 }
 
-export class SubTypeSubValueSuper implements ISubTypeSubValueSuper, Webpb.WebpbMessage {
-  type!: SubTypeSubValueType;
+export class SubTypeSubValueStringSuper implements ISubTypeSubValueStringSuper, Webpb.WebpbMessage {
+  type!: string;
+  webpbMeta: () => Webpb.WebpbMeta;
+  static fromAliases: Record<string, (data?: unknown) => SubTypeSubValueStringSuper> = {};
+
+  static CLASS = "SubTypeSubValueStringSuper";
+  static CONTEXT = "";
+  static METHOD = "";
+  static PATH = "";
+
+  protected constructor(p?: ISubTypeSubValueStringSuper) {
+    Webpb.assign(p, this, []);
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValueStringSuper",
+        context: "",
+        method: "",
+        path: "",
+      } as Webpb.WebpbMeta);
+  }
+
+  static create(p?: ISubTypeSubValueStringSuper): SubTypeSubValueStringSuper {
+    return new SubTypeSubValueStringSuper(p);
+  }
+
+  static fromAlias(data?: unknown): SubTypeSubValueStringSuper {
+    return SubTypeSubValueStringSuper.create(data as ISubTypeSubValueStringSuper);
+  }
+
+  toWebpbAlias(): unknown {
+    return this;
+  }
+}
+
+export interface ISubTypeSubValueSuper<T extends SubTypeSubValueType = SubTypeSubValueType> {
+  type: T;
+}
+
+export class SubTypeSubValueSuper<T extends SubTypeSubValueType = SubTypeSubValueType> implements ISubTypeSubValueSuper<T>, Webpb.WebpbMessage {
+  type!: T;
   webpbMeta: () => Webpb.WebpbMeta;
   static fromAliases: Record<string, (data?: unknown) => SubTypeSubValueSuper> = {};
 
@@ -94,11 +132,11 @@ export class SubTypeSubValue0 extends SubTypeSubValueProto.SubTypeSubValueSuper 
   }
 }
 
-export interface ISubTypeSubValue1 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+export interface ISubTypeSubValue1 extends SubTypeSubValueProto.ISubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue0> {
   value: number;
 }
 
-export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue1, Webpb.WebpbMessage {
+export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue0> implements ISubTypeSubValue1, Webpb.WebpbMessage {
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -134,11 +172,11 @@ export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper 
 
 SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueType.subTypeSubValue0] = SubTypeSubValue1.fromAlias;
 
-export interface ISubTypeSubValue2 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+export interface ISubTypeSubValue2 extends SubTypeSubValueProto.ISubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2> {
   value: number;
 }
 
-export class SubTypeSubValue2 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue2, Webpb.WebpbMessage {
+export class SubTypeSubValue2 extends SubTypeSubValueProto.SubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2> implements ISubTypeSubValue2, Webpb.WebpbMessage {
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -212,11 +250,11 @@ export class SubTypeSubValue3 implements ISubTypeSubValue3, Webpb.WebpbMessage {
   }
 }
 
-export interface ISubTypeSubValue4 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+export interface ISubTypeSubValue4 extends SubTypeSubValueProto.ISubTypeSubValueSuper<"foo"> {
   value: number;
 }
 
-export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue4, Webpb.WebpbMessage {
+export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper<"foo"> implements ISubTypeSubValue4, Webpb.WebpbMessage {
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -252,11 +290,11 @@ export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper 
 
 SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo"] = SubTypeSubValue4.fromAlias;
 
-export interface ISubTypeSubValue5 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+export interface ISubTypeSubValue5 extends SubTypeSubValueProto.ISubTypeSubValueSuper<"foo.bar"> {
   value: number;
 }
 
-export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue5, Webpb.WebpbMessage {
+export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper<"foo.bar"> implements ISubTypeSubValue5, Webpb.WebpbMessage {
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -292,11 +330,11 @@ export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper 
 
 SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo.bar"] = SubTypeSubValue5.fromAlias;
 
-export interface ISubTypeSubValue6 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+export interface ISubTypeSubValue6 extends SubTypeSubValueProto.ISubTypeSubValueSuper<AnotherEnum.Another.a> {
   value: number;
 }
 
-export class SubTypeSubValue6 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue6, Webpb.WebpbMessage {
+export class SubTypeSubValue6 extends SubTypeSubValueProto.SubTypeSubValueSuper<AnotherEnum.Another.a> implements ISubTypeSubValue6, Webpb.WebpbMessage {
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 

@@ -18,7 +18,8 @@
 
 package io.github.jinganix.webpb.utilities.utils;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +39,19 @@ class ResultWriterTest {
       @Test
       @DisplayName("then throw exception")
       void thenThrowExceptionTest() {
-        assertThrows(RuntimeException.class, () -> new ResultWriter(null).write("a", "a"));
+        assertThatThrownBy(() -> new ResultWriter(null).write("a", "a"))
+            .isInstanceOf(RuntimeException.class);
+      }
+    }
+
+    @Nested
+    @DisplayName("when content is empty")
+    class WhenContentIsEmpty {
+
+      @Test
+      @DisplayName("then write nothing")
+      void thenWriteNothing() {
+        assertThatCode(() -> new ResultWriter(null).write("a", null)).doesNotThrowAnyException();
       }
     }
   }

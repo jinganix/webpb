@@ -151,6 +151,7 @@ public class MessageGenerator {
     data.put("aliases", getAliases(descriptor));
     data.put("aliasMsgs", getAliasMsgs(descriptor));
     data.put("sub_type", getSubType(descriptor));
+    data.put("sub_type_prop", getSubTypeProp(descriptor));
     data.put("sub_values", getSubValues(descriptor));
     return data;
   }
@@ -215,6 +216,20 @@ public class MessageGenerator {
   }
 
   private String getSubType(Descriptor descriptor) {
+    OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
+    String prop = opts.getSubType();
+    for (FieldDescriptor fieldDescriptor : descriptor.getFields()) {
+      if (fieldDescriptor.getName().equals(prop)) {
+        if (DescriptorUtils.isEnum(fieldDescriptor)) {
+          return imports.importType(fieldDescriptor.getEnumType().getFullName());
+        }
+        return null;
+      }
+    }
+    return null;
+  }
+
+  private String getSubTypeProp(Descriptor descriptor) {
     OptMessageOpts opts = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
     return opts.getSubType();
   }
