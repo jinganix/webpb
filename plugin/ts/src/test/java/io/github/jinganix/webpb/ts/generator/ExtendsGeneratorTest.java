@@ -50,7 +50,7 @@ class ExtendsGeneratorTest {
       void thenGenerateExpected() {
         for (Dump dump : Dump.values()) {
           RequestContext request = createRequest(dump);
-          Map<String, String> data = generator.generate(request);
+          Map<String, String> data = generator.generate(request.getTargetDescriptors());
           for (Entry<String, String> entry : data.entrySet()) {
             String filename = "/" + dump.name().toLowerCase() + "/" + entry.getKey();
             String expected;

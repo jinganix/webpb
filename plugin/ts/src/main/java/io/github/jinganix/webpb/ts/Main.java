@@ -20,9 +20,12 @@ package io.github.jinganix.webpb.ts;
 
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.ts.generator.ExtendsGenerator;
+import io.github.jinganix.webpb.ts.generator.FromAliasGenerator;
 import io.github.jinganix.webpb.ts.generator.Generator;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.utils.ResultWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /** The main class. */
@@ -37,12 +40,15 @@ public class Main {
   public static void main(String[] args) throws Exception {
     RequestContext context = new RequestContext();
     Generator generator = Generator.create();
+    Map<String, String> files = new HashMap<>();
     ResultWriter writer = new ResultWriter(System.out);
     for (FileDescriptor fileDescriptor : context.getTargetDescriptors()) {
       String content = generator.generate(fileDescriptor);
-      writer.write(fileDescriptor.getPackage() + ".ts", content);
+      files.put(fileDescriptor.getPackage() + ".ts", content);
     }
-    for (Entry<String, String> entry : new ExtendsGenerator().generate(context).entrySet()) {
+    files.putAll(new ExtendsGenerator().generate(context.getTargetDescriptors()));
+    files.putAll(new FromAliasGenerator().generate(context.getTargetDescriptors()));
+    for (Entry<String, String> entry : files.entrySet()) {
       writer.write(entry.getKey(), entry.getValue());
     }
   }

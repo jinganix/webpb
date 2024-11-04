@@ -7,6 +7,11 @@
 ${import}
   </#list>
 </#if>
+<#if dynamicImports?has_content>
+  <#list dynamicImports as dynamicImport>
+import("./${dynamicImport}FromAlias");
+  </#list>
+</#if>
 <#list messages as message>
 
 ${message}

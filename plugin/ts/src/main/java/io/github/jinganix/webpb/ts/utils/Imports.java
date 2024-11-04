@@ -38,6 +38,13 @@ public class Imports {
 
   private final List<String> lookup;
 
+  /** Constructor. */
+  public Imports() {
+    this.packageName = "";
+    this.imports = new ArrayList<>();
+    this.lookup = new ArrayList<>();
+  }
+
   /**
    * Constructor.
    *
