@@ -80,13 +80,6 @@ export class ${className}<#rt>
 
 <#if aliases?has_content || aliasMsgs?has_content>
   static fromAlias(data?: unknown): ${className} {
-  <#if sub_type_prop?has_content>
-    <#assign sub_key=(aliases?has_content && aliases[sub_type_prop]?has_content)?then(aliases[sub_type_prop], sub_type_prop)>
-    const sub = this.fromAliases[(data as Record<string, string>)?.${sub_key}]?.(data);
-    if (sub) {
-      return sub;
-    }
-  </#if>
   <#if aliases?has_content>
     const p = Webpb.toAlias(data, {
     <#list aliases?keys as key>
@@ -105,6 +98,13 @@ export class ${className}<#rt>
     p?.${alias.name} && (p.${alias.name} = ${alias.type}.fromAlias(p.${alias.name}));
     </#if>
   </#list>
+    <#if sub_type_prop?has_content>
+    <#assign sub_key=(aliases?has_content && aliases[sub_type_prop]?has_content)?then(aliases[sub_type_prop], sub_type_prop)>
+    const sub = this.fromAliases[(data as Record<string, string>)?.${sub_key}]?.(p);
+    if (sub) {
+      return sub;
+    }
+  </#if>
     return Object.assign(new ${className}(), p);
   }
 <#else>
@@ -157,8 +157,4 @@ ${nested}
 
 </#sep>
 </#list>
-}</#if><#if sub_values?has_content && extend??>
-
-<#list sub_values as sub_value>
-${extend}.fromAliases[${sub_value}] = ${className}.fromAlias;<#sep>
-</#sep></#list></#if>
+}</#if>

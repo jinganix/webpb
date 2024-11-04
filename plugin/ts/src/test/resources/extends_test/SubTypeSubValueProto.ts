@@ -5,6 +5,8 @@
 import * as Webpb from "webpb";
 import * as AnotherEnum from "./AnotherEnum";
 import * as SubTypeSubValueProto from "./SubTypeSubValueProto";
+import("./SubTypeSubValueStringSuperFromAlias");
+import("./SubTypeSubValueSuperFromAlias");
 
 export enum SubTypeSubValueType {
   subTypeSubValue0 = 0,
@@ -170,8 +172,6 @@ export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper<
   }
 }
 
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueType.subTypeSubValue0] = SubTypeSubValue1.fromAlias;
-
 export interface ISubTypeSubValue2 extends SubTypeSubValueProto.ISubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2> {
   value: number;
 }
@@ -209,9 +209,6 @@ export class SubTypeSubValue2 extends SubTypeSubValueProto.SubTypeSubValueSuper<
     return this;
   }
 }
-
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueType.subTypeSubValue1] = SubTypeSubValue2.fromAlias;
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueType.subTypeSubValue2] = SubTypeSubValue2.fromAlias;
 
 export interface ISubTypeSubValue3 {
   value: number;
@@ -288,8 +285,6 @@ export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper<
   }
 }
 
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo"] = SubTypeSubValue4.fromAlias;
-
 export interface ISubTypeSubValue5 extends SubTypeSubValueProto.ISubTypeSubValueSuper<"foo.bar"> {
   value: number;
 }
@@ -328,8 +323,6 @@ export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper<
   }
 }
 
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo.bar"] = SubTypeSubValue5.fromAlias;
-
 export interface ISubTypeSubValue6 extends SubTypeSubValueProto.ISubTypeSubValueSuper<AnotherEnum.Another.a> {
   value: number;
 }
@@ -367,5 +360,3 @@ export class SubTypeSubValue6 extends SubTypeSubValueProto.SubTypeSubValueSuper<
     return this;
   }
 }
-
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[AnotherEnum.Another.a] = SubTypeSubValue6.fromAlias;

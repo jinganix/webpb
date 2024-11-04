@@ -22,26 +22,23 @@ import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getOpts;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
+import io.github.jinganix.webpb.ts.utils.Imports;
 import io.github.jinganix.webpb.ts.utils.TsUtils;
-import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptMessageOpts;
 import io.github.jinganix.webpb.utilities.utils.Templates;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Generator for {@link Descriptor}. */
 public class ExtendsGenerator {
 
-  public Map<String, String> generate(RequestContext request) {
+  public Map<String, String> generate(List<FileDescriptor> descriptors) {
     Map<String, List<Descriptor>> extendsMap = new HashMap<>();
-    for (FileDescriptor fileDescriptor : request.getTargetDescriptors()) {
+    for (FileDescriptor fileDescriptor : descriptors) {
       for (Descriptor descriptor : fileDescriptor.getMessageTypes()) {
         OptMessageOpts opt = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
         if (opt.getExtends().isEmpty() || opt.getSubValuesList().isEmpty()) {
@@ -59,20 +56,15 @@ public class ExtendsGenerator {
   }
 
   private String genContent(String typeName, List<Descriptor> descriptors) {
+    Imports imports = new Imports();
     Map<String, Object> data = new HashMap<>();
-    Set<String> packages = new HashSet<>();
     List<String> types = new ArrayList<>();
     for (Descriptor descriptor : descriptors) {
       types.add(TsUtils.toInterfaceName(descriptor.getFullName()));
-      packages.add(descriptor.getFile().getPackage());
+      imports.importType(descriptor.getFullName());
     }
-    List<String> imports =
-        packages.stream()
-            .map(x -> "import * as " + x + " from \"./" + x + "\";")
-            .sorted()
-            .collect(Collectors.toList());
     data.put("types_name", typeName + "Types");
-    data.put("imports", imports);
+    data.put("imports", imports.toList());
     data.put("types", types);
     return new Templates().process("file.types.ftl", data);
   }

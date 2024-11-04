@@ -26,6 +26,7 @@ import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getWebpbOpts;
 import com.google.protobuf.Descriptors.Descriptor;
 import io.github.jinganix.webpb.ts.utils.Imports;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.utils.DescriptorUtils;
 import io.github.jinganix.webpb.utilities.utils.Templates;
 import java.util.ArrayList;
@@ -91,12 +92,17 @@ public final class Generator {
     for (EnumDescriptor enumDescriptor : fd.getEnumTypes()) {
       messages.add(new EnumGenerator(fd).generate(enumDescriptor));
     }
+    List<String> dynamicImports = new ArrayList<>();
     for (Descriptor descriptor : fd.getMessageTypes()) {
       messages.add(new MessageGenerator(imports, fd).generate(descriptor));
+      if (getOpts(descriptor, MessageOpts::hasOpt).getOpt().hasSubType()) {
+        dynamicImports.add(descriptor.getName());
+      }
     }
     Map<String, Object> data = new HashMap<>();
     data.put("filename", fd.getName());
     data.put("imports", imports.toList());
+    data.put("dynamicImports", dynamicImports);
     data.put("messages", messages);
     return new Templates().process("file.ftl", data);
   }

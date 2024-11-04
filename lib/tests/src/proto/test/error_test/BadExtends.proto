@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package BadExtendsProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message BadExtends {
+  option (m_opts).opt = {extends: "BadExtendsFoo", sub_values: "foo"};
+
+  required int32 value = 1;
+}
