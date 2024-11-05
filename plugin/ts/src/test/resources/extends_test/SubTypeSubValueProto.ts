@@ -14,11 +14,23 @@ export enum SubTypeSubValueType {
   subTypeSubValue2 = 2,
 }
 
+export const SubTypeSubValueTypeValues = [
+  SubTypeSubValueType.subTypeSubValue0,
+  SubTypeSubValueType.subTypeSubValue1,
+  SubTypeSubValueType.subTypeSubValue2,
+];
+
 export const enum ConstSubTypeSubValueType {
   subTypeSubValue0 = 0,
   subTypeSubValue1 = 1,
   subTypeSubValue2 = 2,
 }
+
+export const ConstSubTypeSubValueTypeValues = [
+  ConstSubTypeSubValueType.subTypeSubValue0,
+  ConstSubTypeSubValueType.subTypeSubValue1,
+  ConstSubTypeSubValueType.subTypeSubValue2,
+];
 
 export interface ISubTypeSubValueStringSuper {
   type: string;

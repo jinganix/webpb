@@ -8,9 +8,17 @@ export enum Enum {
   DEFAULT = 0,
 }
 
+export const EnumValues = [
+  Enum.DEFAULT,
+];
+
 export const enum ConstEnum {
   DEFAULT = 0,
 }
+
+export const ConstEnumValues = [
+  ConstEnum.DEFAULT,
+];
 
 export interface IMessage {
   id: number;

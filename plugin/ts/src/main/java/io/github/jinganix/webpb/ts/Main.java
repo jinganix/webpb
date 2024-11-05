@@ -19,9 +19,9 @@
 package io.github.jinganix.webpb.ts;
 
 import com.google.protobuf.Descriptors.FileDescriptor;
-import io.github.jinganix.webpb.ts.generator.ExtendsGenerator;
 import io.github.jinganix.webpb.ts.generator.FromAliasGenerator;
 import io.github.jinganix.webpb.ts.generator.Generator;
+import io.github.jinganix.webpb.ts.generator.SubTypesGenerator;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.utils.ResultWriter;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class Main {
       String content = generator.generate(fileDescriptor);
       files.put(fileDescriptor.getPackage() + ".ts", content);
     }
-    files.putAll(new ExtendsGenerator().generate(context.getTargetDescriptors()));
+    files.putAll(new SubTypesGenerator().generate(context.getTargetDescriptors()));
     files.putAll(new FromAliasGenerator().generate(context.getTargetDescriptors()));
     for (Entry<String, String> entry : files.entrySet()) {
       writer.write(entry.getKey(), entry.getValue());
