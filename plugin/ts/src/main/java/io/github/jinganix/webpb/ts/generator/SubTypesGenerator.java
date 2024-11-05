@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /** Generator for {@link Descriptor}. */
-public class ExtendsGenerator {
+public class SubTypesGenerator {
 
   public Map<String, String> generate(List<FileDescriptor> descriptors) {
     Map<String, List<Descriptor>> extendsMap = new HashMap<>();

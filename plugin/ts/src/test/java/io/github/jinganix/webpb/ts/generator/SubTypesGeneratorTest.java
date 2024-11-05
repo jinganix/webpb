@@ -32,8 +32,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("ExtendsGenerator")
-class ExtendsGeneratorTest {
+@DisplayName("SubTypesGenerator")
+class SubTypesGeneratorTest {
 
   @Nested
   @DisplayName("generate")
@@ -43,7 +43,7 @@ class ExtendsGeneratorTest {
     @DisplayName("when dump files provided")
     class WhenDumpFilesProvided {
 
-      ExtendsGenerator generator = new ExtendsGenerator();
+      SubTypesGenerator generator = new SubTypesGenerator();
 
       @Test
       @DisplayName("then generate expected")
