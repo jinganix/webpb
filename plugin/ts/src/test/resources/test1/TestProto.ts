@@ -12,11 +12,23 @@ export enum Test3 {
   test3_3 = "test3_3",
 }
 
+export const Test3Values = [
+  Test3.test3_1,
+  Test3.test3_2,
+  Test3.test3_3,
+];
+
 export const enum ConstTest3 {
   test3_1 = "test3_1",
   test3_2 = "test3_2",
   test3_3 = "test3_3",
 }
+
+export const ConstTest3Values = [
+  ConstTest3.test3_1,
+  ConstTest3.test3_2,
+  ConstTest3.test3_3,
+];
 
 export enum Test5 {
   test5_1 = "text1",
@@ -24,11 +36,23 @@ export enum Test5 {
   test5_3 = "test5_3",
 }
 
+export const Test5Values = [
+  Test5.test5_1,
+  Test5.test5_2,
+  Test5.test5_3,
+];
+
 export const enum ConstTest5 {
   test5_1 = "text1",
   test5_2 = "text2",
   test5_3 = "test5_3",
 }
+
+export const ConstTest5Values = [
+  ConstTest5.test5_1,
+  ConstTest5.test5_2,
+  ConstTest5.test5_3,
+];
 
 export interface ITest1 {
   test1: string;

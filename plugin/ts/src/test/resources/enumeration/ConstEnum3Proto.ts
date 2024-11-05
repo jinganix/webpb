@@ -6,6 +6,14 @@ export enum ConstEnum3 {
   DEFAULT = 0,
 }
 
+export const ConstEnum3Values = [
+  ConstEnum3.DEFAULT,
+];
+
 export const enum ConstConstEnum3 {
   DEFAULT = 0,
 }
+
+export const ConstConstEnum3Values = [
+  ConstConstEnum3.DEFAULT,
+];
