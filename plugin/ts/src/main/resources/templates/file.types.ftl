@@ -2,7 +2,7 @@
 // https://github.com/jinganix/webpb
 
 <#list types as type>
-  export { ${type?keep_after(".")} } from "./${type?keep_before(".")}";<#lt>
+  export type { ${type?keep_after(".")} } from "./${type?keep_before(".")}";<#lt>
 </#list>
 <#if imports?has_content>
   <#list imports as import>
