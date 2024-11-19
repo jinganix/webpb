@@ -1,6 +1,6 @@
-import axios from "axios";
-import { HttpService } from "@scripts/http.service";
 import { StoreVisitRequest, StoreVisitResponse } from "@proto/StoreProto";
+import { HttpService } from "@scripts/http.service";
+import axios from "axios";
 
 jest.mock("axios");
 
@@ -22,6 +22,19 @@ describe("http.service", () => {
     });
     const res = await httpService.request<StoreVisitResponse>(
       StoreVisitRequest.create({ customer: "Tom", id: "123" }),
+    );
+    expect(res).toMatchObject(RESPONSE_DATA);
+  });
+
+  it("should request success from alias", async () => {
+    const httpService = new HttpService("https://abc");
+    axios.request = jest.fn().mockResolvedValue({
+      data: RESPONSE_DATA,
+      status: 200,
+    });
+    const res = await httpService.request(
+      StoreVisitRequest.create({ customer: "Tom", id: "123" }),
+      StoreVisitResponse,
     );
     expect(res).toMatchObject(RESPONSE_DATA);
   });

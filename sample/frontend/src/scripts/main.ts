@@ -16,7 +16,7 @@ export class Main {
     Main.addClickListener("getStoresButton", () => this.getStores());
   }
 
-  private static addClickListener(id: string, listener: () => void) {
+  private static addClickListener(id: string, listener: () => void): void {
     const element = document.getElementById(id);
     element && element.addEventListener("click", listener);
   }
@@ -40,8 +40,9 @@ export class Main {
     const customerElement = Main.getInput("customer");
     const customer = customerElement?.value ?? "Tom";
     this.httpService
-      .request<StoreVisitResponse>(
+      .request(
         StoreVisitRequest.create({ customer: customer, id: storeId }),
+        StoreVisitResponse,
       )
       .then(
         (res) => console.log(res),

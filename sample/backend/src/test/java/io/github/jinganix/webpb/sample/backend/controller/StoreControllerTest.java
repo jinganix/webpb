@@ -114,10 +114,10 @@ class StoreControllerTest {
                 request(new StoreVisitRequest((long) storeId, customer))
                     .content("{\"customer\": \"" + customer + "\"}"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.store.id", is(storeId)))
-            .andExpect(jsonPath("$.store.name", is("store-" + storeId)))
-            .andExpect(jsonPath("$.store.city", is("Chengdu")))
-            .andExpect(jsonPath("$.greeting", is("Welcome, " + customer)));
+            .andExpect(jsonPath("$.a.a", is(storeId)))
+            .andExpect(jsonPath("$.a.b", is("store-" + storeId)))
+            .andExpect(jsonPath("$.a.c", is("Chengdu")))
+            .andExpect(jsonPath("$.b", is("Welcome, " + customer)));
       }
     }
   }

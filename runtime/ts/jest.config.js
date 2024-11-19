@@ -1,7 +1,7 @@
 module.exports = {
   bail: true,
   collectCoverage: true,
-  collectCoverageFrom: ['src/**/*.ts'],
+  collectCoverageFrom: ["src/**/*.ts"],
   coverageThreshold: {
     global: {
       branches: 100,
@@ -11,8 +11,8 @@ module.exports = {
     },
   },
   errorOnDeprecated: true,
-  preset: 'ts-jest',
-  rootDir: './',
-  testEnvironment: 'node',
-  testMatch: ['<rootDir>/test/**/*(*.)@(test).ts'],
+  preset: "ts-jest",
+  rootDir: "./",
+  testEnvironment: "node",
+  testMatch: ["<rootDir>/test/**/*(*.)@(test).ts"],
 };

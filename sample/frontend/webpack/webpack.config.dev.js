@@ -1,7 +1,7 @@
 const Path = require("path");
+const StylelintPlugin = require("stylelint-webpack-plugin");
 const Webpack = require("webpack");
 const { merge } = require("webpack-merge");
-const StylelintPlugin = require("stylelint-webpack-plugin");
 
 const common = require("./webpack.common.js");
 

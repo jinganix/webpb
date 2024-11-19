@@ -23,7 +23,7 @@
     "target": "es6",
     "paths": {
       "@proto/*": ["build/generated/source/proto/main/ts/*"],
-      "@scripts*": ["src/scripts/*"]
+      "@scripts/*": ["src/scripts/*"]
     },
     "typeRoots": [
       "node_modules/@types",

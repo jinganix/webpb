@@ -1,13 +1,13 @@
-import { HttpService } from "@scripts/http.service";
-import { Main } from "@scripts/main";
 import {
   StoreListResponse,
   StoreVisitResponse,
   StoreGreetingResponse,
 } from "@proto/StoreProto";
+import { HttpService } from "@scripts/http.service";
+import { Main } from "@scripts/main";
 
 describe("main", () => {
-  const createElement = (id: string) => {
+  const createElement = (id: string): void => {
     const element = document.createElement("input");
     element.setAttribute("id", id);
     document.body.appendChild(element);
