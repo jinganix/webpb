@@ -1,6 +1,6 @@
-const Path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const Path = require("path");
 
 module.exports = {
   entry: {
@@ -15,7 +15,6 @@ module.exports = {
         type: "javascript/auto",
       },
       {
-        // eslint-disable-next-line max-len
         test: /\.(ico|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2)(\?.*)?$/,
         use: {
           loader: "file-loader",

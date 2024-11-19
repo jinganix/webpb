@@ -10,9 +10,15 @@ import "WebpbOptions.proto";
 import "Common.proto";
 
 // It should be ignored by jacoco, as it is marked with @Generated
-option (f_opts).java = {annotation: '@Generated'};
+option (f_opts).java = {
+  annotation: '@Generated'
+  import: 'com.fasterxml.jackson.annotation.JsonProperty'
+};
 
 message StorePb {
+  option (m_opts).ts = {auto_alias: true};
+  option (m_opts).java = {field_annotation: '@JsonProperty("{{_ALIAS_}}")'};
+
   required int64 id = 1 [(opts).ts = {as_string: true}];
   required string name = 2;
   required string city = 3;
@@ -60,6 +66,9 @@ message StoreVisitRequest {
 }
 
 message StoreVisitResponse {
+  option (m_opts).ts = {auto_alias: true};
+  option (m_opts).java = {field_annotation: '@JsonProperty("{{_ALIAS_}}")'};
+
   required StorePb store = 1;
   required string greeting = 2;
 }
