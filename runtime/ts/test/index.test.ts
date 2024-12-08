@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { assign, getter, mapValues, query, toAlias } from "../src";
 
 describe("index", () => {
@@ -56,27 +57,38 @@ describe("index", () => {
     expect(query("", { a: 1, b: () => "hello" })).toEqual("a=1");
   });
 
-  it("should to alias success", function () {
-    const b: Record<string, unknown> = { b: 2, c: 3 };
-    b["toAlias"] = () => toAlias(b, { b: "b_" });
-    const a: Record<string, unknown> = { a: 1, b: b, c: 3 };
-    expect(toAlias(a, { a: "a_" })).toMatchObject({
-      a_: 1,
-      b: { b_: 2, c: 3 },
-      c: 3,
+  describe("toAlias", () => {
+    it("should to alias success", function () {
+      const b: Record<string, unknown> = { b: 2, c: 3 };
+      b["toAlias"] = () => toAlias(b, { b: "b_" });
+      const a: Record<string, unknown> = { a: 1, b: b, c: 3 };
+      expect(toAlias(a, { a: "a_" })).toMatchObject({
+        a_: 1,
+        b: { b_: 2, c: 3 },
+        c: 3,
+      });
+      expect(toAlias(a, {})).toMatchObject({
+        a: 1,
+        b: { b_: 2, c: 3 },
+        c: 3,
+      });
     });
-    expect(toAlias(a, {})).toMatchObject({
-      a: 1,
-      b: { b_: 2, c: 3 },
-      c: 3,
-    });
-  });
 
-  it("should to alias change nothing", function () {
-    expect(toAlias(null, {})).toEqual(null);
-    expect(toAlias("", {})).toEqual("");
-    expect(toAlias([], {})).toMatchObject([]);
-    expect(toAlias([1, 2], {})).toMatchObject([1, 2]);
+    it("should to alias change nothing", function () {
+      expect(toAlias(null, {})).toEqual(null);
+      expect(toAlias("", {})).toEqual("");
+      expect(toAlias([], {})).toMatchObject([]);
+      expect(toAlias([1, 2], {})).toMatchObject([1, 2]);
+    });
+
+    describe("when contains null value entry", () => {
+      it("should skip", () => {
+        const a: Record<string, unknown> = { a: null };
+        expect(toAlias(a, { a: "a_" })).toMatchObject({
+          a_: null,
+        });
+      });
+    });
   });
 
   it("should map record values", function () {
