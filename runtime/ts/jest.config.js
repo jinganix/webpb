@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   bail: true,
   collectCoverage: true,
   collectCoverageFrom: ["src/**/*.ts"],
@@ -16,3 +16,5 @@ module.exports = {
   testEnvironment: "node",
   testMatch: ["<rootDir>/test/**/*(*.)@(test).ts"],
 };
+
+export default config;

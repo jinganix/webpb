@@ -80,7 +80,7 @@ export function toAlias(
   }
   const obj: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data)) {
-    const toAlias = (value as { toAlias: () => unknown })["toAlias"];
+    const toAlias = (value as { toAlias: () => unknown })?.toAlias;
     if (typeof toAlias === "function") {
       obj[key] = toAlias();
     } else if (aliases && aliases[key]) {
