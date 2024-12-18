@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+option java_package = "io.github.jinganix.webpb.utilities.descriptor";
+
+package Test11Proto;
+
+message Test11 {
+
+  required int32 test1 = 1;
+  required Test11 test11 = 2;
+}

@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,7 +148,7 @@ public class MessageGenerator {
     data.put("fields", getFields(descriptor));
     data.put("nestedMsgs", getNestedMessages(descriptor, level + 1));
     data.put("omitted", getOmitted(descriptor));
-    data.put("hasAlias", hasAlias(descriptor));
+    data.put("hasAlias", hasAlias(new HashSet<>(), descriptor));
     data.put("aliases", getAliases(descriptor));
     data.put("aliasMsgs", getAliasMsgs(descriptor));
     data.put("sub_type", getSubType(descriptor));
@@ -167,7 +168,11 @@ public class MessageGenerator {
     return omitted;
   }
 
-  private boolean hasAlias(Descriptor descriptor) {
+  private boolean hasAlias(Set<Descriptor> checked, Descriptor descriptor) {
+    if (checked.contains(descriptor)) {
+      return false;
+    }
+    checked.add(descriptor);
     for (FieldDescriptor fieldDescriptor : descriptor.getFields()) {
       if (isNotEmpty(getOpts(fieldDescriptor, FieldOpts::hasTs).getTs().getAlias())) {
         return true;
@@ -178,7 +183,7 @@ public class MessageGenerator {
       if (!isMessage(fieldDescriptor)) {
         continue;
       }
-      if (hasAlias(fieldDescriptor.getMessageType())) {
+      if (hasAlias(checked, fieldDescriptor.getMessageType())) {
         return true;
       }
     }
