@@ -32,22 +32,33 @@ import java.io.IOException;
 /** JsonTransportMapper. */
 public class JsonTransportMapper implements TransportMapper {
 
-  private final ObjectMapper objectMapper =
-      JsonMapper.builder()
-          .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-          .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-          .serializationInclusion(JsonInclude.Include.NON_NULL)
-          .build()
-          .setAnnotationIntrospector(
-              new JacksonAnnotationIntrospector() {
-                @Override
-                public boolean hasIgnoreMarker(AnnotatedMember m) {
-                  return super.hasIgnoreMarker(m) || m.hasAnnotation(InQuery.class);
-                }
-              });
+  private final ObjectMapper objectMapper;
 
   /** Constructor. */
-  public JsonTransportMapper() {}
+  public JsonTransportMapper() {
+    this(JsonMapper.builder());
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param builder {@link JsonMapper.Builder}
+   */
+  public JsonTransportMapper(JsonMapper.Builder builder) {
+    this.objectMapper =
+        builder
+            .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .serializationInclusion(JsonInclude.Include.NON_NULL)
+            .build()
+            .setAnnotationIntrospector(
+                new JacksonAnnotationIntrospector() {
+                  @Override
+                  public boolean hasIgnoreMarker(AnnotatedMember m) {
+                    return super.hasIgnoreMarker(m) || m.hasAnnotation(InQuery.class);
+                  }
+                });
+  }
 
   /**
    * Write value as string.

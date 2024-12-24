@@ -32,22 +32,33 @@ import java.io.IOException;
 /** XmlTransportMapper. */
 public class XmlTransportMapper implements TransportMapper {
 
-  private final ObjectMapper objectMapper =
-      XmlMapper.builder()
-          .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-          .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-          .serializationInclusion(JsonInclude.Include.NON_NULL)
-          .build()
-          .setAnnotationIntrospector(
-              new JacksonAnnotationIntrospector() {
-                @Override
-                public boolean hasIgnoreMarker(AnnotatedMember m) {
-                  return super.hasIgnoreMarker(m) || m.hasAnnotation(InQuery.class);
-                }
-              });
+  private final ObjectMapper objectMapper;
 
   /** Constructor. */
-  public XmlTransportMapper() {}
+  public XmlTransportMapper() {
+    this(XmlMapper.builder());
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param builder {@link XmlMapper.Builder}
+   */
+  public XmlTransportMapper(XmlMapper.Builder builder) {
+    this.objectMapper =
+        builder
+            .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .serializationInclusion(JsonInclude.Include.NON_NULL)
+            .build()
+            .setAnnotationIntrospector(
+                new JacksonAnnotationIntrospector() {
+                  @Override
+                  public boolean hasIgnoreMarker(AnnotatedMember m) {
+                    return super.hasIgnoreMarker(m) || m.hasAnnotation(InQuery.class);
+                  }
+                });
+  }
 
   /**
    * Write value as string.

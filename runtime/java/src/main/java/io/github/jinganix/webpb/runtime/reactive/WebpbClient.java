@@ -25,18 +25,24 @@ import io.github.jinganix.webpb.runtime.common.MessageContext;
 import java.net.URL;
 import java.util.Map;
 import java.util.function.Consumer;
+import lombok.Setter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import reactor.core.publisher.Mono;
 
 /** Webpb http client to send a {@link WebpbMessage} and receive a response. */
+@Setter
 public class WebpbClient {
 
   private final WebClient webClient;
 
-  private final Consumer<Map<String, Object>> attributes;
-
   private final ObjectMapper urlObjectMapper = WebpbUtils.createUrlObjectMapper();
+
+  private Consumer<Map<String, Object>> attributes;
+
+  private Consumer<HttpHeaders> headers;
 
   /** {@link TransportMapper}. */
   protected TransportMapper transportMapper = new JsonTransportMapper();
@@ -59,15 +65,6 @@ public class WebpbClient {
   public WebpbClient(WebClient webClient, Consumer<Map<String, Object>> attributes) {
     this.webClient = webClient;
     this.attributes = attributes;
-  }
-
-  /**
-   * Update {@link TransportMapper}.
-   *
-   * @param transportMapper {@link TransportMapper}
-   */
-  public void setTransportMapper(TransportMapper transportMapper) {
-    this.transportMapper = transportMapper;
   }
 
   /**
@@ -97,12 +94,15 @@ public class WebpbClient {
         .flatMap(
             body -> {
               String url = WebpbUtils.formatUrl(urlObjectMapper, message);
-              return webClient
-                  .method(context.getMethod())
-                  .uri(url)
-                  .bodyValue(body)
-                  .attributes(attributes)
-                  .retrieve()
+              RequestHeadersSpec<?> spec =
+                  webClient.method(context.getMethod()).uri(url).bodyValue(body);
+              if (headers != null) {
+                spec.headers(headers);
+              }
+              if (attributes != null) {
+                spec.attributes(attributes);
+              }
+              return spec.retrieve()
                   .onStatus(status -> status.isError(), this::createException)
                   .bodyToMono(byte[].class)
                   .map(data -> transportMapper.readValue(data, responseType));
