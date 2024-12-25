@@ -50,6 +50,11 @@ describe("index", () => {
       { expected: "?a=1%2C2", params: { a: [1, 2] }, pre: "?" },
       { expected: "a=1", params: { a: 1, b: () => "hello" }, pre: "" },
       { expected: "a=1%2C2", params: { a: [1, 2] }, pre: "" },
+      {
+        expected: "sort=a%2Cdesc%3Bb%2Casc",
+        params: { sort: { a: "desc", b: "asc" } },
+        pre: "",
+      },
     ].forEach(({ pre, params, expected }) => {
       it(`getter(${JSON.stringify(pre)}, "${JSON.stringify(params)}") => ${JSON.stringify(expected)}`, () => {
         expect(query(pre, params)).toStrictEqual(expected);
