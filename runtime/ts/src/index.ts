@@ -21,27 +21,19 @@ export interface WebpbMeta {
   path: string;
 }
 
-export function assign(src: unknown, dest: unknown, excludes?: string[]): void {
+export function assign(
+  src: unknown,
+  dest: unknown,
+  excludes: string[] = [],
+): void {
   if (!src || !dest || typeof src !== "object" || typeof dest !== "object") {
     return;
   }
   for (const [key, value] of Object.entries(src)) {
-    if (value !== undefined && !isExcluded(key, excludes)) {
+    if (value !== undefined && excludes.indexOf(key) < 0) {
       (dest as Record<string, unknown>)[key] = value;
     }
   }
-}
-
-function isExcluded(k: string, excludes?: string[]): boolean {
-  if (!excludes) {
-    return false;
-  }
-  for (const o of excludes) {
-    if (o === k) {
-      return true;
-    }
-  }
-  return false;
 }
 
 export function getter(data: unknown, path: string): unknown {
@@ -51,7 +43,7 @@ export function getter(data: unknown, path: string): unknown {
   for (const key of path.split(".")) {
     data = (data as Record<string, unknown>)[key];
     if (data === null || data === undefined) {
-      return data;
+      return null;
     }
   }
   return data;
