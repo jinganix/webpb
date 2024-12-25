@@ -55,7 +55,17 @@ export function query(pre: string, params: { [key: string]: unknown }): string {
     if (value === null || value === undefined || typeof value === "function") {
       continue;
     }
-    const encoded = encodeURIComponent(String(value));
+    let str;
+    if (Array.isArray(value)) {
+      str = value.join(",");
+    } else if (typeof value === "object") {
+      str = Object.entries(value)
+        .map(([key, value]) => `${key},${value}`)
+        .join(";");
+    } else {
+      str = String(value);
+    }
+    const encoded = encodeURIComponent(str);
     if (encoded) {
       queries.push(`${key}=${encoded}`);
     }
