@@ -2,96 +2,101 @@ import { describe, expect, it } from "vitest";
 import { assign, getter, mapValues, query, toAlias } from "../src";
 
 describe("index", () => {
-  it("should assign to null success", () => {
-    const dest = {};
-    assign(null, dest);
-    expect(dest).toEqual({});
+  describe("assign", () => {
+    [
+      { dest: {}, excludes: undefined, expected: {}, src: null },
+      { dest: {}, excludes: [], expected: { a: 1 }, src: { a: 1 } },
+      { dest: {}, excludes: ["b"], expected: { a: 1 }, src: { a: 1, b: 2 } },
+    ].forEach(({ src, dest, excludes, expected }) => {
+      it(`assign(${JSON.stringify(src)}, ${JSON.stringify(dest)}) => ${JSON.stringify(expected)}`, () => {
+        assign(src, dest, excludes);
+        expect(dest).toStrictEqual(expected);
+      });
+    });
   });
 
-  it("should assign to object success", () => {
-    const dest = {};
-    const src = { a: 1 };
-    assign(src, dest);
-    expect(dest).toMatchObject(src);
+  describe("getter", () => {
+    [
+      { data: null, expected: null, path: "a" },
+      { data: undefined, expected: null, path: "a" },
+      { data: "", expected: null, path: "a" },
+      { data: [], expected: null, path: "a" },
+      { data: 0, expected: null, path: "a" },
+      { data: { a: 1 }, expected: 1, path: "a" },
+      { data: { a: { b: 1 } }, expected: 1, path: "a.b" },
+      { data: { a: 1 }, expected: null, path: "b" },
+    ].forEach(({ data, path, expected }) => {
+      it(`getter(${JSON.stringify(data)}, "${path}") => ${JSON.stringify(expected)}`, () => {
+        expect(getter(data, path)).toStrictEqual(expected);
+      });
+    });
   });
 
-  it("should assign to object with omitted success", () => {
-    const dest = {};
-    const src = { a: 1, b: 2 };
-    assign(src, dest, ["b"]);
-    expect(dest).toMatchObject({ a: 1 });
-  });
-
-  it("should getter return null when data is null or undefined", () => {
-    expect(getter(null, "a")).toEqual(null);
-    expect(getter(undefined, "a")).toEqual(null);
-  });
-
-  it("should getter return null when data not object", function () {
-    expect(getter("", "a")).toEqual(null);
-    expect(getter([], "a")).toEqual(undefined);
-    expect(getter(0, "a")).toEqual(null);
-  });
-
-  it("should getter return value success", function () {
-    expect(getter({ a: 1 }, "a")).toEqual(1);
-    expect(getter({ a: { b: 1 } }, "a.b")).toEqual(1);
-    expect(getter({ a: 1 }, "b")).toEqual(undefined);
-  });
-
-  it("should format query success", function () {
-    expect(query("?", {})).toEqual("");
-    expect(query("&", {})).toEqual("");
-    expect(query("", { a: 1 })).toEqual("a=1");
-    expect(query("?", { a: 1 })).toEqual("?a=1");
-    expect(query("?", { a: 1, b: 2 })).toEqual("?a=1&b=2");
-    expect(query("?", { a: 1, b: 2, c: null, d: undefined, e: "" })).toEqual(
-      "?a=1&b=2",
-    );
-    expect(query("?", { a: [], b: 2 })).toEqual("?b=2");
-    expect(query("?", { a: [1] })).toEqual("?a=1");
-    expect(query("?", { a: [1, 2] })).toEqual("?a=1%2C2");
-  });
-
-  it("should format query ignore function", function () {
-    expect(query("", { a: 1, b: () => "hello" })).toEqual("a=1");
+  describe("query", () => {
+    [
+      { expected: "", params: {}, pre: "?" },
+      { expected: "", params: {}, pre: "&" },
+      { expected: "a=hello", params: { a: "hello" }, pre: "" },
+      { expected: "a=1", params: { a: 1 }, pre: "" },
+      { expected: "?a=1", params: { a: 1 }, pre: "?" },
+      { expected: "?a=1&b=2", params: { a: 1, b: 2 }, pre: "?" },
+      {
+        expected: "?a=1&b=2",
+        params: { a: 1, b: 2, c: null, d: undefined, e: "" },
+        pre: "?",
+      },
+      { expected: "?b=2", params: { a: [], b: 2 }, pre: "?" },
+      { expected: "?a=1", params: { a: [1] }, pre: "?" },
+      { expected: "?a=1%2C2", params: { a: [1, 2] }, pre: "?" },
+      { expected: "a=1", params: { a: 1, b: () => "hello" }, pre: "" },
+      { expected: "a=1%2C2", params: { a: [1, 2] }, pre: "" },
+    ].forEach(({ pre, params, expected }) => {
+      it(`getter(${JSON.stringify(pre)}, "${JSON.stringify(params)}") => ${JSON.stringify(expected)}`, () => {
+        expect(query(pre, params)).toStrictEqual(expected);
+      });
+    });
   });
 
   describe("toAlias", () => {
-    it("should to alias success", function () {
-      const b: Record<string, unknown> = { b: 2, c: 3 };
-      b["toAlias"] = () => toAlias(b, { b: "b_" });
-      const a: Record<string, unknown> = { a: 1, b: b, c: 3 };
-      expect(toAlias(a, { a: "a_" })).toMatchObject({
-        a_: 1,
-        b: { b_: 2, c: 3 },
-        c: 3,
-      });
-      expect(toAlias(a, {})).toMatchObject({
-        a: 1,
-        b: { b_: 2, c: 3 },
-        c: 3,
+    [
+      { aliases: {}, data: null, expected: null },
+      { aliases: {}, data: "", expected: "" },
+      { aliases: {}, data: [], expected: [] },
+      { aliases: {}, data: [1, 2], expected: [1, 2] },
+      { aliases: { a: "a_" }, data: { a: null }, expected: { a_: null } },
+    ].forEach(({ data, aliases, expected }) => {
+      it(`getter(${JSON.stringify(data)}, "${JSON.stringify(aliases)}") => ${JSON.stringify(expected)}`, () => {
+        expect(toAlias(data, aliases)).toStrictEqual(expected);
       });
     });
 
-    it("should to alias change nothing", function () {
-      expect(toAlias(null, {})).toEqual(null);
-      expect(toAlias("", {})).toEqual("");
-      expect(toAlias([], {})).toMatchObject([]);
-      expect(toAlias([1, 2], {})).toMatchObject([1, 2]);
-    });
-
-    describe("when contains null value entry", () => {
-      it("should skip", () => {
-        const a: Record<string, unknown> = { a: null };
+    describe("when property has toAlias method", () => {
+      it("should call toAlias recursively", () => {
+        const b: Record<string, unknown> = { b: 2, c: 3 };
+        b["toAlias"] = () => toAlias(b, { b: "b_" });
+        const a: Record<string, unknown> = { a: 1, b: b, c: 3 };
         expect(toAlias(a, { a: "a_" })).toMatchObject({
-          a_: null,
+          a_: 1,
+          b: { b_: 2, c: 3 },
+          c: 3,
+        });
+        expect(toAlias(a, {})).toMatchObject({
+          a: 1,
+          b: { b_: 2, c: 3 },
+          c: 3,
         });
       });
     });
   });
 
-  it("should map record values", function () {
-    expect(mapValues({ a: 1 }, (v) => String(v))).toMatchObject({ a: "1" });
+  describe("mapValues", () => {
+    describe("when mapping to string", () => {
+      it("should convert all values to string", () => {
+        expect(mapValues({ a: 1, b: true }, (v) => String(v))).toMatchObject({
+          a: "1",
+          b: "true",
+        });
+      });
+    });
   });
 });
