@@ -1,6 +1,6 @@
 {
   "name": "webpb",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "The webpb runtime library",
   "scripts": {
     "build": "rimraf build/**/* && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts && copyfiles ./README.md ./package.json build",
@@ -27,6 +27,7 @@
   "exports": {
     ".": [
       {
+        "types": "./dist/index.d.ts",
         "import": "./dist/index.mjs",
         "require": "./dist/index.cjs"
       },
