@@ -60,6 +60,7 @@ export function query(pre: string, params: { [key: string]: unknown }): string {
       str = value.join(",");
     } else if (typeof value === "object") {
       str = Object.entries(value)
+        .filter(([key]) => key !== "")
         .map(([key, value]) => `${key},${value}`)
         .join(";");
     } else {
