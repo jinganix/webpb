@@ -363,7 +363,7 @@ public class MessageGenerator {
     }
     field = field.isMapField() ? getMapValueDescriptor(field) : field;
     FieldDescriptor.Type type = field.getType();
-    if (TYPES.containsKey(type)) {
+    if (TYPES.containsKey(type) || !isMessage(field)) {
       return false;
     }
     String fullName = getFieldTypeFullName(field);
