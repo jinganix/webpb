@@ -1,4 +1,5 @@
 import org.gradle.api.JavaVersion.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.konan.properties.Properties
 import java.io.FileInputStream
 
@@ -15,8 +16,8 @@ java {
 }
 
 tasks.compileKotlin {
-  kotlinOptions {
-    jvmTarget = javaVersion.toString()
+  compilerOptions {
+    jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
   }
 }
 

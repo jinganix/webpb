@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream
 fun Project.which(command: String): String? {
   return try {
     val outputStream = ByteArrayOutputStream()
-    exec {
+    providers.exec {
       commandLine("which", command)
       isIgnoreExitValue = true
       standardOutput = outputStream

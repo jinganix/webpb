@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.4",
-    "@types/node": "^22.10.2",
-    "@typescript-eslint/eslint-plugin": "^8.18.2",
-    "@typescript-eslint/parser": "^8.18.2",
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.19.1",
+    "@typescript-eslint/parser": "^8.19.1",
     "@vitest/coverage-v8": "^2.1.8",
     "copyfiles": "^2.4.1",
     "dts-bundle-generator": "^9.5.1",
@@ -53,9 +53,9 @@
     "pretty-quick": "^4.0.0",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.1",
+    "vite": "^6.0.7",
     "vitest": "^2.1.8"
   }
 }
