@@ -1,7 +1,9 @@
 *.iml
 .DS_Store
 .gradle
-.idea
-build
-node_modules
+.idea/
+.kotlin/
+bin/
+build/
+node_modules/
 yarn.lock

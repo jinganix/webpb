@@ -11,7 +11,7 @@ export interface I${className}<#rt>
   <#if sub_type?? && sub_type_prop == field.name>
   ${field.name}<#if field.optional>?</#if>: T;
   <#else>
-  ${field.name}<#if field.optional>?</#if>: ${field.type};
+  ${field.name}<#if field.optional>?</#if>: ${field.type}${field.optional?then(" | null", "")};
   </#if>
 </#list>}
 
@@ -28,7 +28,7 @@ export class ${className}<#rt>
   <#if sub_type?? && sub_type_prop == field.name>
   ${field.name}<#if !field.default??>${field.optional?then("?", "!")}</#if>: T<#if field.default??> = ${field.default}</#if>;
   <#else>
-  ${field.name}<#if !field.default??>${field.optional?then("?", "!")}</#if>: ${field.type}<#if field.default??> = ${field.default}</#if>;
+  ${field.name}<#if !field.default??>${field.optional?then("?", "!")}</#if>: ${field.type}${field.optional?then(" | null", "")}<#if field.default??> = ${field.default}</#if>;
   </#if>
 </#list>
   webpbMeta: () => Webpb.WebpbMeta;<#if sub_type_prop?has_content>
