@@ -204,12 +204,12 @@ export class Test4 implements ITest4, Webpb.WebpbMessage {
 
 export interface ITest6 {
   test1: string;
-  test2?: number;
+  test2?: number | null;
 }
 
 export class Test6 implements ITest6, Webpb.WebpbMessage {
   test1!: string;
-  test2?: number;
+  test2?: number | null;
   webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Test6";
@@ -245,12 +245,12 @@ export interface ITest {
   test1: number;
   test2: IncludeProto.IMessage;
   test3: IncludeProto.Enum;
-  test4?: ITest4;
+  test4?: ITest4 | null;
   test5: Record<string, number>;
   test6: Record<number, IncludeProto.IMessage>;
   test7: unknown;
   test8: Test.INestedTest;
-  test9?: number;
+  test9?: number | null;
   test10: string;
   test11: IncludeProto.IMessage[];
   test12: IncludeProto.Message.INested;
@@ -267,12 +267,12 @@ export class Test implements ITest, Webpb.WebpbMessage {
   test1!: number;
   test2!: IncludeProto.IMessage;
   test3!: IncludeProto.Enum;
-  test4?: ITest4;
+  test4?: ITest4 | null;
   test5!: Record<string, number>;
   test6!: Record<number, IncludeProto.IMessage>;
   test7!: unknown;
   test8!: Test.INestedTest;
-  test9?: number;
+  test9?: number | null;
   test10!: string;
   test11!: IncludeProto.IMessage[];
   test12!: IncludeProto.Message.INested;
