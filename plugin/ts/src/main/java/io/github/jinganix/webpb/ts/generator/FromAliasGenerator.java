@@ -49,6 +49,7 @@ public class FromAliasGenerator {
         OptMessageOpts opt = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
         if (isNotEmpty(opt.getSubType())) {
           baseTypes.put(descriptor.getName(), descriptor);
+          subTypes.put(descriptor.getName(), new ArrayList<>());
         }
         if (isNotEmpty(opt.getExtends()) && !opt.getSubValuesList().isEmpty()) {
           subTypes.computeIfAbsent(opt.getExtends(), (k) -> new ArrayList<>()).add(descriptor);
