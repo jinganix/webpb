@@ -20,11 +20,9 @@ package io.github.jinganix.webpb.ts.generator;
 
 import static io.github.jinganix.webpb.utilities.utils.OptionUtils.getOpts;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
-import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.ts.utils.Imports;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.OptMessageOpts;
@@ -40,33 +38,19 @@ import java.util.stream.Collectors;
 /** Generator for {@link Descriptor}. */
 public class FromAliasGenerator {
 
-  private final Map<String, Descriptor> baseTypes = new HashMap<>();
-
-  public Map<String, String> generate(List<FileDescriptor> descriptors) {
-    Map<String, List<Descriptor>> subTypes = new HashMap<>();
-    for (FileDescriptor fileDescriptor : descriptors) {
-      for (Descriptor descriptor : fileDescriptor.getMessageTypes()) {
-        OptMessageOpts opt = getOpts(descriptor, MessageOpts::hasOpt).getOpt();
-        if (isNotEmpty(opt.getSubType())) {
-          baseTypes.put(descriptor.getName(), descriptor);
-        }
-        if (isNotEmpty(opt.getExtends()) && !opt.getSubValuesList().isEmpty()) {
-          subTypes.computeIfAbsent(opt.getExtends(), (k) -> new ArrayList<>()).add(descriptor);
-        }
-      }
-    }
+  public Map<String, String> generate(GeneratorContext context) {
     Map<String, String> fileMap = new HashMap<>();
-    for (Entry<String, List<Descriptor>> entry : subTypes.entrySet()) {
-      String content = genContent(entry.getKey(), entry.getValue());
+    for (Entry<String, List<Descriptor>> entry : context.getSubTypes().entrySet()) {
+      String content = genContent(context, entry.getKey(), entry.getValue());
       fileMap.put(entry.getKey() + "FromAlias.ts", content);
     }
     return fileMap;
   }
 
-  private String genContent(String baseType, List<Descriptor> descriptors) {
+  private String genContent(GeneratorContext ctx, String baseType, List<Descriptor> descriptors) {
     Imports imports = new Imports();
     Map<String, Object> data = new HashMap<>();
-    Descriptor baseDescriptor = baseTypes.get(baseType);
+    Descriptor baseDescriptor = ctx.getBaseTypes().get(baseType);
     if (baseDescriptor == null) {
       throw new RuntimeException("Base type not found: " + baseType);
     }
