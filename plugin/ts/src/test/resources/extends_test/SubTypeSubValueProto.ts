@@ -5,7 +5,6 @@
 import * as Webpb from "webpb";
 import * as AnotherEnum from "./AnotherEnum";
 import * as SubTypeSubValueProto from "./SubTypeSubValueProto";
-import("./SubTypeSubValueStringSuperFromAlias");
 import("./SubTypeSubValueSuperFromAlias");
 
 export enum SubTypeSubValueType {

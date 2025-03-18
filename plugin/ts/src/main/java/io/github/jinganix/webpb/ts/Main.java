@@ -21,6 +21,7 @@ package io.github.jinganix.webpb.ts;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import io.github.jinganix.webpb.ts.generator.FromAliasGenerator;
 import io.github.jinganix.webpb.ts.generator.Generator;
+import io.github.jinganix.webpb.ts.generator.GeneratorContext;
 import io.github.jinganix.webpb.ts.generator.SubTypesGenerator;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.utils.ResultWriter;
@@ -42,12 +43,13 @@ public class Main {
     Generator generator = Generator.create();
     Map<String, String> files = new HashMap<>();
     ResultWriter writer = new ResultWriter(System.out);
+    GeneratorContext generatorContext = new GeneratorContext(context.getTargetDescriptors());
     for (FileDescriptor fileDescriptor : context.getTargetDescriptors()) {
-      String content = generator.generate(fileDescriptor);
+      String content = generator.generate(generatorContext, fileDescriptor);
       files.put(fileDescriptor.getPackage() + ".ts", content);
     }
     files.putAll(new SubTypesGenerator().generate(context.getTargetDescriptors()));
-    files.putAll(new FromAliasGenerator().generate(context.getTargetDescriptors()));
+    files.putAll(new FromAliasGenerator().generate(generatorContext));
     for (Entry<String, String> entry : files.entrySet()) {
       writer.write(entry.getKey(), entry.getValue());
     }

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -83,19 +84,20 @@ class GeneratorTest {
         } catch (NullPointerException e) {
           expected = null;
         }
+        GeneratorContext context = new GeneratorContext(Lists.list(fileDescriptor));
         if (ERROR_FILES.contains(fileDescriptor.getName())) {
-          assertThatThrownBy(() -> generator.generate(fileDescriptor))
+          assertThatThrownBy(() -> generator.generate(context, fileDescriptor))
               .isInstanceOf(RuntimeException.class);
         } else {
           if ("true".equals(System.getenv().get("DUMP_TEST_FILES"))) {
-            String content = generator.generate(fileDescriptor);
+            String content = generator.generate(context, fileDescriptor);
             if (content != null && !content.isEmpty()) {
               String cwd = System.getProperty("user.dir");
               File file = Paths.get(cwd, "src/test/resources", filename).toFile();
-              TestUtils.writeFile(file, generator.generate(fileDescriptor));
+              TestUtils.writeFile(file, generator.generate(context, fileDescriptor));
             }
           }
-          assertThat(generator.generate(fileDescriptor)).isEqualTo(expected);
+          assertThat(generator.generate(context, fileDescriptor)).isEqualTo(expected);
         }
       }
     }
