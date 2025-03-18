@@ -83,7 +83,7 @@ public final class Generator {
    * @param fd {@link FileDescriptor}
    * @return generated content
    */
-  public String generate(FileDescriptor fd) {
+  public String generate(GeneratorContext context, FileDescriptor fd) {
     if (shouldIgnore(fd.getPackage())) {
       return null;
     }
@@ -96,7 +96,9 @@ public final class Generator {
     for (Descriptor descriptor : fd.getMessageTypes()) {
       messages.add(new MessageGenerator(imports, fd).generate(descriptor));
       if (getOpts(descriptor, MessageOpts::hasOpt).getOpt().hasSubType()) {
-        dynamicImports.add(descriptor.getName());
+        if (context.getSubTypes().containsKey(descriptor.getName())) {
+          dynamicImports.add(descriptor.getName());
+        }
       }
     }
     Map<String, Object> data = new HashMap<>();

@@ -67,7 +67,7 @@ class FromAliasGeneratorTest {
             descriptors.stream()
                 .filter(x -> !ERROR_FILES.contains(x.getName()))
                 .collect(Collectors.toList());
-        Map<String, String> data = generator.generate(fileDescriptors);
+        Map<String, String> data = generator.generate(new GeneratorContext(fileDescriptors));
         for (Entry<String, String> entry : data.entrySet()) {
           String filename = "/" + dump.name().toLowerCase() + "/" + entry.getKey();
           String expected;
@@ -91,7 +91,7 @@ class FromAliasGeneratorTest {
                 .filter(x -> ERROR_FILES.contains(x.getName()))
                 .collect(Collectors.toList());
         if (!fileDescriptors.isEmpty()) {
-          assertThatThrownBy(() -> generator.generate(fileDescriptors))
+          assertThatThrownBy(() -> generator.generate(new GeneratorContext(fileDescriptors)))
               .isInstanceOf(RuntimeException.class);
         }
       }
