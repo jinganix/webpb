@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,15 +19,14 @@
 package io.github.jinganix.webpb.runtime.reactive;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.github.jinganix.webpb.runtime.common.InQuery;
-import java.io.IOException;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 /** XmlTransportMapper. */
 public class XmlTransportMapper implements TransportMapper {
@@ -49,15 +48,16 @@ public class XmlTransportMapper implements TransportMapper {
         builder
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .serializationInclusion(JsonInclude.Include.NON_NULL)
-            .build()
-            .setAnnotationIntrospector(
+            .changeDefaultPropertyInclusion(
+                incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .annotationIntrospector(
                 new JacksonAnnotationIntrospector() {
                   @Override
-                  public boolean hasIgnoreMarker(AnnotatedMember m) {
-                    return super.hasIgnoreMarker(m) || m.hasAnnotation(InQuery.class);
+                  public boolean hasIgnoreMarker(MapperConfig<?> config, AnnotatedMember m) {
+                    return super.hasIgnoreMarker(config, m) || m.hasAnnotation(InQuery.class);
                   }
-                });
+                })
+            .build();
   }
 
   /**
@@ -68,11 +68,7 @@ public class XmlTransportMapper implements TransportMapper {
    */
   @Override
   public String writeValue(Object value) {
-    try {
-      return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    return objectMapper.writeValueAsString(value);
   }
 
   /**
@@ -85,10 +81,6 @@ public class XmlTransportMapper implements TransportMapper {
    */
   @Override
   public <T> T readValue(byte[] src, Class<T> valueType) {
-    try {
-      return objectMapper.readValue(src, valueType);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return objectMapper.readValue(src, valueType);
   }
 }

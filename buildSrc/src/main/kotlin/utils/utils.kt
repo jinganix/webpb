@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
 
 package utils
 
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -26,6 +27,7 @@ import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
@@ -42,13 +44,23 @@ fun Project.hierarchicalGroup(): String {
   return project.group.toString() + suffix
 }
 
-fun Project.signAndPublish(artifactId: String, configuration: Action<MavenPublication>) {
-  val extension = project.the<PublishingExtension>()
+fun Project.signAndPublish(artifactId: String, desc: String) {
+  val extension = extensions.getByType<MavenPublishBaseExtension>()
+
+  if (System.getenv("GITHUB_ACTIONS")?.toBoolean() == true) {
+    extension.publishToMavenCentral()
+    extension.signAllPublications()
+  }
+
   val publicationName = "[_-]+[a-zA-Z]".toRegex().replace(artifactId) { it ->
     it.value.replace("_", "").replace("-", "")
       .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
   }
-  val publication = extension.publications.create(publicationName, MavenPublication::class.java)
+
+  extension.coordinates(group.toString(), artifactId, version.toString())
+
+  val publishing = project.the<PublishingExtension>()
+  val publication = publishing.publications.create(publicationName, MavenPublication::class.java)
   publication.artifactId = artifactId
   publication.pom {
     name.set(publicationName)
@@ -72,25 +84,12 @@ fun Project.signAndPublish(artifactId: String, configuration: Action<MavenPublic
       url.set("https://github.com/jinganix/webpb")
     }
   }
-  extension.repositories {
-    maven {
-      name = "oss"
-      val release = uri(Props.releaseRepo)
-      val snapshot = uri(Props.snapshotRepo)
-      url = if (version.toString().endsWith("SNAPSHOT")) snapshot else release
-      credentials {
-        username = System.getenv("NEXUS_REPO_USERNAME")
-        password = System.getenv("NEXUS_REPO_PASSWORD")
-      }
+
+  val bootJarTask = tasks.findByName("bootJar")
+  if (bootJarTask is org.gradle.api.tasks.bundling.Jar) {
+    publication.artifact(bootJarTask) {
+      classifier = "all"
     }
-  }
-  configuration.execute(publication)
-  val signingKey = System.getenv("GPG_SIGNING_KEY")
-  if (signingKey != null) {
-    val signing = the<SigningExtension>()
-    val signingPassword = System.getenv("GPG_SIGNING_PASSWORD")
-    signing.useInMemoryPgpKeys(signingKey, signingPassword)
-    signing.sign(publication)
   }
 }
 
@@ -100,7 +99,7 @@ fun Project.createConfiguration(
   configuration: Action<Configuration>
 ): Configuration {
   val conf = configurations.create(name) {
-    isVisible = false
+    isCanBeResolved = false
     attributes {
       attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
       attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))

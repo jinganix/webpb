@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +18,17 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
-import java.util.HashMap;
 import java.util.Map;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.KeyDeserializer;
+import tools.jackson.databind.deser.ContextualKeyDeserializer;
 
 /** EnumerationKeyDeserializer. */
 public class EnumerationKeyDeserializer extends KeyDeserializer
     implements ContextualKeyDeserializer {
 
-  private final Map<Object, Object> valueMap = new HashMap<>();
+  private Map<Object, Enumeration<?>> valueMap;
 
   /** Constructor. */
   public EnumerationKeyDeserializer() {}
@@ -56,9 +55,7 @@ public class EnumerationKeyDeserializer extends KeyDeserializer
   @Override
   public KeyDeserializer createContextual(DeserializationContext ctx, BeanProperty property) {
     Class<?> clazz = ctx.getContextualType().getKeyType().getRawClass();
-    for (Enumeration<?> value : (Enumeration<?>[]) clazz.getEnumConstants()) {
-      valueMap.put(String.valueOf(value.getValue()), value);
-    }
+    this.valueMap = EnumValuesMap.getValueMap(clazz);
     return this;
   }
 }

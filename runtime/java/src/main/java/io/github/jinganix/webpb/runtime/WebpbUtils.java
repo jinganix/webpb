@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,15 +20,6 @@ package io.github.jinganix.webpb.runtime;
 
 import static org.springframework.util.StringUtils.hasLength;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.jinganix.webpb.commons.SegmentGroup;
 import io.github.jinganix.webpb.commons.UrlSegment;
 import io.github.jinganix.webpb.runtime.common.InQuery;
@@ -42,6 +33,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /** Utilities for webpb java runtime. */
 public class WebpbUtils {
@@ -60,7 +60,7 @@ public class WebpbUtils {
    * @return {@link ObjectMapper}
    */
   public static ObjectMapper createUrlObjectMapper() {
-    return new ObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    return JsonMapper.builder().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).build();
   }
 
   /**
@@ -72,14 +72,14 @@ public class WebpbUtils {
     return JsonMapper.builder()
         .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
         .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-        .build()
-        .setAnnotationIntrospector(
+        .annotationIntrospector(
             new JacksonAnnotationIntrospector() {
               @Override
-              public boolean hasIgnoreMarker(AnnotatedMember m) {
-                return super.hasIgnoreMarker(m) || m.hasAnnotation(InQuery.class);
+              public boolean hasIgnoreMarker(MapperConfig<?> config, AnnotatedMember m) {
+                return super.hasIgnoreMarker(config, m) || m.hasAnnotation(InQuery.class);
               }
-            });
+            })
+        .build();
   }
 
   /**
@@ -319,11 +319,7 @@ public class WebpbUtils {
    * @return value
    */
   public static String serialize(WebpbMessage message) {
-    try {
-      return transportMapper.writeValueAsString(message);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    return transportMapper.writeValueAsString(message);
   }
 
   /**
@@ -335,11 +331,7 @@ public class WebpbUtils {
    * @return message
    */
   public static <T extends WebpbMessage> T deserialize(String value, Class<T> type) {
-    try {
-      return transportMapper.readValue(value, type);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    return transportMapper.readValue(value, type);
   }
 
   private static ObjectNode findNode(ObjectNode objectNode, String[] accessors) {

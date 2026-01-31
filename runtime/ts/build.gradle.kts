@@ -1,28 +1,22 @@
 import org.apache.tools.ant.taskdefs.condition.Os
+import utils.npmInstallTask
 import utils.which
 
 plugins {
   id("ts.runtime")
 }
 
-val npm = if (Os.isFamily(Os.FAMILY_WINDOWS)) "npm.cmd" else project.which("npm")
+npmInstallTask()
 
-task<Exec>("npmInstall") {
-  val nodeModules = file("./node_modules")
-  if (nodeModules.exists()) {
-    commandLine(npm, "--version")
-  } else {
-    commandLine(npm, "install", "--verbose")
-  }
-}
+val npm = if (Os.isFamily(Os.FAMILY_WINDOWS)) "npm.cmd" else which("npm") ?: "npm"
 
-task<Exec>("npmStart") {
+tasks.register<Exec>("npmStart") {
   commandLine(npm, "run", "dev")
 
   dependsOn("npmInstall")
 }
 
-task<Exec>("npmCheck") {
+tasks.register<Exec>("npmCheck") {
   commandLine(npm, "run", "lint")
   commandLine(npm, "run", "test")
 

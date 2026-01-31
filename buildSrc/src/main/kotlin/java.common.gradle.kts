@@ -13,23 +13,16 @@ import utils.Vers.versionMockitoInline
 import utils.createConfiguration
 
 plugins {
-  if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) id("com.diffplug.spotless")
   id("conventions.versioning")
+  id("com.diffplug.spotless")
   idea
   jacoco
   java
 }
 
-val javaVersion = if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
-  JavaVersion.VERSION_17
-} else {
-  JavaVersion.VERSION_1_8
-}
+val javaVersion = JavaVersion.VERSION_21
 
 val properties = Properties()
-if (javaVersion == JavaVersion.VERSION_1_8) {
-  FileInputStream(file("../../gradle.java8.properties")).use(properties::load)
-}
 Props.initialize(project)
 Vers.initialize(project, properties)
 
@@ -59,15 +52,13 @@ tasks.test {
   useJUnitPlatform()
 }
 
-if (javaVersion == JavaVersion.VERSION_17) {
-  extensions.findByType<SpotlessExtension>()?.java {
-    targetExclude("build/**/*")
-    googleJavaFormat(versionGoogleJavaFormat)
-  }
+extensions.findByType<SpotlessExtension>()?.java {
+  targetExclude("build/**/*")
+  googleJavaFormat(versionGoogleJavaFormat)
+}
 
-  tasks.check {
-    dependsOn(tasks.findByName("spotlessCheck"))
-  }
+tasks.named<Task>("check") {
+  dependsOn(tasks.named("spotlessCheck"))
 }
 
 jacoco {
