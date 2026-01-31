@@ -30,6 +30,9 @@ import java.util.Map;
 /** Generator to process {@link Descriptor}. */
 public final class Generator {
 
+  /** Constructor. */
+  private Generator() {}
+
   /**
    * Create a generator.
    *
@@ -48,7 +51,12 @@ public final class Generator {
         || packageName.startsWith("io.github.jinganix.webpb.utilities.descriptor");
   }
 
-  /** Generate. */
+  /**
+   * Generate.
+   *
+   * @param fd file descriptor
+   * @return {@link Map}
+   */
   public Map<String, String> generate(FileDescriptor fd) {
     try {
       String javaPackage = GeneratorUtils.getJavaPackage(fd);

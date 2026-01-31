@@ -65,6 +65,7 @@ fun Project.signAndPublish(artifactId: String, desc: String) {
   publication.pom {
     name.set(publicationName)
     url.set("https://github.com/jinganix/webpb")
+    description.set(desc)
     licenses {
       license {
         name.set("The Apache License, Version 2.0")
