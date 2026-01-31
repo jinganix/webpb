@@ -27,6 +27,9 @@ import java.util.Map;
 /** The main class. */
 public class Main {
 
+  /** Constructor. */
+  public Main() {}
+
   /**
    * main.
    *

@@ -30,6 +30,9 @@ public class ImportVisitor extends VoidVisitorAdapter<Imports> {
 
   private static final JavaParser JAVA_PARSER = new JavaParser();
 
+  /** Constructor. */
+  public ImportVisitor() {}
+
   /**
    * Visit a {@link ClassOrInterfaceType}.
    *

@@ -330,12 +330,10 @@ public class MessageGenerator {
       Map<String, Object> data = new HashMap<>();
       data.put("type", getFieldType(field));
       data.put("name", field.getName());
-      data.put("optional", field.isOptional());
+      data.put("optional", !field.isRequired() && !field.isRepeated());
       if (containsMessage(field)) {
         String msgType = toType(field.isMapField() ? getMapValueDescriptor(field) : field, false);
-        if (!UNKNOWN.equals(msgType)) {
-          data.put("msgType", msgType);
-        }
+        data.put("msgType", msgType);
       }
       data.put("collection", field.isMapField() ? "map" : field.isRepeated() ? "list" : "none");
       if (field.hasDefaultValue()) {
@@ -364,7 +362,7 @@ public class MessageGenerator {
     }
     field = field.isMapField() ? getMapValueDescriptor(field) : field;
     FieldDescriptor.Type type = field.getType();
-    if (TYPES.containsKey(type) || !isMessage(field)) {
+    if (TYPES.containsKey(type)) {
       return false;
     }
     String fullName = getFieldTypeFullName(field);

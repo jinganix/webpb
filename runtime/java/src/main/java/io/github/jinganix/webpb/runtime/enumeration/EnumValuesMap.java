@@ -10,6 +10,9 @@ public class EnumValuesMap {
   private static final Map<Class<?>, Map<Object, Enumeration<?>>> valuesMap =
       new ConcurrentHashMap<>();
 
+  /** Constructor. */
+  public EnumValuesMap() {}
+
   /**
    * getValueMap
    *
