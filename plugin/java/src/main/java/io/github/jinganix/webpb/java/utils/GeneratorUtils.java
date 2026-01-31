@@ -25,6 +25,12 @@ public class GeneratorUtils {
 
   private GeneratorUtils() {}
 
+  /**
+   * getJavaPackage.
+   *
+   * @param descriptor Descriptors.GenericDescriptor
+   * @return String
+   */
   public static String getJavaPackage(Descriptors.GenericDescriptor descriptor) {
     return descriptor.getFile().getOptions().getJavaPackage();
   }
