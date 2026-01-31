@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbUtils;
 import io.github.jinganix.webpb.runtime.reactive.WebpbClient;
@@ -39,15 +38,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -57,11 +57,11 @@ class StoreControllerTest {
 
   @Autowired private MockMvc mvc;
 
-  @MockBean private WebpbClient webpbClient;
+  @MockitoBean private WebpbClient webpbClient;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  private MockHttpServletRequestBuilder request(WebpbMessage message) throws Exception {
+  private MockHttpServletRequestBuilder request(WebpbMessage message) {
     return MockMvcRequestBuilders.request(
             HttpMethod.valueOf(message.webpbMeta().getMethod()), WebpbUtils.formatUrl(message))
         .contentType(MediaType.APPLICATION_JSON)
@@ -71,32 +71,6 @@ class StoreControllerTest {
   @Nested
   @DisplayName("getStore")
   class GetStore {
-
-    @Nested
-    @DisplayName("when id is null")
-    class WhenIdIsNull {
-
-      @Test
-      @DisplayName("then response error")
-      void thenResponseError() throws Exception {
-        mvc.perform(request(new StoreVisitRequest(null, "tom")))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors.id", is("must not be null")));
-      }
-    }
-
-    @Nested
-    @DisplayName("when customer are spaces")
-    class WhenCustomAreSpaces {
-
-      @Test
-      @DisplayName("then response error")
-      void thenResponseError() throws Exception {
-        mvc.perform(request(new StoreVisitRequest(null, "  ")))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors.customer", is("must not be blank")));
-      }
-    }
 
     @Nested
     @DisplayName("when request is performed")

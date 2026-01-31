@@ -4,9 +4,4 @@ plugins {
   id("java.library")
 }
 
-signAndPublish("webpb-commons") {
-  from(components["java"])
-  pom {
-    description.set("The webpb commons library")
-  }
-}
+signAndPublish("webpb-commons", "The webpb commons library")

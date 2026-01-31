@@ -27,7 +27,7 @@ describe("main", () => {
       new Main();
       const element = document.getElementById("greetingButton") as HTMLElement;
       element.click();
-      expect(HttpService.prototype.request).toBeCalledTimes(1);
+      expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
     });
 
     describe("when request success", () =>
@@ -36,7 +36,7 @@ describe("main", () => {
         HttpService.prototype.request = jest.fn().mockResolvedValue(res);
         const main = new Main();
         main.greeting();
-        expect(HttpService.prototype.request).toBeCalledTimes(1);
+        expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
       }));
 
     describe("when request failed", () =>
@@ -46,7 +46,7 @@ describe("main", () => {
           .mockRejectedValue({ error: "ERROR" });
         const main = new Main();
         main.greeting();
-        expect(HttpService.prototype.request).toBeCalledTimes(1);
+        expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
       }));
 
     describe("when input customer", () =>
@@ -58,7 +58,7 @@ describe("main", () => {
           .mockRejectedValue({ error: "ERROR" });
         const main = new Main();
         main.greeting();
-        expect(HttpService.prototype.request).toBeCalledTimes(1);
+        expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
       }));
   });
 
@@ -92,7 +92,7 @@ describe("main", () => {
     HttpService.prototype.request = jest.fn().mockResolvedValue(res);
     const main = new Main();
     main.visitStore();
-    expect(HttpService.prototype.request).toBeCalledTimes(1);
+    expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
   });
 
   it("should get store failed", () => {
@@ -101,7 +101,7 @@ describe("main", () => {
       .mockRejectedValue({ error: "ERROR" });
     const main = new Main();
     main.visitStore();
-    expect(HttpService.prototype.request).toBeCalledTimes(1);
+    expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
   });
 
   it("should get stores success", () => {
@@ -112,7 +112,7 @@ describe("main", () => {
     HttpService.prototype.request = jest.fn().mockResolvedValue(res);
     const main = new Main();
     main.getStores();
-    expect(HttpService.prototype.request).toBeCalledTimes(1);
+    expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
   });
 
   it("should get store failed", () => {
@@ -121,7 +121,7 @@ describe("main", () => {
       .mockRejectedValue({ error: "ERROR" });
     const main = new Main();
     main.getStores();
-    expect(HttpService.prototype.request).toBeCalledTimes(1);
+    expect(HttpService.prototype.request).toHaveBeenCalledTimes(1);
   });
 
   it("given dom inputs when get store then return store", () => {
@@ -135,6 +135,6 @@ describe("main", () => {
     const main = new Main();
     main.visitStore();
     main.getStores();
-    expect(HttpService.prototype.request).toBeCalledTimes(2);
+    expect(HttpService.prototype.request).toHaveBeenCalledTimes(2);
   });
 });

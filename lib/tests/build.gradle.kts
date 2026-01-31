@@ -57,7 +57,7 @@ generatingTasks.forEach {
 }
 
 tasks.jar {
-  from(layout.buildDirectory.dir("generated/source/proto").get())
+  from(layout.buildDirectory.dir("generated/sources/proto").get())
   dependsOn(generatingTasks)
 }
 

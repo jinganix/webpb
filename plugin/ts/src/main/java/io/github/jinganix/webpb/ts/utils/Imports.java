@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,6 +49,7 @@ public class Imports {
    * Constructor.
    *
    * @param packageName package name
+   * @param imports imports
    * @param lookup lookup
    */
   public Imports(String packageName, List<String> imports, List<String> lookup) {
@@ -72,6 +73,7 @@ public class Imports {
    * Check and import a type.
    *
    * @param type to import.
+   * @return type
    */
   public String importType(String type) {
     String[] parts = StringUtils.split(type, ".");

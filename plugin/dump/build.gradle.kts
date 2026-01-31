@@ -12,12 +12,6 @@ val artifactId = "webpb-protoc-dump"
 
 tasks.bootJar {
   archiveBaseName.set(artifactId)
-  launchScript()
 }
 
-signAndPublish(artifactId) {
-  artifact(tasks.bootJar.get()) { classifier = "all" }
-  pom {
-    description.set("The webpb protoc plugin to dump generator request")
-  }
-}
+signAndPublish(artifactId, "The webpb protoc plugin to dump generator request")

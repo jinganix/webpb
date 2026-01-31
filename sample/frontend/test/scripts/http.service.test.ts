@@ -63,7 +63,7 @@ describe("http.service", () => {
       httpService.request<StoreVisitResponse>(
         StoreVisitRequest.create({ customer: "Tom", id: "123" }),
       ),
-    ).rejects.toThrowError("Failed when request: https://abc/stores/123");
+    ).rejects.toThrow("Failed when request: https://abc/stores/123");
   });
 
   it("given error without response when request then log success", async () => {
@@ -73,6 +73,6 @@ describe("http.service", () => {
       httpService.request<StoreVisitResponse>(
         StoreVisitRequest.create({ customer: "Tom", id: "123" }),
       ),
-    ).rejects.toThrowError("Failed when request: https://abc/stores/123");
+    ).rejects.toThrow("Failed when request: https://abc/stores/123");
   });
 });

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 
+/** GeneratorContext */
 @Getter
 public class GeneratorContext {
 
@@ -20,6 +21,11 @@ public class GeneratorContext {
 
   private final Map<String, List<Descriptor>> subTypes = new HashMap<>();
 
+  /**
+   * Constructor.
+   *
+   * @param descriptors List of {@link FileDescriptor}
+   */
   public GeneratorContext(List<FileDescriptor> descriptors) {
     for (FileDescriptor fileDescriptor : descriptors) {
       for (Descriptor descriptor : fileDescriptor.getMessageTypes()) {
