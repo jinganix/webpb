@@ -13,8 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
           ref: master
 
@@ -56,7 +57,7 @@ jobs:
           echo "${release_version}" >> /tmp/release_version
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${GITHUB_SHA}
           path: /tmp/release_version
@@ -68,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ${GITHUB_SHA}
           path: /tmp
@@ -80,8 +81,9 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
           ref: master
 
@@ -98,7 +100,7 @@ jobs:
 
       - name: Create pull request
         id: cpr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           commit-message: 'chore: release ${{ env.release_version }}'
@@ -126,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ${GITHUB_SHA}
           path: /tmp
@@ -138,8 +140,9 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
           ref: master
 
@@ -166,12 +169,13 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
           sed -i "s/version = .*/version = ${snapshot_version}-SNAPSHOT/" gradle.properties
+          sed -i -E "s/\b([:>])[0-9]+\.[0-9]+\.[0-9]+\b/\1${release_version}/g" README.md
           git add gradle.properties
           git commit -m "chore: bump version to ${snapshot_version}-SNAPSHOT"
 
       - name: Create pull request
         id: cpr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           commit-message: 'chore: bump version to ${{ env.snapshot_version }}-SNAPSHOT'
@@ -192,7 +196,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ${GITHUB_SHA}
           path: /tmp
@@ -204,8 +208,9 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
           ref: master
 
@@ -239,7 +244,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download release_version
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ${GITHUB_SHA}
           path: /tmp
@@ -251,20 +256,21 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          token: ${{ secrets.ACTION_TOKEN }}
           ref: refs/tags/v${{ env.release_version }}
 
-      - name: Setup JDK 8
-        uses: actions/setup-java@v4
+      - name: Setup JDK 21
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          java-version: 8
+          java-version: 21
 
       - name: Build and publish
         run: ./gradlew publish -Dorg.gradle.parallel=false --info
         env:
-          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-          GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
-          NEXUS_REPO_PASSWORD: ${{ secrets.NEXUS_REPO_PASSWORD }}
-          NEXUS_REPO_USERNAME: ${{ secrets.NEXUS_REPO_USERNAME }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_REPO_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_REPO_PASSWORD }}

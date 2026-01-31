@@ -8,6 +8,7 @@ plugins {
   application
   id("java.common")
   id("org.springframework.boot")
+  id("com.vanniktech.maven.publish")
   signing
 }
 

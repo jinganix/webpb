@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,10 @@ package io.github.jinganix.webpb.runtime.enumeration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 @DisplayName("EnumerationDeserializer")
 class EnumerationDeserializerTest {
@@ -40,7 +39,7 @@ class EnumerationDeserializerTest {
 
       @Test
       @DisplayName("then deserialize the enum")
-      void thenDeserializeTheEnum() throws IOException {
+      void thenDeserializeTheEnum() {
         ObjectMapper objectMapper = new ObjectMapper();
         assertEquals(IntegerEnum.A, objectMapper.readValue("1", IntegerEnum.class));
         assertEquals(IntegerEnum.B, objectMapper.readValue("2", IntegerEnum.class));
@@ -54,7 +53,7 @@ class EnumerationDeserializerTest {
 
       @Test
       @DisplayName("then deserialize the enum")
-      void thenDeserializeTheEnum() throws IOException {
+      void thenDeserializeTheEnum() {
         ObjectMapper objectMapper = new ObjectMapper();
         assertEquals(StringEnum.A, objectMapper.readValue("\"val_a\"", StringEnum.class));
         assertEquals(StringEnum.B, objectMapper.readValue("\"val_b\"", StringEnum.class));

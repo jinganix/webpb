@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,13 +20,13 @@ package io.github.jinganix.webpb.runtime.enumeration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @DisplayName("EnumerationDeserializer")
 class EnumerationKeyDeserializerTest {
@@ -41,11 +41,10 @@ class EnumerationKeyDeserializerTest {
 
       @DisplayName("then deserialize the enum key")
       @Test
-      void thenDeserializeTheEnumKey() throws IOException {
+      void thenDeserializeTheEnumKey() {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<IntegerEnum, Integer> data =
-            objectMapper.readValue(
-                "{\"1\":1,\"2\":2}", new TypeReference<Map<IntegerEnum, Integer>>() {});
+            objectMapper.readValue("{\"1\":1,\"2\":2}", new TypeReference<>() {});
         assertEquals(2, data.size());
         assertEquals(1, data.get(IntegerEnum.A));
         assertEquals(2, data.get(IntegerEnum.B));

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,12 +21,10 @@ package io.github.jinganix.webpb.runtime.enumeration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 @DisplayName("EnumerationSerializer")
 class EnumerationSerializerTest {
@@ -41,7 +39,7 @@ class EnumerationSerializerTest {
 
       @Test
       @DisplayName("then serialize successfully")
-      void thenSerializeSuccessfully() throws IOException {
+      void thenSerializeSuccessfully() {
         ObjectMapper objectMapper = new ObjectMapper();
         assertEquals("1", objectMapper.writeValueAsString(IntegerEnum.A));
         assertEquals("2", objectMapper.writeValueAsString(IntegerEnum.B));
@@ -54,7 +52,7 @@ class EnumerationSerializerTest {
 
       @Test
       @DisplayName("then serialize successfully")
-      void thenSerializeSuccessfully() throws IOException {
+      void thenSerializeSuccessfully() {
         ObjectMapper objectMapper = new ObjectMapper();
         assertEquals("\"val_a\"", objectMapper.writeValueAsString(StringEnum.A));
         assertEquals("\"val_b\"", objectMapper.writeValueAsString(StringEnum.B));
@@ -70,7 +68,8 @@ class EnumerationSerializerTest {
       void thenWriteStringIsCalled() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        assertThrows(JsonMappingException.class, () -> objectMapper.writeValueAsString(LongEnum.A));
+        assertThrows(
+            IllegalArgumentException.class, () -> objectMapper.writeValueAsString(LongEnum.A));
       }
     }
   }

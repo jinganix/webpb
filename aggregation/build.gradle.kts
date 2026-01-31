@@ -89,21 +89,6 @@ val coverage by tasks.registering(JacocoReport::class) {
   }
 }
 
-val configCoveralls by tasks.registering(DefaultTask::class) {
-  group = "verification"
-  coveralls {
-    sourceDirs = incomingSourceDirs.incoming.artifactView { lenient(true) }.files.map {
-      it.absolutePath
-    }
-    jacocoReportPath = "build/reports/jacoco/coverage/coverage.xml"
-  }
-}
-
-tasks.coveralls {
-  group = "verification"
-  dependsOn(configCoveralls)
-}
-
 tasks.check {
   dependsOn(coverageVerification)
 }

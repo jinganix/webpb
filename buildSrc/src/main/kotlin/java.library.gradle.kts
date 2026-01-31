@@ -4,12 +4,8 @@ plugins {
   `java-library`
   `maven-publish`
   id("java.common")
+  id("com.vanniktech.maven.publish")
   signing
-}
-
-java {
-  withJavadocJar()
-  withSourcesJar()
 }
 
 dependencies {

@@ -22,20 +22,13 @@ if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
 }
 
 dependencies {
-  compileOnly(files(org.gradle.internal.jvm.Jvm.current().toolsJar))
   testImplementation("com.google.testing.compile:compile-testing:${versionCompileTesting}")
   testImplementation("org.springframework:spring-messaging:${versionSpringFramework}")
   testImplementation("org.springframework:spring-web:${versionSpringFramework}")
-  testImplementation(files(org.gradle.internal.jvm.Jvm.current().toolsJar))
   testImplementation(project(":runtime:java"))
 }
 
-signAndPublish("webpb-processor") {
-  from(components["java"])
-  pom {
-    description.set("The webpb annotation processor for JAVA")
-  }
-}
+signAndPublish("webpb-processor", "The webpb annotation processor for JAVA")
 
 tasks.javadoc {
   enabled = false

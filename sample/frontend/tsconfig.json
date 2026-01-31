@@ -22,7 +22,7 @@
     "strictPropertyInitialization": false,
     "target": "es6",
     "paths": {
-      "@proto/*": ["build/generated/source/proto/main/ts/*"],
+      "@proto/*": ["build/generated/sources/proto/main/ts/*"],
       "@scripts/*": ["src/scripts/*"]
     },
     "typeRoots": [

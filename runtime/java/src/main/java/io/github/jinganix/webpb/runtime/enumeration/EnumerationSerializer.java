@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,9 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /** EnumerationSerializer. */
 public class EnumerationSerializer extends StdSerializer<Enumeration<?>> {
@@ -45,13 +44,11 @@ public class EnumerationSerializer extends StdSerializer<Enumeration<?>> {
    *
    * @param value Value to serialize; can <b>not</b> be null.
    * @param gen Generator used to output resulting Json content
-   * @param provider Provider that can be used to get serializers for serializing Objects value
+   * @param context Context that can be used to get serializers for serializing Objects value
    *     contains, if any.
-   * @throws IOException throw exception when failed
    */
   @Override
-  public void serialize(Enumeration value, JsonGenerator gen, SerializerProvider provider)
-      throws IOException {
+  public void serialize(Enumeration value, JsonGenerator gen, SerializationContext context) {
     if (value.getValue() instanceof Integer) {
       gen.writeNumber((Integer) value.getValue());
     } else if (value.getValue() instanceof String) {

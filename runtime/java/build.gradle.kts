@@ -11,13 +11,13 @@ plugins {
 
 dependencies {
   api(project(":lib:commons"))
-  compileOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${versionJackson}")
+  compileOnly("tools.jackson.dataformat:jackson-dataformat-xml:${versionJackson}")
   compileOnly("jakarta.servlet:jakarta.servlet-api:${versionJakartaServletApi}")
   compileOnly("javax.servlet:javax.servlet-api:${versionJavaxServletApi}")
   compileOnly("org.springframework:spring-messaging:${versionSpringFramework}")
   compileOnly("org.springframework:spring-webflux:${versionSpringFramework}")
   compileOnly("org.springframework:spring-webmvc:${versionSpringFramework}")
-  implementation("com.fasterxml.jackson.core:jackson-databind:${versionJackson}")
+  implementation("tools.jackson.core:jackson-databind:${versionJackson}")
   testImplementation("io.projectreactor.netty:reactor-netty:${versionReactorNetty}")
   testImplementation("javax.servlet:javax.servlet-api:${versionJavaxServletApi}") {
     when {
@@ -30,9 +30,4 @@ dependencies {
   testImplementation("org.springframework:spring-webmvc:${versionSpringFramework}")
 }
 
-signAndPublish("webpb-runtime") {
-  from(components["java"])
-  pom {
-    description.set("The webpb runtime library for JAVA")
-  }
-}
+signAndPublish("webpb-runtime", "The webpb runtime library for JAVA")

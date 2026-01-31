@@ -16,13 +16,6 @@ val artifactId = "webpb-protoc-java"
 
 tasks.bootJar {
   archiveBaseName.set(artifactId)
-  launchScript()
 }
 
-signAndPublish(artifactId) {
-  artifact(tasks.bootJar.get()) { classifier = "all" }
-  pom {
-    description.set("The webpb protoc plugin for JAVA")
-  }
-}
-
+signAndPublish(artifactId, "The webpb protoc plugin for JAVA")

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,12 +30,13 @@ object Vers {
   lateinit var versionCommonsIo: String
   lateinit var versionCommonsLang3: String
   lateinit var versionCompileTesting: String
-  lateinit var versionCoverallsGradlePlugin: String
   lateinit var versionDependencyManagementPlugin: String
   lateinit var versionFreemarker: String
   lateinit var versionGoogleJavaFormat: String
+  lateinit var versionGradleMavenPublishPlugin: String
   lateinit var versionGradleVersionsPlugin: String
   lateinit var versionJackson: String
+  lateinit var versionJacksonAnnotations: String
   lateinit var versionJacoco: String
   lateinit var versionJakartaServletApi: String
   lateinit var versionJakartaXml: String
