@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package MapValueTestProto;
+
+import "webpb/WebpbExtend.proto";
+
+enum Direction {
+  asc = 0;
+  desc = 1;
+}
+
+message MapValueTestPb {
+  map<string, Direction> sort = 1;
+}
