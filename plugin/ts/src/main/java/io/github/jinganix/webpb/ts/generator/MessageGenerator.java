@@ -129,11 +129,7 @@ public class MessageGenerator {
   }
 
   private String indent(int level) {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < level * 2; i++) {
-      builder.append(' ');
-    }
-    return builder.toString();
+    return " ".repeat(Math.max(0, level * 2));
   }
 
   private Map<String, Object> getMessageData(Descriptor descriptor, int level) {
@@ -333,7 +329,9 @@ public class MessageGenerator {
       data.put("optional", !field.isRequired() && !field.isRepeated());
       if (containsMessage(field)) {
         String msgType = toType(field.isMapField() ? getMapValueDescriptor(field) : field, false);
-        data.put("msgType", msgType);
+        if (!UNKNOWN.equals(msgType)) {
+          data.put("msgType", msgType);
+        }
       }
       data.put("collection", field.isMapField() ? "map" : field.isRepeated() ? "list" : "none");
       if (field.hasDefaultValue()) {
@@ -362,7 +360,7 @@ public class MessageGenerator {
     }
     field = field.isMapField() ? getMapValueDescriptor(field) : field;
     FieldDescriptor.Type type = field.getType();
-    if (TYPES.containsKey(type)) {
+    if (TYPES.containsKey(type) || !isMessage(field)) {
       return false;
     }
     String fullName = getFieldTypeFullName(field);

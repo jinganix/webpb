@@ -6,7 +6,7 @@ plugins {
   id("java.library")
 }
 
-if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
+if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
   tasks.withType<JavaCompile> {
     val args = options.compilerArgs
     args.addAll(listOf("--add-exports", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"))

@@ -21,7 +21,7 @@ dependencies {
   testImplementation("io.projectreactor.netty:reactor-netty:${versionReactorNetty}")
   testImplementation("javax.servlet:javax.servlet-api:${versionJavaxServletApi}") {
     when {
-      JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17) ->
+      JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21) ->
         testImplementation("jakarta.servlet:jakarta.servlet-api:${versionJakartaServletApi}")
     }
   }
