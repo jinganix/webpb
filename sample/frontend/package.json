@@ -75,7 +75,7 @@
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.3",
     "webpack-merge": "^6.0.1",
-    "webpb": "^0.0.24"
+    "webpb": "^0.0.25"
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
