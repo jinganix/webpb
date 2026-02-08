@@ -51,24 +51,22 @@ export function getter(data: unknown, path: string): unknown {
 
 export function query(pre: string, params: { [key: string]: unknown }): string {
   const queries: string[] = [];
+  const pushQuery = (key: string, value: string): void => {
+    key && value && queries.push(`${key}=${encodeURIComponent(value)}`);
+  };
   for (const [key, value] of Object.entries(params)) {
     if (value === null || value === undefined || typeof value === "function") {
       continue;
     }
-    let str;
     if (Array.isArray(value)) {
-      str = value.join(",");
+      pushQuery(key, value.join(","));
     } else if (typeof value === "object") {
-      str = Object.entries(value)
-        .filter(([key]) => key !== "")
-        .map(([key, value]) => `${key},${value}`)
-        .join(";");
+      for (const mapKey of Object.keys(value)) {
+        const mapValue = value[mapKey as keyof typeof value];
+        mapKey && pushQuery(key, mapValue ? mapKey + "," + mapValue : mapKey);
+      }
     } else {
-      str = String(value);
-    }
-    const encoded = encodeURIComponent(str);
-    if (encoded) {
-      queries.push(`${key}=${encoded}`);
+      pushQuery(key, String(value));
     }
   }
   return queries.length ? `${pre}${queries.join("&")}` : "";

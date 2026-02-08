@@ -1,9 +1,9 @@
 {
   "name": "webpb",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "The webpb runtime library",
   "scripts": {
-    "build": "rimraf build/**/* && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts && copyfiles ./README.md ./package.json build",
+    "build": "rimraf build/**/* && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.cjs && copyfiles ./README.md ./package.json build",
     "check": "npm run lint && npm run test",
     "lint": "eslint --quiet src/**/*.ts",
     "lint:fix": "eslint --fix src/**/*.ts",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.2",
-    "@types/node": "^25.1.0",
+    "@types/node": "^25.2.2",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
     "@vitest/coverage-v8": "^4.0.18",
