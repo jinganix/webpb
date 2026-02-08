@@ -51,20 +51,12 @@ describe("index", () => {
       { expected: "a=1", params: { a: 1, b: () => "hello" }, pre: "" },
       { expected: "a=1%2C2", params: { a: [1, 2] }, pre: "" },
       {
-        expected: "sort=a%2Cdesc%3Bb%2Casc",
+        expected: "sort=a%2Cdesc&sort=b%2Casc",
         params: { sort: { a: "desc", b: "asc" } },
         pre: "",
       },
-      {
-        expected: "",
-        params: { sort: { "": 123 } },
-        pre: "",
-      },
-      {
-        expected: "sort=a%2C",
-        params: { sort: { a: "" } },
-        pre: "",
-      },
+      { expected: "", params: { sort: { "": 123 } }, pre: "" },
+      { expected: "sort=a", params: { sort: { a: "" } }, pre: "" },
     ].forEach(({ pre, params, expected }) => {
       it(`query(${JSON.stringify(pre)}, "${JSON.stringify(params)}") => ${JSON.stringify(expected)}`, () => {
         expect(query(pre, params)).toStrictEqual(expected);
