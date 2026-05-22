@@ -51,7 +51,7 @@ import javax.lang.model.element.TypeElement;
 
 /** Process the WebpbRequestMapping and transform it to Spring RequestMapping. */
 @SupportedAnnotationTypes(Const.WebpbRequestMapping)
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class WebpbRequestMappingProcessor extends AbstractProcessor {
 
   private static final String SPRING_ANNOTATION = "org.springframework.web.bind.annotation";

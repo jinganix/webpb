@@ -51,7 +51,7 @@ import javax.lang.model.element.TypeElement;
 
 /** Process the WebpbMessageMapping and transform it to Spring MessageMapping. */
 @SupportedAnnotationTypes(Const.WebpbMessageMapping)
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class WebpbMessageMappingProcessor extends AbstractProcessor {
 
   private static final String SPRING_ANNOTATION =

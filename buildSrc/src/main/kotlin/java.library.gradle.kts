@@ -11,5 +11,5 @@ plugins {
 dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter-api:${versionJupiter}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${versionJupiter}")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher:${versionJupiter}")
 }
