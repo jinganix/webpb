@@ -25,10 +25,7 @@
       "@proto/*": ["build/generated/sources/proto/main/ts/*"],
       "@scripts/*": ["src/scripts/*"]
     },
-    "typeRoots": [
-      "node_modules/@types",
-      "global.d.ts"
-    ]
+    "typeRoots": ["node_modules/@types"]
   },
   "include": [
     "build/generated/**/*.ts",

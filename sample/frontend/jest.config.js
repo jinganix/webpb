@@ -18,6 +18,14 @@ module.exports = {
     prefix: "<rootDir>/",
   }),
   preset: "ts-jest",
+  transform: {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        tsconfig: "tsconfig.test.json",
+      },
+    ],
+  },
   rootDir: "./",
   testEnvironment: "jsdom",
   testMatch: ["<rootDir>/test/**/*(*.)@(test).ts"],
