@@ -34,6 +34,68 @@ import org.gradle.plugins.signing.SigningExtension
 import java.io.File
 import java.util.*
 
+import org.gradle.internal.os.OperatingSystem
+
+fun Project.goProtocPluginPath(name: String): String {
+  val ext = if (OperatingSystem.current().isWindows) ".exe" else ""
+  return java.io.File(rootDir, "plugin/bin/webpb-protoc-$name$ext").absolutePath
+}
+
+fun goExecutable(): String {
+  val os = OperatingSystem.current()
+  val goName = if (os.isWindows) "go.exe" else "go"
+
+  System.getenv("WEBPB_GO")?.takeIf { it.isNotBlank() }?.let { configured ->
+    val candidate = File(configured.trim())
+    if (candidate.isFile) {
+      return candidate.absolutePath
+    }
+  }
+
+  System.getenv("GOROOT")?.takeIf { it.isNotBlank() }?.let { goroot ->
+    val candidate = File(goroot, "bin${File.separator}$goName")
+    if (candidate.isFile) {
+      return candidate.absolutePath
+    }
+  }
+
+  System.getenv("PATH")?.split(File.pathSeparatorChar)?.forEach { dir ->
+    if (dir.isBlank()) {
+      return@forEach
+    }
+    val candidate = File(dir, goName)
+    if (candidate.isFile) {
+      return candidate.absolutePath
+    }
+  }
+
+  resolveGoFromShell(os, goName)?.let { return it }
+
+  error(
+    "Go executable not found. Install Go, set GOROOT, or set WEBPB_GO to the go binary path.",
+  )
+}
+
+private fun resolveGoFromShell(os: OperatingSystem, goName: String): String? {
+  val command =
+    if (os.isWindows) {
+      listOf("where.exe", goName)
+    } else {
+      listOf("/bin/sh", "-lc", "command -v $goName")
+    }
+  val process =
+    ProcessBuilder(command)
+      .redirectErrorStream(true)
+      .apply { environment().putAll(System.getenv()) }
+      .start()
+  val output = process.inputStream.bufferedReader().readText().trim()
+  if (process.waitFor() != 0 || output.isBlank()) {
+    return null
+  }
+  val candidate = File(output.lineSequence().first().trim())
+  return candidate.takeIf { it.isFile }?.absolutePath
+}
+
 fun Project.hierarchicalGroup(): String {
   var suffix = ""
   var proj = project.parent

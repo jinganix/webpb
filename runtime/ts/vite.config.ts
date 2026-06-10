@@ -21,6 +21,7 @@ export default defineConfig({
   test: {
     coverage: {
       include: ["src/**/*.ts"],
+      reporter: ["text", "html", "lcov"],
     },
     watch: false,
   },

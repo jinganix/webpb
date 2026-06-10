@@ -21,74 +21,58 @@ package io.github.jinganix.webpb.commons;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("UrlSegment")
 class UrlSegmentTest {
 
-  @Nested
-  @DisplayName("constructor")
-  class Constructor {
+  @Test
+  @DisplayName("should not be accessor when value is {")
+  void shouldNotBeAccessorWhenValueIsLeftParenthesis() {
+    // Given
+    UrlSegment urlSegment = new UrlSegment("", "", "{");
 
-    @Nested
-    @DisplayName("when value is {")
-    class WhenValueIsLeftParenthesis {
+    // When / Then
+    assertThat(urlSegment.isAccessor()).isFalse();
+  }
 
-      @Test
-      @DisplayName("then is not accessor")
-      void thenAccessorIsTrueTest() {
-        UrlSegment urlSegment = new UrlSegment("", "", "{");
-        assertThat(urlSegment.isAccessor()).isFalse();
-      }
-    }
+  @Test
+  @DisplayName("should not be accessor when value is }")
+  void shouldNotBeAccessorWhenValueIsRightParenthesis() {
+    // Given
+    UrlSegment urlSegment = new UrlSegment("", "", "}");
 
-    @Nested
-    @DisplayName("when value is }")
-    class WhenValueIsRightParenthesis {
+    // When / Then
+    assertThat(urlSegment.isAccessor()).isFalse();
+  }
 
-      @Test
-      @DisplayName("then is not accessor")
-      void thenAccessorIsTrueTest() {
-        UrlSegment urlSegment = new UrlSegment("", "", "}");
-        assertThat(urlSegment.isAccessor()).isFalse();
-      }
-    }
+  @Test
+  @DisplayName("should not be query when key is null")
+  void shouldNotBeQueryWhenKeyIsNull() {
+    // Given
+    UrlSegment urlSegment = new UrlSegment("", null, "{}");
 
-    @Nested
-    @DisplayName("when key is null")
-    class WhenKeyIsNull {
+    // When / Then
+    assertThat(urlSegment.isQuery()).isFalse();
+  }
 
-      @Test
-      @DisplayName("then is not query")
-      void thenQueryIsTrueTest() {
-        UrlSegment urlSegment = new UrlSegment("", null, "{}");
-        assertThat(urlSegment.isQuery()).isFalse();
-      }
-    }
+  @Test
+  @DisplayName("should not be query when key is empty")
+  void shouldNotBeQueryWhenKeyIsEmpty() {
+    // Given
+    UrlSegment urlSegment = new UrlSegment("", "", "{}");
 
-    @Nested
-    @DisplayName("when key is empty")
-    class WhenKeyIsEmpty {
+    // When / Then
+    assertThat(urlSegment.isQuery()).isFalse();
+  }
 
-      @Test
-      @DisplayName("then is not query")
-      void thenQueryIsTrueTest() {
-        UrlSegment urlSegment = new UrlSegment("", "", "{}");
-        assertThat(urlSegment.isQuery()).isFalse();
-      }
-    }
+  @Test
+  @DisplayName("should be query when key is present")
+  void shouldBeQueryWhenKeyIsPresent() {
+    // Given
+    UrlSegment urlSegment = new UrlSegment("", "foo", "{}");
 
-    @Nested
-    @DisplayName("when key is foo")
-    class WhenKeyIsFoo {
-
-      @Test
-      @DisplayName("then is not query")
-      void thenQueryIsTrueTest() {
-        UrlSegment urlSegment = new UrlSegment("", "foo", "{}");
-        assertThat(urlSegment.isQuery()).isTrue();
-      }
-    }
+    // When / Then
+    assertThat(urlSegment.isQuery()).isTrue();
   }
 }

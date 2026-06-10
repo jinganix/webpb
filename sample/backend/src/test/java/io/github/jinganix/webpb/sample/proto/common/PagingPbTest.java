@@ -21,25 +21,22 @@ package io.github.jinganix.webpb.sample.proto.common;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("PagingPb")
 class PagingPbTest {
 
-  @Nested
-  @DisplayName("when update props")
-  class WhenUpdateProps {
+  @Test
+  @DisplayName("should return updated properties when setters are called")
+  void shouldReturnUpdatedPropertiesWhenSettersAreCalled() {
+    // Given
+    PagingPb pb = new PagingPb().setPage(11).setSize(22).setTotalCount(33).setTotalPage(44);
 
-    @Test
-    @DisplayName("then get the prop by getters")
-    void thenGetThePropByGetters() {
-      PagingPb pb = new PagingPb().setPage(11).setSize(22).setTotalCount(33).setTotalPage(44);
-      assertThat(pb.webpbMeta()).isNotNull();
-      assertThat(pb.getPage()).isEqualTo(11);
-      assertThat(pb.getSize()).isEqualTo(22);
-      assertThat(pb.getTotalCount()).isEqualTo(33);
-      assertThat(pb.getTotalPage()).isEqualTo(44);
-    }
+    // When / Then
+    assertThat(pb.webpbMeta()).isNotNull();
+    assertThat(pb.getPage()).isEqualTo(11);
+    assertThat(pb.getSize()).isEqualTo(22);
+    assertThat(pb.getTotalCount()).isEqualTo(33);
+    assertThat(pb.getTotalPage()).isEqualTo(44);
   }
 }

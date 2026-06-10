@@ -1,0 +1,14 @@
+---
+description: BDD test conventions for TypeScript Vitest files
+globs: **/*.test.ts
+alwaysApply: false
+---
+
+# TypeScript test conventions
+
+Follow `ai-kit/TEST_CONVENTIONS.md` (Vitest section).
+
+- `describe` names the unit under test.
+- `it('should ... when ...', ...)` for each case.
+- Use `it.each` for table-driven cases.
+- Add `// Given`, `// When`, `// Then` for non-trivial scenarios.

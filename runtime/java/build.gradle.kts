@@ -30,4 +30,15 @@ dependencies {
   testImplementation("org.springframework:spring-webmvc:${versionSpringFramework}")
 }
 
+val jacocoClassDirs =
+  sourceSets.main.get().output.asFileTree.matching {
+    exclude("io/github/jinganix/webpb/runtime/mvc/VariablesResolver")
+  }
+tasks.jacocoTestReport {
+  classDirectories.setFrom(jacocoClassDirs)
+}
+tasks.jacocoTestCoverageVerification {
+  classDirectories.setFrom(jacocoClassDirs)
+}
+
 signAndPublish("webpb-runtime", "The webpb runtime library for JAVA")

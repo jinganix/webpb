@@ -21,12 +21,9 @@ package io.github.jinganix.webpb.utilities.utils;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveEnum;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveFile;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
@@ -46,237 +43,290 @@ import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FileOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import io.github.jinganix.webpb.utilities.test.TestUtils;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+@DisplayName("OptionUtils")
 class OptionUtilsTest {
 
-  // FileOpts
   @Test
-  void shouldGetFileOptsSuccess() {
+  @DisplayName("should return file opts when descriptor has options")
+  void shouldReturnFileOptsWhenDescriptorHasOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test.proto");
 
+    // When
     FileOpts javaOpts = OptionUtils.getOpts(descriptor, FileOpts::hasJava);
-    assertTrue(javaOpts.getJava().getGenGetter());
-
     FileOpts tsOpts = OptionUtils.getOpts(descriptor, FileOpts::hasTs);
-    assertTrue(tsOpts.getTs().getInt64AsString());
+
+    // Then
+    assertThat(javaOpts.getJava().getGenGetter()).isTrue();
+    assertThat(tsOpts.getTs().getInt64AsString()).isTrue();
   }
 
   @Test
-  void shouldGetFileOptsSuccessWhenParseError() {
+  @DisplayName("should return default file opts when parse fails")
+  void shouldReturnDefaultFileOptsWhenParseFails() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test.proto");
+
+    // When / Then
     try (MockedStatic<FileOpts> opts = mockStatic(FileOpts.class)) {
       opts.when(() -> FileOpts.parseFrom((ByteString) any()))
           .thenThrow(new InvalidProtocolBufferException("Invalid"));
-      assertEquals(FileOpts.getDefaultInstance(), OptionUtils.getOpts(descriptor, o -> true));
+      assertThat(OptionUtils.getOpts(descriptor, o -> true))
+          .isEqualTo(FileOpts.getDefaultInstance());
     }
   }
 
   @Test
-  void shouldGetFileOptsSuccessWhenWithoutOptions() {
+  @DisplayName("should return default file opts when descriptor is null or has no options")
+  void shouldReturnDefaultFileOptsWhenDescriptorIsNullOrHasNoOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test2);
     FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test1.proto");
-    assertEquals(
-        FileOpts.getDefaultInstance(), OptionUtils.getOpts((FileDescriptor) null, o -> true));
-    assertEquals(FileOpts.getDefaultInstance(), OptionUtils.getOpts(descriptor, o -> true));
+
+    // When / Then
+    assertThat(OptionUtils.getOpts((FileDescriptor) null, o -> true))
+        .isEqualTo(FileOpts.getDefaultInstance());
+    assertThat(OptionUtils.getOpts(descriptor, o -> true)).isEqualTo(FileOpts.getDefaultInstance());
   }
 
-  // MessageOpts
   @Test
-  void shouldGetMessageOptsSuccess() {
+  @DisplayName("should return message opts when descriptor has options")
+  void shouldReturnMessageOptsWhenDescriptorHasOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
 
+    // When
     MessageOpts optOpts = OptionUtils.getOpts(descriptor, MessageOpts::hasOpt);
-    assertEquals("GET", optOpts.getOpt().getMethod());
-
     MessageOpts javaOpts = OptionUtils.getOpts(descriptor, MessageOpts::hasJava);
-    assertEquals(2, javaOpts.getJava().getAnnotationCount());
+
+    // Then
+    assertThat(optOpts.getOpt().getMethod()).isEqualTo("GET");
+    assertThat(javaOpts.getJava().getAnnotationCount()).isEqualTo(2);
   }
 
   @Test
-  void shouldGetMessageOptsSuccessWhenParseError() {
+  @DisplayName("should return default message opts when parse fails")
+  void shouldReturnDefaultMessageOptsWhenParseFails() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
+
+    // When / Then
     try (MockedStatic<MessageOpts> opts = mockStatic(MessageOpts.class)) {
       opts.when(() -> MessageOpts.parseFrom((ByteString) any()))
           .thenThrow(new InvalidProtocolBufferException("Invalid"));
-      assertEquals(MessageOpts.getDefaultInstance(), OptionUtils.getOpts(descriptor, o -> true));
+      assertThat(OptionUtils.getOpts(descriptor, o -> true))
+          .isEqualTo(MessageOpts.getDefaultInstance());
     }
   }
 
   @Test
-  void shouldGetMessageOptsSuccessWhenWithoutOptions() {
+  @DisplayName("should return default message opts when descriptor is null or has no options")
+  void shouldReturnDefaultMessageOptsWhenDescriptorIsNullOrHasNoOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test2);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test1");
-    assertEquals(
-        MessageOpts.getDefaultInstance(), OptionUtils.getOpts((Descriptor) null, o -> true));
-    assertEquals(MessageOpts.getDefaultInstance(), OptionUtils.getOpts(descriptor, o -> true));
+
+    // When / Then
+    assertThat(OptionUtils.getOpts((Descriptor) null, o -> true))
+        .isEqualTo(MessageOpts.getDefaultInstance());
+    assertThat(OptionUtils.getOpts(descriptor, o -> true))
+        .isEqualTo(MessageOpts.getDefaultInstance());
   }
 
-  // EnumOpts
   @Test
-  void shouldGetEnumOptsSuccess() {
+  @DisplayName("should return enum opts when descriptor has options")
+  void shouldReturnEnumOptsWhenDescriptorHasOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     EnumDescriptor enumDescriptor = resolveEnum(context.getDescriptors(), "Enum");
 
+    // When
     EnumOpts optOpts = OptionUtils.getOpts(enumDescriptor, EnumOpts::hasOpt);
-    assertNotNull(optOpts);
-
     EnumOpts javaOpts = OptionUtils.getOpts(enumDescriptor, EnumOpts::hasJava);
-    assertEquals(2, javaOpts.getJava().getAnnotationCount());
+
+    // Then
+    assertThat(optOpts).isNotNull();
+    assertThat(javaOpts.getJava().getAnnotationCount()).isEqualTo(2);
   }
 
   @Test
-  void shouldGetEnumOptsSuccessWhenParseError() {
+  @DisplayName("should return default enum opts when parse fails")
+  void shouldReturnDefaultEnumOptsWhenParseFails() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     EnumDescriptor enumDescriptor = resolveEnum(context.getDescriptors(), "Enum");
+
+    // When / Then
     try (MockedStatic<EnumOpts> opts = mockStatic(EnumOpts.class)) {
       opts.when(() -> EnumOpts.parseFrom((ByteString) any()))
           .thenThrow(new InvalidProtocolBufferException("Invalid"));
-      assertEquals(EnumOpts.getDefaultInstance(), OptionUtils.getOpts(enumDescriptor, o -> true));
+      assertThat(OptionUtils.getOpts(enumDescriptor, o -> true))
+          .isEqualTo(EnumOpts.getDefaultInstance());
     }
   }
 
   @Test
-  void shouldGetEnumOptsSuccessWhenWithoutOptions() {
+  @DisplayName("should return default enum opts when descriptor is null or has no options")
+  void shouldReturnDefaultEnumOptsWhenDescriptorIsNullOrHasNoOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test2);
     EnumDescriptor enumDescriptor = resolveEnum(context.getDescriptors(), "Enum");
-    assertEquals(
-        EnumOpts.getDefaultInstance(), OptionUtils.getOpts((EnumDescriptor) null, o -> true));
-    assertEquals(EnumOpts.getDefaultInstance(), OptionUtils.getOpts(enumDescriptor, o -> true));
+
+    // When / Then
+    assertThat(OptionUtils.getOpts((EnumDescriptor) null, o -> true))
+        .isEqualTo(EnumOpts.getDefaultInstance());
+    assertThat(OptionUtils.getOpts(enumDescriptor, o -> true))
+        .isEqualTo(EnumOpts.getDefaultInstance());
   }
 
-  // FieldOpts
   @Test
-  void shouldGetFieldOptsSuccess() {
+  @DisplayName("should return field opts when descriptor has options")
+  void shouldReturnFieldOptsWhenDescriptorHasOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
+    assertThat(descriptor).isNotNull();
     FieldDescriptor fieldDescriptor = descriptor.getFields().get(0);
 
+    // When
     FieldOpts optOpts = OptionUtils.getOpts(fieldDescriptor, FieldOpts::hasOpt);
-    assertTrue(optOpts.getOpt().getInQuery());
-
     FieldOpts tsOpts = OptionUtils.getOpts(fieldDescriptor, FieldOpts::hasTs);
-    assertTrue(tsOpts.getTs().getAsString());
+
+    // Then
+    assertThat(optOpts.getOpt().getInQuery()).isTrue();
+    assertThat(tsOpts.getTs().getAsString()).isTrue();
   }
 
   @Test
-  void shouldGetFieldOptsSuccessWhenParseError() {
+  @DisplayName("should return default field opts when parse fails")
+  void shouldReturnDefaultFieldOptsWhenParseFails() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
+    assertThat(descriptor).isNotNull();
     FieldDescriptor fieldDescriptor = descriptor.getFields().get(0);
+
+    // When / Then
     try (MockedStatic<FieldOpts> opts = mockStatic(FieldOpts.class)) {
       opts.when(() -> FieldOpts.parseFrom((ByteString) any()))
           .thenThrow(new InvalidProtocolBufferException("Invalid"));
-      assertEquals(FieldOpts.getDefaultInstance(), OptionUtils.getOpts(fieldDescriptor, o -> true));
+      assertThat(OptionUtils.getOpts(fieldDescriptor, o -> true))
+          .isEqualTo(FieldOpts.getDefaultInstance());
     }
   }
 
   @Test
-  void shouldGetFieldOptsSuccessWhenWithoutOptions() {
+  @DisplayName("should return default field opts when descriptor is null or has no options")
+  void shouldReturnDefaultFieldOptsWhenDescriptorIsNullOrHasNoOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test6");
-    assertNotNull(descriptor);
+    assertThat(descriptor).isNotNull();
     FieldDescriptor fieldDescriptor = descriptor.getFields().get(0);
-    assertEquals(
-        FieldOpts.getDefaultInstance(), OptionUtils.getOpts((FieldDescriptor) null, o -> true));
-    assertEquals(FieldOpts.getDefaultInstance(), OptionUtils.getOpts(fieldDescriptor, o -> true));
+
+    // When / Then
+    assertThat(OptionUtils.getOpts((FieldDescriptor) null, o -> true))
+        .isEqualTo(FieldOpts.getDefaultInstance());
+    assertThat(OptionUtils.getOpts(fieldDescriptor, o -> true))
+        .isEqualTo(FieldOpts.getDefaultInstance());
   }
 
-  // EnumValueOpts
   @Test
-  void shouldGetEnumValueOptsSuccess() {
+  @DisplayName("should return enum value opts when descriptor has options")
+  void shouldReturnEnumValueOptsWhenDescriptorHasOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     EnumDescriptor descriptor = resolveEnum(context.getDescriptors(), "Test5");
-    assertNotNull(descriptor);
+    assertThat(descriptor).isNotNull();
     EnumValueDescriptor enumValueDescriptor = descriptor.getValues().get(0);
 
+    // When
     EnumValueOpts javaOpts = OptionUtils.getOpts(enumValueDescriptor, EnumValueOpts::hasJava);
-    assertEquals(0, javaOpts.getJava().getAnnotationCount());
-
     EnumValueOpts optOpts = OptionUtils.getOpts(enumValueDescriptor, EnumValueOpts::hasOpt);
-    assertEquals("text1", optOpts.getOpt().getValue());
+
+    // Then
+    assertThat(javaOpts.getJava().getAnnotationCount()).isZero();
+    assertThat(optOpts.getOpt().getValue()).isEqualTo("text1");
   }
 
   @Test
-  void shouldGetEnumValueOptsSuccessWhenParseError() {
+  @DisplayName("should return default enum value opts when parse fails")
+  void shouldReturnDefaultEnumValueOptsWhenParseFails() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     EnumDescriptor descriptor = resolveEnum(context.getDescriptors(), "Test5");
-    assertNotNull(descriptor);
+    assertThat(descriptor).isNotNull();
     EnumValueDescriptor enumValueDescriptor = descriptor.getValues().get(0);
+
+    // When / Then
     try (MockedStatic<EnumValueOpts> opts = mockStatic(EnumValueOpts.class)) {
       opts.when(() -> EnumValueOpts.parseFrom((ByteString) any()))
           .thenThrow(new InvalidProtocolBufferException("Invalid"));
-      assertEquals(
-          EnumValueOpts.getDefaultInstance(), OptionUtils.getOpts(enumValueDescriptor, o -> true));
+      assertThat(OptionUtils.getOpts(enumValueDescriptor, o -> true))
+          .isEqualTo(EnumValueOpts.getDefaultInstance());
     }
   }
 
   @Test
-  void shouldGetEnumValueOptsSuccessWhenWithoutOptions() {
+  @DisplayName("should return default enum value opts when descriptor is null or has no options")
+  void shouldReturnDefaultEnumValueOptsWhenDescriptorIsNullOrHasNoOptions() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     EnumDescriptor descriptor = resolveEnum(context.getDescriptors(), "Test5");
-    assertNotNull(descriptor);
+    assertThat(descriptor).isNotNull();
     EnumValueDescriptor enumValueDescriptor = descriptor.getValues().get(2);
-    assertEquals(
-        EnumValueOpts.getDefaultInstance(),
-        OptionUtils.getOpts((EnumValueDescriptor) null, o -> true));
-    assertEquals(
-        EnumValueOpts.getDefaultInstance(), OptionUtils.getOpts(enumValueDescriptor, o -> true));
+
+    // When / Then
+    assertThat(OptionUtils.getOpts((EnumValueDescriptor) null, o -> true))
+        .isEqualTo(EnumValueOpts.getDefaultInstance());
+    assertThat(OptionUtils.getOpts(enumValueDescriptor, o -> true))
+        .isEqualTo(EnumValueOpts.getDefaultInstance());
   }
 
   @Test
-  void shouldReturnEnumIsStringValueSuccess() {
+  @DisplayName("should detect string value enums when opt marks them as string")
+  void shouldDetectStringValueEnumsWhenOptMarksThemAsString() {
+    // Given
     RequestContext context = TestUtils.createRequest(Dump.test1);
     EnumDescriptor descriptor1 = resolveEnum(context.getDescriptors(), "Test3");
-    assertTrue(OptionUtils.isStringValue(descriptor1));
-
     EnumDescriptor descriptor2 = resolveEnum(context.getDescriptors(), "Test5");
-    assertTrue(OptionUtils.isStringValue(descriptor2));
-
     EnumDescriptor descriptor3 = resolveEnum(context.getDescriptors(), "Enum");
-    assertFalse(OptionUtils.isStringValue(descriptor3));
+
+    // When / Then
+    assertThat(OptionUtils.isStringValue(descriptor1)).isTrue();
+    assertThat(OptionUtils.isStringValue(descriptor2)).isTrue();
+    assertThat(OptionUtils.isStringValue(descriptor3)).isFalse();
   }
 
-  @Nested
-  @DisplayName("checkDuplicatedFields")
-  class CheckDuplicatedFields {
+  @Test
+  @DisplayName("should throw when duplicated fields exist")
+  void shouldThrowWhenDuplicatedFieldsExist() {
+    // Given
+    RequestContext context = TestUtils.createRequest(Dump.error_test);
+    Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test2");
 
-    @Nested
-    @DisplayName("when there are duplicated fields")
-    class WhenThereAreDuplicatedFields {
+    // When / Then
+    assertThatThrownBy(() -> OptionUtils.checkDuplicatedFields(descriptor))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(
+            "Duplicated field name `Test2.foo` in DuplicatedFieldsError.proto when extends");
+  }
 
-      @Test
-      @DisplayName("then throw exception")
-      void thenThrowException() {
-        RequestContext context = TestUtils.createRequest(Dump.error_test);
-        Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test2");
-        assertThatThrownBy(() -> OptionUtils.checkDuplicatedFields(descriptor))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage(
-                "Duplicated field name `Test2.foo` in DuplicatedFieldsError.proto when extends");
-      }
-    }
+  @Test
+  @DisplayName("should not throw when no duplicated fields exist")
+  void shouldNotThrowWhenNoDuplicatedFieldsExist() {
+    // Given
+    RequestContext context = TestUtils.createRequest(Dump.test1);
+    Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
 
-    @Nested
-    @DisplayName("when no duplicated fields")
-    class WhenNoDuplicatedFields {
-
-      @Test
-      @DisplayName("then not throw exception")
-      void thenNotThrowException() {
-        RequestContext context = TestUtils.createRequest(Dump.test1);
-        Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-        assertThatCode(() -> OptionUtils.checkDuplicatedFields(descriptor))
-            .doesNotThrowAnyException();
-      }
-    }
+    // When / Then
+    assertThatCode(() -> OptionUtils.checkDuplicatedFields(descriptor)).doesNotThrowAnyException();
   }
 }

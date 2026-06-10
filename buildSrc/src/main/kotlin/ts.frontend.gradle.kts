@@ -4,7 +4,7 @@ import com.google.protobuf.gradle.remove
 import utils.Props
 import utils.Vers
 import utils.Vers.versionProtobufJava
-import utils.Vers.webpb
+import utils.goProtocPluginPath
 import java.util.*
 
 plugins {
@@ -28,7 +28,7 @@ protobuf {
   }
   plugins {
     id("ts") {
-      path = "${rootDir}/plugin/ts/build/libs/webpb-protoc-ts-${webpb}.jar"
+      path = goProtocPluginPath("ts")
     }
   }
   generateProtoTasks {
@@ -44,5 +44,5 @@ protobuf {
 }
 
 tasks.withType<GenerateProtoTask> {
-  dependsOn(":plugin:ts:build")
+  dependsOn(":plugin:build")
 }

@@ -8,11 +8,9 @@
     "dev": "webpack serve --config webpack/webpack.config.dev.js",
     "lint": "npm run lint:styles; npm run lint:scripts",
     "lint:scripts": "eslint src",
-    "proto": "run-script-os",
-    "proto:default": "../../gradlew generateProto",
-    "proto:win32": "..\\..\\gradlew.bat generateProto",
+    "proto": "node scripts/generate-proto.mjs",
     "start": "npm run proto && npm run dev",
-    "test": "npm run proto && jest --forceExit --coverage --silent --detectOpenHandles"
+    "test": "jest --forceExit --coverage --silent --detectOpenHandles"
   },
   "license": "Apache-2.0",
   "keywords": [
@@ -63,7 +61,6 @@
     "mini-css-extract-plugin": "^2.10.2",
     "postcss-loader": "^8.2.1",
     "prettier": "^3.8.3",
-    "run-script-os": "^1.1.6",
     "sass": "^1.100.0",
     "sass-loader": "^17.0.0",
     "style-loader": "^4.0.0",

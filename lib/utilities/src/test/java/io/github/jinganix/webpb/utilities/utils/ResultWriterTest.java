@@ -22,37 +22,23 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("ResultWriter")
 class ResultWriterTest {
 
-  @Nested
-  @DisplayName("write")
-  class WriteTest {
+  @Test
+  @DisplayName("should throw when write stream fails")
+  void shouldThrowWhenWriteStreamFails() {
+    // When / Then
+    assertThatThrownBy(() -> new ResultWriter(null).write("a", "a"))
+        .isInstanceOf(RuntimeException.class);
+  }
 
-    @Nested
-    @DisplayName("when failed to write stream")
-    class WhenFailedToWriteStreamTest {
-
-      @Test
-      @DisplayName("then throw exception")
-      void thenThrowExceptionTest() {
-        assertThatThrownBy(() -> new ResultWriter(null).write("a", "a"))
-            .isInstanceOf(RuntimeException.class);
-      }
-    }
-
-    @Nested
-    @DisplayName("when content is empty")
-    class WhenContentIsEmpty {
-
-      @Test
-      @DisplayName("then write nothing")
-      void thenWriteNothing() {
-        assertThatCode(() -> new ResultWriter(null).write("a", null)).doesNotThrowAnyException();
-      }
-    }
+  @Test
+  @DisplayName("should not write when content is empty")
+  void shouldNotWriteWhenContentIsEmpty() {
+    // When / Then
+    assertThatCode(() -> new ResultWriter(null).write("a", null)).doesNotThrowAnyException();
   }
 }

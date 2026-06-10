@@ -18,32 +18,43 @@
 
 package io.github.jinganix.webpb.runtime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("WebpbMeta")
 class WebpbMetaTest {
 
   private final WebpbMeta webpbMeta =
       WebpbMeta.builder().method("GET").context("user").path("/get/user").build();
 
   @Test
-  void shouldGetMethodSuccess() {
-    assertEquals("GET", webpbMeta.getMethod());
+  @DisplayName("should return method when meta is built")
+  void shouldReturnMethodWhenMetaIsBuilt() {
+    // When / Then
+    assertThat(webpbMeta.getMethod()).isEqualTo("GET");
   }
 
   @Test
-  void shouldGetContextSuccess() {
-    assertEquals("user", webpbMeta.getContext());
+  @DisplayName("should return context when meta is built")
+  void shouldReturnContextWhenMetaIsBuilt() {
+    // When / Then
+    assertThat(webpbMeta.getContext()).isEqualTo("user");
   }
 
   @Test
-  void shouldGetPathSuccess() {
-    assertEquals("/get/user", webpbMeta.getPath());
+  @DisplayName("should return path when meta is built")
+  void shouldReturnPathWhenMetaIsBuilt() {
+    // When / Then
+    assertThat(webpbMeta.getPath()).isEqualTo("/get/user");
   }
 
   @Test
-  void shouldToStringSuccess() {
-    assertEquals("WebpbMeta(method=GET, context=user, path=/get/user)", webpbMeta.toString());
+  @DisplayName("should return descriptive string when toString is called")
+  void shouldReturnDescriptiveStringWhenToStringIsCalled() {
+    // When / Then
+    assertThat(webpbMeta.toString())
+        .isEqualTo("WebpbMeta(method=GET, context=user, path=/get/user)");
   }
 }

@@ -1,0 +1,23 @@
+export enum {{.className}} {
+{{- range .enums}}
+  {{.name}} = {{.value}},
+{{- end}}
+}
+
+export const {{.className}}Values = [
+{{- range .enums}}
+  {{$.className}}.{{.name}},
+{{- end}}
+];
+
+export const enum Const{{.className}} {
+{{- range .enums}}
+  {{.name}} = {{.value}},
+{{- end}}
+}
+
+export const Const{{.className}}Values = [
+{{- range .enums}}
+  Const{{$.className}}.{{.name}},
+{{- end}}
+];

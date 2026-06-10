@@ -30,6 +30,17 @@ dependencies {
 
 signAndPublish("webpb-processor", "The webpb annotation processor for JAVA")
 
+val jacocoClassDirs =
+  sourceSets.main.get().output.asFileTree.matching {
+    exclude("io/github/jinganix/webpb/processor/misc/*")
+  }
+tasks.jacocoTestReport {
+  classDirectories.setFrom(jacocoClassDirs)
+}
+tasks.jacocoTestCoverageVerification {
+  classDirectories.setFrom(jacocoClassDirs)
+}
+
 tasks.javadoc {
   enabled = false
 }

@@ -1,0 +1,40 @@
+  public static final String WEBPB_METHOD = "{{.method}}";
+
+  public static final String WEBPB_CONTEXT = "{{.context}}";
+
+  public static final String WEBPB_PATH = "{{.path}}";
+
+  public static final {{.webpbMeta}} WEBPB_META = new {{.webpbMeta}}.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+
+  @Override
+  public {{.webpbMeta}} webpbMeta() {
+    return WEBPB_META;
+  }
+{{range .fields}}{{if .annos}}{{range $i, $a := .annos}}{{if $i}}
+{{else}}
+{{end}}  {{$a}}{{end}}{{end}}{{if .default}}
+  private {{.type}} {{.name}} = {{.default}};
+{{else}}
+  private {{.type}} {{.name}};
+{{end}}{{end}}
+  public {{.className}}() {
+  }{{if and .fields (gt (len .fields) 0) (le (len .fields) 5)}}
+
+  public {{.className}}({{range $i, $field := .fields}}{{$field.type}} {{$field.name}}{{if not (last $i $.fields)}}, {{end}}{{end}}) {
+{{- range .fields}}
+    this.{{.name}} = {{.name}};
+{{- end}}
+  }{{end}}{{if or .genGetter .genSetter}}{{range .fields}}
+{{if $.genGetter}}
+  public {{.type}} get{{capFirst .name}}() {
+    return this.{{.name}};
+  }
+{{end}}
+{{if $.genSetter}}
+  public {{$.className}} set{{capFirst .name}}({{.type}} {{.name}}) {
+    this.{{.name}} = {{.name}};
+    return this;
+  }
+{{end}}{{end}}{{end}}{{range .nestedMsgs}}
+
+{{.}}{{end}}

@@ -267,10 +267,27 @@ jobs:
           distribution: 'zulu'
           java-version: 21
 
-      - name: Build and publish
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: plugin/go.mod
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Publish to Maven
         run: ./gradlew publish -Dorg.gradle.parallel=false --info
         env:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_REPO_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_REPO_PASSWORD }}
+
+      - name: Publish webpb-protoc-ts to npm
+        working-directory: plugin/npm/webpb-protoc-ts
+        run: npm run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -21,133 +21,117 @@ package io.github.jinganix.webpb.commons;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("SegmentGroup")
 class SegmentGroupTest {
 
-  @Nested
-  @DisplayName("when path is null")
-  class WhenPathIsNull {
+  @Test
+  @DisplayName("should return empty group when path is null")
+  void shouldReturnEmptyGroupWhenPathIsNull() {
+    // When
+    SegmentGroup group = SegmentGroup.of(null);
 
-    @Test
-    @DisplayName("then group is empty")
-    void thenGroupIsEmpty() {
-      SegmentGroup group = SegmentGroup.of(null);
-      assertThat(group.isEmpty()).isTrue();
-      assertThat(group.getSuffix()).isEmpty();
-    }
+    // Then
+    assertThat(group.isEmpty()).isTrue();
+    assertThat(group.getSuffix()).isEmpty();
   }
 
-  @Nested
-  @DisplayName("when path is empty")
-  class WhenPathIsEmpty {
+  @Test
+  @DisplayName("should return empty group when path is empty")
+  void shouldReturnEmptyGroupWhenPathIsEmpty() {
+    // When
+    SegmentGroup group = SegmentGroup.of("");
 
-    @Test
-    @DisplayName("then group is empty")
-    void thenGroupIsEmpty() {
-      SegmentGroup group = SegmentGroup.of("");
-      assertThat(group.isEmpty()).isTrue();
-      assertThat(group.getSuffix()).isEmpty();
-    }
+    // Then
+    assertThat(group.isEmpty()).isTrue();
+    assertThat(group.getSuffix()).isEmpty();
   }
 
-  @Nested
-  @DisplayName("when path is /")
-  class WhenPathIsSlash {
+  @Test
+  @DisplayName("should return empty group with slash suffix when path is /")
+  void shouldReturnEmptyGroupWithSlashSuffixWhenPathIsSlash() {
+    // When
+    SegmentGroup group = SegmentGroup.of("/");
 
-    @Test
-    @DisplayName("then group is empty")
-    void thenGroupIsEmpty() {
-      SegmentGroup group = SegmentGroup.of("/");
-      assertThat(group.isEmpty()).isTrue();
-      assertThat(group.getSuffix()).isEqualTo("/");
-    }
+    // Then
+    assertThat(group.isEmpty()).isTrue();
+    assertThat(group.getSuffix()).isEqualTo("/");
   }
 
-  @Nested
-  @DisplayName("when url contains path")
-  class WhenUrlContainsPath {
+  @Test
+  @DisplayName("should parse path segments when url contains path")
+  void shouldParsePathSegmentsWhenUrlContainsPath() {
+    // When
+    SegmentGroup group = SegmentGroup.of("/{a}/b{c}/{d}e/f{g.h}i/j");
 
-    @Test
-    @DisplayName("then there are path segments")
-    void thenThereArePathSegments() {
-      SegmentGroup group = SegmentGroup.of("/{a}/b{c}/{d}e/f{g.h}i/j");
+    // Then
+    assertThat(group.getPathSegments()).hasSize(4);
+    assertThat(group.getQuerySegments()).isEmpty();
+    assertThat(group.getSuffix()).isEqualTo("i/j");
 
-      assertThat(group.getPathSegments()).hasSize(4);
-      assertThat(group.getQuerySegments()).isEmpty();
-      assertThat(group.getSuffix()).isEqualTo("i/j");
+    assertThat(group.getPathSegments().get(0))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, "/", null, "a");
 
-      assertThat(group.getPathSegments().get(0))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, "/", null, "a");
+    assertThat(group.getPathSegments().get(1))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, "/b", null, "c");
 
-      assertThat(group.getPathSegments().get(1))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, "/b", null, "c");
+    assertThat(group.getPathSegments().get(2))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, "/", null, "d");
 
-      assertThat(group.getPathSegments().get(2))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, "/", null, "d");
-
-      assertThat(group.getPathSegments().get(3))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, "e/f", null, "g.h");
-    }
+    assertThat(group.getPathSegments().get(3))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, "e/f", null, "g.h");
   }
 
-  @Nested
-  @DisplayName("when url contains query")
-  class WhenUrlContainsQuery {
+  @Test
+  @DisplayName("should parse query segments when url contains query")
+  void shouldParseQuerySegmentsWhenUrlContainsQuery() {
+    // When
+    SegmentGroup group = SegmentGroup.of("a={b}&c={d.e}");
 
-    @Test
-    @DisplayName("then there are query segments")
-    void thenThereAreQuerySegments() {
-      SegmentGroup group = SegmentGroup.of("a={b}&c={d.e}");
+    // Then
+    assertThat(group.getPathSegments()).isEmpty();
+    assertThat(group.getQuerySegments()).hasSize(2);
+    assertThat(group.getSuffix()).isEqualTo("");
 
-      assertThat(group.getPathSegments()).isEmpty();
-      assertThat(group.getQuerySegments()).hasSize(2);
-      assertThat(group.getSuffix()).isEqualTo("");
+    assertThat(group.getQuerySegments().get(0))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, null, "a", "b");
 
-      assertThat(group.getQuerySegments().get(0))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, null, "a", "b");
-
-      assertThat(group.getQuerySegments().get(1))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, null, "c", "d.e");
-    }
+    assertThat(group.getQuerySegments().get(1))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, null, "c", "d.e");
   }
 
-  @Nested
-  @DisplayName("when url contains path and query")
-  class WhenUrlContainsPathAndQuery {
+  @Test
+  @DisplayName("should parse path and query segments when url contains both")
+  void shouldParsePathAndQuerySegmentsWhenUrlContainsBoth() {
+    // When
+    SegmentGroup group = SegmentGroup.of("a/{b}/c?e={f}&g=h&i={j}");
 
-    @Test
-    @DisplayName("then there are segments")
-    void thenThereAreSegments() {
-      SegmentGroup group = SegmentGroup.of("a/{b}/c?e={f}&g=h&i={j}");
+    // Then
+    assertThat(group.getPathSegments()).hasSize(1);
+    assertThat(group.getQuerySegments()).hasSize(3);
+    assertThat(group.getSuffix()).isEqualTo("/c");
 
-      assertThat(group.getPathSegments()).hasSize(1);
-      assertThat(group.getQuerySegments()).hasSize(3);
-      assertThat(group.getSuffix()).isEqualTo("/c");
+    assertThat(group.getPathSegments().get(0))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, "a/", null, "b");
 
-      assertThat(group.getPathSegments().get(0))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, "a/", null, "b");
+    assertThat(group.getQuerySegments().get(0))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, null, "e", "f");
 
-      assertThat(group.getQuerySegments().get(0))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, null, "e", "f");
+    assertThat(group.getQuerySegments().get(1))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(false, null, "g", "h");
 
-      assertThat(group.getQuerySegments().get(1))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(false, null, "g", "h");
-
-      assertThat(group.getQuerySegments().get(2))
-          .extracting("accessor", "prefix", "key", "value")
-          .containsExactly(true, null, "i", "j");
-    }
+    assertThat(group.getQuerySegments().get(2))
+        .extracting("accessor", "prefix", "key", "value")
+        .containsExactly(true, null, "i", "j");
   }
 }

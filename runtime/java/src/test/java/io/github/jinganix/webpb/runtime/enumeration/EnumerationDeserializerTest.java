@@ -18,47 +18,36 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
 @DisplayName("EnumerationDeserializer")
 class EnumerationDeserializerTest {
 
-  @Nested
-  @DisplayName("deserialize")
-  class DeserializeTest {
+  @Test
+  @DisplayName("should deserialize integer enum values when json contains known numbers")
+  void shouldDeserializeIntegerEnumValuesWhenJsonContainsKnownNumbers() {
+    // Given
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    @Nested
-    @DisplayName("when deserialize from integer")
-    class WhenSerializeTheIntegerEnumerationTest {
+    // When / Then
+    assertThat(objectMapper.readValue("1", IntegerEnum.class)).isEqualTo(IntegerEnum.A);
+    assertThat(objectMapper.readValue("2", IntegerEnum.class)).isEqualTo(IntegerEnum.B);
+    assertThat(objectMapper.readValue("3", IntegerEnum.class)).isNull();
+  }
 
-      @Test
-      @DisplayName("then deserialize the enum")
-      void thenDeserializeTheEnum() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        assertEquals(IntegerEnum.A, objectMapper.readValue("1", IntegerEnum.class));
-        assertEquals(IntegerEnum.B, objectMapper.readValue("2", IntegerEnum.class));
-        assertNull(objectMapper.readValue("3", IntegerEnum.class));
-      }
-    }
+  @Test
+  @DisplayName("should deserialize string enum values when json contains known strings")
+  void shouldDeserializeStringEnumValuesWhenJsonContainsKnownStrings() {
+    // Given
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    @Nested
-    @DisplayName("when deserialize from string")
-    class WhenSerializeTheStringEnumerationTest {
-
-      @Test
-      @DisplayName("then deserialize the enum")
-      void thenDeserializeTheEnum() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        assertEquals(StringEnum.A, objectMapper.readValue("\"val_a\"", StringEnum.class));
-        assertEquals(StringEnum.B, objectMapper.readValue("\"val_b\"", StringEnum.class));
-        assertNull(objectMapper.readValue("\"val_c\"", StringEnum.class));
-      }
-    }
+    // When / Then
+    assertThat(objectMapper.readValue("\"val_a\"", StringEnum.class)).isEqualTo(StringEnum.A);
+    assertThat(objectMapper.readValue("\"val_b\"", StringEnum.class)).isEqualTo(StringEnum.B);
+    assertThat(objectMapper.readValue("\"val_c\"", StringEnum.class)).isNull();
   }
 }

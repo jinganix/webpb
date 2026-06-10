@@ -1,5 +1,6 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import java.io.FileInputStream
+import java.math.BigDecimal
 import java.util.*
 import utils.Props
 import utils.Vers
@@ -10,7 +11,6 @@ import utils.Vers.versionJakartaXml
 import utils.Vers.versionLombok
 import utils.Vers.versionMockitoCore
 import utils.Vers.versionMockitoInline
-import utils.createConfiguration
 
 plugins {
   id("conventions.versioning")
@@ -50,6 +50,7 @@ dependencies {
 
 tasks.test {
   useJUnitPlatform()
+  finalizedBy(tasks.jacocoTestReport)
 }
 
 extensions.findByType<SpotlessExtension>()?.java {
@@ -59,6 +60,7 @@ extensions.findByType<SpotlessExtension>()?.java {
 
 tasks.named<Task>("check") {
   dependsOn(tasks.named("spotlessCheck"))
+  dependsOn(tasks.named("jacocoTestCoverageVerification"))
 }
 
 jacoco {
@@ -66,32 +68,26 @@ jacoco {
 }
 
 tasks.jacocoTestReport {
-  enabled = false
-}
-
-createConfiguration("outgoingClassDirs", "classDirs") {
-  extendsFrom(configurations.implementation.get())
-  isCanBeResolved = false
-  isCanBeConsumed = true
-  sourceSets.main.get().output.forEach {
-    outgoing.artifact(it)
+  dependsOn(tasks.test)
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
   }
 }
 
-createConfiguration("outgoingSourceDirs", "sourceDirs") {
-  extendsFrom(configurations.implementation.get())
-  isCanBeResolved = false
-  isCanBeConsumed = true
-  sourceSets.main.get().java.srcDirs.forEach {
-    outgoing.artifact(it)
+val hasUnitTests =
+  sourceSets.test.get().allJava.files.any { file ->
+    file.name.endsWith("Test.java") || file.name.endsWith("Tests.java")
   }
-}
 
-createConfiguration("outgoingCoverageData", "coverageData") {
-  extendsFrom(configurations.implementation.get())
-  isCanBeResolved = false
-  isCanBeConsumed = true
-  outgoing.artifact(tasks.test.map {
-    it.extensions.getByType<JacocoTaskExtension>().destinationFile!!
-  })
+tasks.jacocoTestCoverageVerification {
+  enabled = hasUnitTests
+  dependsOn(tasks.jacocoTestReport)
+  violationRules {
+    rule {
+      limit {
+        minimum = BigDecimal.valueOf(Props.jacocoMinCoverage)
+      }
+    }
+  }
 }

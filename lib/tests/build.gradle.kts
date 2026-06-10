@@ -1,8 +1,10 @@
 import com.google.protobuf.gradle.id
 import com.google.protobuf.gradle.proto
 import com.google.protobuf.gradle.remove
+import org.gradle.api.file.DuplicatesStrategy
 import utils.Vers.versionProtobufJava
 import utils.Vers.webpb
+import utils.goProtocPluginPath
 import utils.hierarchicalGroup
 import java.lang.RuntimeException
 
@@ -32,7 +34,7 @@ protobuf {
   }
   plugins {
     id("dump") {
-      path = "${rootDir}/plugin/dump/build/libs/webpb-protoc-dump-${webpb}.jar"
+      path = goProtocPluginPath("dump")
     }
   }
   generateProtoTasks {
@@ -52,11 +54,16 @@ protobuf {
 
 val generatingTasks = tasks.filter { "generate(\\w*)Proto".toRegex().matches(it.name) }
 generatingTasks.forEach {
-  it.dependsOn(":plugin:dump:build")
+  it.dependsOn(
+    ":plugin:buildGoDump",
+    ":plugin:buildGoJava",
+    ":plugin:buildGoTs",
+  )
   it.dependsOn(tasks.extractIncludeProto)
 }
 
 tasks.jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   from(layout.buildDirectory.dir("generated/sources/proto").get())
   dependsOn(generatingTasks)
 }

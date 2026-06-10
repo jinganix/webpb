@@ -4,7 +4,7 @@
     "types": ["jest"]
   },
   "include": [
-    "build/generated/**/*.ts",
+    "generated/**/*.ts",
     "src/scripts/**/*.ts",
     "test/**/*.ts"
   ]

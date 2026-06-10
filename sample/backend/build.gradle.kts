@@ -6,6 +6,7 @@ import utils.Vers.versionLombok
 import utils.Vers.versionNetty
 import utils.Vers.versionProtobufJava
 import utils.Vers.webpb
+import utils.goProtocPluginPath
 import utils.hierarchicalGroup
 
 plugins {
@@ -43,7 +44,7 @@ protobuf {
   }
   plugins {
     id("webpb") {
-      path = "${rootDir}/plugin/java/build/libs/webpb-protoc-java-${webpb}.jar"
+      path = goProtocPluginPath("java")
     }
   }
   generateProtoTasks {
@@ -67,7 +68,7 @@ tasks.bootJar {
 }
 
 tasks.generateProto {
-  dependsOn(":plugin:java:build")
+  dependsOn(":plugin:build")
 }
 
 val generatedMain = layout.buildDirectory.dir("generated/sources/src/main").get()
@@ -82,12 +83,4 @@ sourceSets {
       srcDir(generatedMain)
     }
   }
-}
-
-tasks.test {
-  finalizedBy(tasks.jacocoTestReport)
-}
-
-tasks.jacocoTestReport {
-  dependsOn(tasks.test)
 }

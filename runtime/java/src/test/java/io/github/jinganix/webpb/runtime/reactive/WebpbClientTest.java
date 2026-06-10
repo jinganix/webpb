@@ -18,8 +18,8 @@
 
 package io.github.jinganix.webpb.runtime.reactive;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 import io.github.jinganix.webpb.runtime.WebpbMeta;
@@ -29,6 +29,7 @@ import io.github.jinganix.webpb.runtime.model.FooRequest;
 import io.github.jinganix.webpb.runtime.model.FooResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,13 +39,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+@DisplayName("WebpbClient")
 class WebpbClientTest {
 
   private final WebClient.Builder builder =
       WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
   @Test
-  void shouldRequestSuccess() {
+  @DisplayName("should return response when request succeeds")
+  void shouldReturnResponseWhenRequestSucceeds() {
+    // Given
     WebClient webClient =
         WebClient.builder()
             .exchangeFunction(
@@ -54,12 +58,18 @@ class WebpbClientTest {
             .build();
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(webClient);
+
+    // When
     FooResponse response = client.request(new FooRequest(), FooResponse.class);
-    assertEquals(123, response.getId());
+
+    // Then
+    assertThat(response.getId()).isEqualTo(123);
   }
 
   @Test
-  void shouldThrowExceptionWhenResponseWithError() {
+  @DisplayName("should throw when response has error status")
+  void shouldThrowWhenResponseHasErrorStatus() {
+    // Given
     WebClient webClient =
         WebClient.builder()
             .exchangeFunction(
@@ -67,57 +77,89 @@ class WebpbClientTest {
             .build();
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(webClient);
-    assertThrows(
-        WebClientResponseException.class,
-        () -> client.request(new FooRequest(), FooResponse.class));
+
+    // When / Then
+    assertThatThrownBy(() -> client.request(new FooRequest(), FooResponse.class))
+        .isInstanceOf(WebClientResponseException.class);
   }
 
   @Test
-  void shouldThrowExceptionWhenRequestWithoutContext() {
+  @DisplayName("should throw when request message has no context")
+  void shouldThrowWhenRequestMessageHasNoContext() {
+    // Given
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(mock(WebClient.class));
-    assertThrows(RuntimeException.class, () -> client.request(new BadRequest(), FooResponse.class));
+
+    // When / Then
+    assertThatThrownBy(() -> client.request(new BadRequest(), FooResponse.class))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
-  void shouldThrowExceptionWhenRequestWithoutMethod() {
+  @DisplayName("should throw when request message has no method")
+  void shouldThrowWhenRequestMessageHasNoMethod() {
+    // Given
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(mock(WebClient.class));
     FooRequest request = new FooRequest(WebpbMeta.builder().path("path").build());
-    assertThrows(RuntimeException.class, () -> client.request(request, FooResponse.class));
+
+    // When / Then
+    assertThatThrownBy(() -> client.request(request, FooResponse.class))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
-  void shouldThrowExceptionWhenRequestWithoutPath() {
+  @DisplayName("should throw when request message has no path")
+  void shouldThrowWhenRequestMessageHasNoPath() {
+    // Given
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(mock(WebClient.class));
     FooRequest request = new FooRequest(WebpbMeta.builder().method("method").build());
-    assertThrows(RuntimeException.class, () -> client.request(request, FooResponse.class));
+
+    // When / Then
+    assertThatThrownBy(() -> client.request(request, FooResponse.class))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
-  void shouldFormatUrlSuccess() {
+  @DisplayName("should format url when no base url is provided")
+  void shouldFormatUrlWhenNoBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
     WebpbClient webpbClient = new WebpbClient(builder.build());
+
+    // When
     String url = webpbClient.formatUrl(new FooRequest());
-    assertEquals("/domain/123/action?p=true&size=20&page=10", url);
+
+    // Then
+    assertThat(url).isEqualTo("/domain/123/action?p=true&size=20&page=10");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenWithBaseUrl() throws MalformedURLException {
+  @DisplayName("should format url when base url is provided")
+  void shouldFormatUrlWhenBaseUrlIsProvided() throws MalformedURLException {
+    // Given
     WebpbUtils.clearContextCache();
     WebpbClient webpbClient = new WebpbClient(builder.build());
+
+    // When
     String url = webpbClient.formatUrl(new URL("https://abc"), new FooRequest());
-    assertEquals("https://abc/domain/123/action?p=true&size=20&page=10", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://abc/domain/123/action?p=true&size=20&page=10");
   }
 
   @Test
-  void shouldFormatUrlThrowExceptionGivenPathIsUrlWhenWithBaseUrl() {
+  @DisplayName("should throw when path is absolute url and base url is provided")
+  void shouldThrowWhenPathIsAbsoluteUrlAndBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
     WebpbClient webpbClient = new WebpbClient(builder.build());
     FooRequest request =
         new FooRequest(WebpbMeta.builder().method("GET").path("https://domain").build());
-    assertThrows(
-        RuntimeException.class, () -> webpbClient.formatUrl(new URL("https://abc"), request));
+
+    // When / Then
+    assertThatThrownBy(() -> webpbClient.formatUrl(new URL("https://abc"), request))
+        .isInstanceOf(RuntimeException.class);
   }
 }

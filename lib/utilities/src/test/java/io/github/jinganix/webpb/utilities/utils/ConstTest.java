@@ -18,25 +18,28 @@
 
 package io.github.jinganix.webpb.utilities.utils;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Const")
 class ConstTest {
 
   @Test
-  void shouldMatchWebpbOptionsFileSuccess() {
-    assertFalse("WebpbOptions.".matches(Const.WEBPB_OPTIONS));
-    assertFalse("WebpbOptions.prot".matches(Const.WEBPB_OPTIONS));
-    assertFalse("aWebpbOptions.prot".matches(Const.WEBPB_OPTIONS));
-    assertTrue("WEBPBOptions.proTo".matches(Const.WEBPB_OPTIONS));
-    assertTrue("WebpbOptions.proto".matches(Const.WEBPB_OPTIONS));
-    assertTrue("a/WebpbOptions.proto".matches(Const.WEBPB_OPTIONS));
-    assertTrue("a/b/WebpbOptions.proto".matches(Const.WEBPB_OPTIONS));
-    assertTrue("weBpb_optIons.proto".matches(Const.WEBPB_OPTIONS));
-    assertTrue("webpb-options.proto".matches(Const.WEBPB_OPTIONS));
-    assertTrue("webpb.options.proto".matches(Const.WEBPB_OPTIONS));
-    assertTrue("webpb_options.proto".matches(Const.WEBPB_OPTIONS));
+  @DisplayName("should match webpb options filenames when pattern applies")
+  void shouldMatchWebpbOptionsFilenamesWhenPatternApplies() {
+    // When / Then
+    assertThat("WebpbOptions.".matches(Const.WEBPB_OPTIONS)).isFalse();
+    assertThat("WebpbOptions.prot".matches(Const.WEBPB_OPTIONS)).isFalse();
+    assertThat("aWebpbOptions.prot".matches(Const.WEBPB_OPTIONS)).isFalse();
+    assertThat("WEBPBOptions.proTo".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("WebpbOptions.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("a/WebpbOptions.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("a/b/WebpbOptions.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("weBpb_optIons.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("webpb-options.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("webpb.options.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
+    assertThat("webpb_options.proto".matches(Const.WEBPB_OPTIONS)).isTrue();
   }
 }

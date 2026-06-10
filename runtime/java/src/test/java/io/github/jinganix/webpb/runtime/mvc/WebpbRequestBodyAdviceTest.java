@@ -18,9 +18,7 @@
 
 package io.github.jinganix.webpb.runtime.mvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
@@ -30,6 +28,7 @@ import io.github.jinganix.webpb.runtime.model.FooRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collections;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.MockedStatic;
@@ -42,30 +41,40 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
+@DisplayName("WebpbRequestBodyAdvice")
 class WebpbRequestBodyAdviceTest {
 
   private MethodParameter getMethodParameter(WebpbRequestBodyAdvice advice) {
     Method method =
         ReflectionUtils.findMethod(FooController.class, "getFoo", FooRequest.class).orElse(null);
-    assertNotNull(method);
+    assertThat(method).isNotNull();
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(advice, method);
     return handlerMethod.getMethodParameters()[0];
   }
 
   @Test
-  void shouldSupportWebpbMessage() {
+  @DisplayName("should support webpb message parameters")
+  void shouldSupportWebpbMessageParameters() {
+    // Given
     WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
     MethodParameter methodParameter = getMethodParameter(advice);
-    assertTrue(
-        advice.supports(
-            methodParameter, mock(Type.class), ObjectToStringHttpMessageConverter.class));
+
+    // When / Then
+    assertThat(
+            advice.supports(
+                methodParameter, mock(Type.class), ObjectToStringHttpMessageConverter.class))
+        .isTrue();
   }
 
   @Test
-  void shouldReturnOriginBodyWhenRequestIsNull() {
+  @DisplayName("should return original body when request context is null")
+  void shouldReturnOriginalBodyWhenRequestContextIsNull() {
+    // Given
     WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
     MethodParameter methodParameter = getMethodParameter(advice);
     FooRequest request = new FooRequest();
+
+    // When
     FooRequest body =
         (FooRequest)
             advice.afterBodyRead(
@@ -74,18 +83,25 @@ class WebpbRequestBodyAdviceTest {
                 methodParameter,
                 mock(Type.class),
                 ObjectToStringHttpMessageConverter.class);
-    assertEquals(request.getId(), body.getId());
+
+    // Then
+    assertThat(body.getId()).isEqualTo(request.getId());
   }
 
   @Test
-  void shouldReturnOriginBodyWhenRequestWithoutParameters() {
+  @DisplayName("should return original body when request has no parameters")
+  void shouldReturnOriginalBodyWhenRequestHasNoParameters() {
+    // Given
     WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
     MethodParameter methodParameter = getMethodParameter(advice);
     BadRequest request = new BadRequest();
+
+    // When
     try (MockedStatic<RequestContextHolder> holder = mockStatic(RequestContextHolder.class)) {
       MockHttpServletRequest servletRequest = new MockHttpServletRequest();
       ServletRequestAttributes attributes = new ServletRequestAttributes(servletRequest);
       holder.when(RequestContextHolder::getRequestAttributes).thenReturn(attributes);
+
       Object body =
           advice.afterBodyRead(
               request,
@@ -93,15 +109,21 @@ class WebpbRequestBodyAdviceTest {
               methodParameter,
               mock(Type.class),
               ObjectToStringHttpMessageConverter.class);
-      assertEquals(request, body);
+
+      // Then
+      assertThat(body).isEqualTo(request);
     }
   }
 
   @Test
-  void shouldReturnOriginBodyWhenRequestWithoutWepebMeta() {
+  @DisplayName("should return original body when message has no webpb meta")
+  void shouldReturnOriginalBodyWhenMessageHasNoWebpbMeta() {
+    // Given
     WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
     MethodParameter methodParameter = getMethodParameter(advice);
     BadRequest request = new BadRequest();
+
+    // When
     try (MockedStatic<RequestContextHolder> holder = mockStatic(RequestContextHolder.class)) {
       MockHttpServletRequest servletRequest = new MockHttpServletRequest();
       servletRequest.setParameter("id", "12345678");
@@ -109,6 +131,7 @@ class WebpbRequestBodyAdviceTest {
           HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.emptyMap());
       ServletRequestAttributes attributes = new ServletRequestAttributes(servletRequest);
       holder.when(RequestContextHolder::getRequestAttributes).thenReturn(attributes);
+
       Object body =
           advice.afterBodyRead(
               request,
@@ -116,19 +139,26 @@ class WebpbRequestBodyAdviceTest {
               methodParameter,
               mock(Type.class),
               ObjectToStringHttpMessageConverter.class);
-      assertEquals(request, body);
+
+      // Then
+      assertThat(body).isEqualTo(request);
     }
   }
 
   @Test
-  void shouldReturnOriginBodyWhenJakartaRequest() {
+  @DisplayName("should return original body when servlet request has no parameters")
+  void shouldReturnOriginalBodyWhenServletRequestHasNoParameters() {
+    // Given
     WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
     MethodParameter methodParameter = getMethodParameter(advice);
     BadRequest request = new BadRequest();
+
+    // When
     try (MockedStatic<RequestContextHolder> holder = mockStatic(RequestContextHolder.class)) {
       MockHttpServletRequest servletRequest = new MockHttpServletRequest();
       ServletRequestAttributes attributes = new ServletRequestAttributes(servletRequest);
       holder.when(RequestContextHolder::getRequestAttributes).thenReturn(attributes);
+
       Object body =
           advice.afterBodyRead(
               request,
@@ -136,7 +166,9 @@ class WebpbRequestBodyAdviceTest {
               methodParameter,
               mock(Type.class),
               ObjectToStringHttpMessageConverter.class);
-      assertEquals(request, body);
+
+      // Then
+      assertThat(body).isEqualTo(request);
     }
   }
 }

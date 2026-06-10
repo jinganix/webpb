@@ -18,54 +18,47 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-@DisplayName("EnumerationDeserializer")
+@DisplayName("EnumerationKeyDeserializer")
 class EnumerationKeyDeserializerTest {
 
-  @Nested
-  @DisplayName("deserialize")
-  class DeserializeTest {
+  @Test
+  @DisplayName("should deserialize integer enum keys when json map uses numeric keys")
+  void shouldDeserializeIntegerEnumKeysWhenJsonMapUsesNumericKeys() {
+    // Given
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    @Nested
-    @DisplayName("when deserialize from map data")
-    class WhenSerializeTheIntegerEnumerationTest {
+    // When
+    Map<IntegerEnum, Integer> data =
+        objectMapper.readValue("{\"1\":1,\"2\":2}", new TypeReference<>() {});
 
-      @DisplayName("then deserialize the enum key")
-      @Test
-      void thenDeserializeTheEnumKey() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<IntegerEnum, Integer> data =
-            objectMapper.readValue("{\"1\":1,\"2\":2}", new TypeReference<>() {});
-        assertEquals(2, data.size());
-        assertEquals(1, data.get(IntegerEnum.A));
-        assertEquals(2, data.get(IntegerEnum.B));
-      }
-    }
+    // Then
+    assertThat(data).hasSize(2);
+    assertThat(data.get(IntegerEnum.A)).isEqualTo(1);
+    assertThat(data.get(IntegerEnum.B)).isEqualTo(2);
+  }
 
-    @Nested
-    @DisplayName("when deserialize from map data")
-    class WhenSerializeTheStringEnumerationTest {
+  @Test
+  @DisplayName("should deserialize string enum keys when json map uses string keys")
+  void shouldDeserializeStringEnumKeysWhenJsonMapUsesStringKeys() {
+    // Given
+    ObjectMapper objectMapper = new ObjectMapper();
 
-      @Test
-      @DisplayName("then deserialize the enum key")
-      void thenDeserializeTheEnumKey() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<StringEnum, Integer> data =
-            objectMapper.readValue(
-                "{\"val_a\":1,\"val_b\":2}", new TypeReference<Map<StringEnum, Integer>>() {});
-        assertEquals(2, data.size());
-        assertEquals(1, data.get(StringEnum.A));
-        assertEquals(2, data.get(StringEnum.B));
-      }
-    }
+    // When
+    Map<StringEnum, Integer> data =
+        objectMapper.readValue(
+            "{\"val_a\":1,\"val_b\":2}", new TypeReference<Map<StringEnum, Integer>>() {});
+
+    // Then
+    assertThat(data).hasSize(2);
+    assertThat(data.get(StringEnum.A)).isEqualTo(1);
+    assertThat(data.get(StringEnum.B)).isEqualTo(2);
   }
 }

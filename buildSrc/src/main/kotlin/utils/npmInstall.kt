@@ -5,11 +5,11 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 
+fun npmCommand(): String =
+  if (Os.isFamily(Os.FAMILY_WINDOWS)) "npm.cmd" else "npm"
+
 fun Project.npmInstallTask() {
-  val npmCommand by lazy {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) "npm.cmd"
-    else which("npm") ?: "npm"
-  }
+  val npm = npmCommand()
 
   tasks.register<Exec>("npmInstall") {
     group = "build"
@@ -31,7 +31,7 @@ fun Project.npmInstallTask() {
           }
 
       println("Running npm ${args.joinToString(" ")} (force=$forceInstall)")
-      commandLine(npmCommand, *args.toTypedArray())
+      commandLine(npm, *args.toTypedArray())
     }
   }
 }

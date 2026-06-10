@@ -53,3 +53,14 @@ protobuf {
 tasks.javadoc {
   exclude("io/github/jinganix/webpb/utilities/descriptor/**")
 }
+
+val jacocoClassDirs =
+  sourceSets.main.get().output.asFileTree.matching {
+    exclude("io/github/jinganix/webpb/utilities/descriptor/*")
+  }
+tasks.jacocoTestReport {
+  classDirectories.setFrom(jacocoClassDirs)
+}
+tasks.jacocoTestCoverageVerification {
+  classDirectories.setFrom(jacocoClassDirs)
+}

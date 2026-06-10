@@ -1,0 +1,149 @@
+export interface I{{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.sub_type}}>{{end}}{{if .extend}} extends {{.extendI}}{{if and (hasContent .sub_values) .extend}}<{{- range $i, $sv := .sub_values}}{{$sv}}{{if not (last $i $.sub_values)}} | {{end}}{{end}}>{{end}}{{end}} {
+{{range .fields}}
+  {{if and $.sub_type (eq $.sub_type_prop .name)}}
+  {{.name}}{{if .optional}}?{{end}}: T;
+  {{else}}
+  {{.name}}{{if .optional}}?{{end}}: {{.type}}{{if .optional}} | null{{end}};
+  {{end}}
+{{end}}
+}
+
+export class {{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.sub_type}}>{{end}}{{if .extend}} extends {{.extend}}{{if and (hasContent .sub_values) .extend}}<{{- range $i, $sv := .sub_values}}{{$sv}}{{if not (last $i $.sub_values)}} | {{end}}{{end}}>{{end}}{{end}} implements I{{.className}}{{if .sub_type}}<T>{{end}}, Webpb.WebpbMessage {
+{{- range .fields}}
+  {{- if and $.sub_type (eq $.sub_type_prop .name)}}
+  {{.name}}{{if not .default}}{{if .optional}}?{{else}}!{{end}}{{end}}: T{{if .default}} = {{.default}}{{end}};
+  {{- else}}
+  {{.name}}{{if not .default}}{{if .optional}}?{{else}}!{{end}}{{end}}: {{.type}}{{if .optional}} | null{{end}}{{if .default}} = {{.default}}{{end}};
+  {{- end}}
+{{- end}}
+  webpbMeta: () => Webpb.WebpbMeta;
+{{- if hasContent .sub_type_prop}}
+  static fromAliases: Record<string, (data?: unknown) => {{.className}}> = {};
+{{- end}}
+
+  static CLASS = "{{.className}}";
+  static CONTEXT = "{{.context}}";
+  static METHOD = "{{.method}}";
+{{- if hasContent .path}}
+  static PATH = "{{index .path "raw"}}";
+{{- else}}
+  static PATH = "";
+{{- end}}
+
+  protected constructor(p?: I{{.className}}) {
+{{if .extend}}    super();
+{{end}}    Webpb.assign(p, this, [{{- range $i, $o := .omitted}}"{{$o}}"{{if not (last $i $.omitted)}}, {{end}}{{end}}]);
+{{- range .fields}}
+  {{- if and .msgType (not (seqContains $.omitted .name))}}
+    {{- if eq .collection "map"}}
+    p?.{{.name}} && (this.{{.name}} = Webpb.mapValues(p.{{.name}}, (x) => {{.msgType}}.create(x)));
+    {{- else if eq .collection "list"}}
+    p?.{{.name}} && (this.{{.name}} = p.{{.name}}.map((x) => {{.msgType}}.create(x)));
+    {{- else}}
+    p?.{{.name}} && (this.{{.name}} = {{.msgType}}.create(p.{{.name}}));
+    {{- end}}
+  {{- end}}
+{{- end}}
+    this.webpbMeta = () =>
+      ({
+        class: "{{.className}}",
+        context: "{{.context}}",
+        method: "{{.method}}",
+{{- if hasContent .path}}
+        path: `{{- if index .path "url"}}{{index .path "url"}}{{end}}{{- if hasContent (index .path "queries")}}${Webpb.query("?", {
+{{- range $i, $q := index .path "queries"}}
+          "{{$q.key}}": {{$q.value}},
+{{- end}}
+        })}{{end}}`,
+{{- else}}
+        path: "",
+{{- end}}
+      } as Webpb.WebpbMeta);
+  }
+
+  static create(p?: I{{.className}}): {{.className}} {
+    return new {{.className}}(p);
+  }
+
+{{- if or (hasContent .aliases) (hasContent .aliasMsgs)}}
+  static fromAlias(data?: unknown): {{.className}} {
+  {{- if hasContent .aliases}}
+    const p = Webpb.toAlias(data, {
+    {{- range $k, $v := .aliases}}
+      "{{$v}}": "{{$k}}",
+    {{- end}}
+    }) as Record<string, unknown>;
+  {{- else}}
+    const p = data as Record<string, unknown>;
+  {{- end}}
+  {{- range .aliasMsgs}}
+    {{- if eq .collection "map"}}
+    p?.{{.name}} && (p.{{.name}} = Webpb.mapValues(p.{{.name}}, (x) => {{.type}}.fromAlias(x)));
+    {{- else if eq .collection "list"}}
+    p?.{{.name}} && (p.{{.name}} = (p.{{.name}} as Webpb.WebpbMessage[]).map((x) => {{.type}}.fromAlias(x)));
+    {{- else}}
+    p?.{{.name}} && (p.{{.name}} = {{.type}}.fromAlias(p.{{.name}}));
+    {{- end}}
+  {{- end}}
+    {{- if hasContent .sub_type_prop}}
+    {{- $subKey := .sub_type_prop}}
+    {{- if and (hasContent .aliases) (index .aliases .sub_type_prop)}}
+    {{- $subKey = index .aliases .sub_type_prop}}
+    {{- end}}
+    const sub = this.fromAliases[(data as Record<string, string>)?.{{$subKey}}]?.(p);
+    if (sub) {
+      return sub;
+    }
+    {{- end}}
+    return Object.assign(new {{.className}}(), p);
+  }
+{{- else}}
+  static fromAlias(data?: unknown): {{.className}} {
+    return {{.className}}.create(data as I{{.className}});
+  }
+{{- end}}
+
+  toWebpbAlias(): unknown {
+{{- if or (hasContent .aliases) (hasContent .aliasMsgs)}}
+  {{- if hasContent .aliases}}
+    {{- if hasContent .aliasMsgs}}
+    const p = Webpb.toAlias(this, {
+      {{- range $k, $v := .aliases}}
+      "{{$k}}": "{{$v}}",
+      {{- end}}
+    }) as Record<string, unknown>;
+      {{- range .aliasMsgs}}
+        {{- if index $.aliases .name}}
+          {{- if eq .collection "map"}}
+    p.{{index $.aliases .name}} && (p.{{index $.aliases .name}} = Webpb.mapValues(p.{{index $.aliases .name}}, (x) => x.toWebpbAlias()));
+          {{- else if eq .collection "list"}}
+    p.{{index $.aliases .name}} && (p.{{index $.aliases .name}} = (p.{{index $.aliases .name}} as Webpb.WebpbMessage[]).map((x) => x.toWebpbAlias()));
+          {{- else}}
+    p.{{index $.aliases .name}} && (p.{{index $.aliases .name}} = (p.{{index $.aliases .name}} as Webpb.WebpbMessage).toWebpbAlias());
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    return p;
+    {{- else}}
+    return Webpb.toAlias(this, {
+      {{- range $k, $v := .aliases}}
+      "{{$k}}": "{{$v}}",
+      {{- end}}
+    });
+    {{- end}}
+  {{- else}}
+    return Webpb.toAlias(this, {});
+  {{- end}}
+{{- else}}
+    return this;
+{{- end}}
+  }
+}{{- if hasContent .nestedMsgs}}
+
+export namespace {{.className}} {
+{{- range $i, $nested := .nestedMsgs}}
+{{$nested}}{{if not (last $i $.nestedMsgs)}}
+
+{{end}}
+{{end}}
+}{{end}}

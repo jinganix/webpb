@@ -22,13 +22,13 @@
     "strictPropertyInitialization": false,
     "target": "es6",
     "paths": {
-      "@proto/*": ["build/generated/sources/proto/main/ts/*"],
+      "@proto/*": ["generated/proto/*"],
       "@scripts/*": ["src/scripts/*"]
     },
     "typeRoots": ["node_modules/@types"]
   },
   "include": [
-    "build/generated/**/*.ts",
+    "generated/**/*.ts",
     "src/scripts/**/*.ts"
   ],
   "exclude": [

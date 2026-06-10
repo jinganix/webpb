@@ -1,5 +1,26 @@
 # Contributing
 
+## Development docs
+
+- Java code: [ai-kit/CODE_CONVENTIONS.md](ai-kit/CODE_CONVENTIONS.md)
+- Tests: [ai-kit/TEST_CONVENTIONS.md](ai-kit/TEST_CONVENTIONS.md)
+- Go plugin tests: [ai-kit/GO_TEST_CONVENTIONS.md](ai-kit/GO_TEST_CONVENTIONS.md)
+
+The TypeScript protoc plugin is published to npm as [`webpb-protoc-ts`](plugin/npm/webpb-protoc-ts).
+
+Run the full check from the repository root:
+
+```bash
+./gradlew build
+```
+
+Run module tests only:
+
+```bash
+./gradlew :lib:utilities:test
+./gradlew :plugin:testGo
+```
+
 ## Conventional Commits
 
 Check if your commit messages meet the [conventional commit format](https://conventionalcommits.org).
