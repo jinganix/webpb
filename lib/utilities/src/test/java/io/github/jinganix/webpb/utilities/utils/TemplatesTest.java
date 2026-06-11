@@ -18,31 +18,20 @@
 
 package io.github.jinganix.webpb.utilities.utils;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Templates")
 class TemplatesTest {
 
-  @Nested
-  @DisplayName("process")
-  class ProcessTest {
-
-    @Nested
-    @DisplayName("when template not found")
-    class WhenTemplateNotFoundTest {
-
-      @Test
-      @DisplayName("then throw exception")
-      void thenThrowExceptionTest() {
-        assertThrows(
-            RuntimeException.class,
-            () -> new Templates().process("non_exists.ftl", new HashMap<>()));
-      }
-    }
+  @Test
+  @DisplayName("should throw when template is not found")
+  void shouldThrowWhenTemplateIsNotFound() {
+    // When / Then
+    assertThatThrownBy(() -> new Templates().process("non_exists.ftl", new HashMap<>()))
+        .isInstanceOf(RuntimeException.class);
   }
 }

@@ -2,9 +2,9 @@
 .idea
 .vscode
 .yarnclean
-build
 coverage
 dist
+generated
 node_modules
 npm-debug.log
 yarn-error.log

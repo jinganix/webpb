@@ -1,5 +1,8 @@
 [![CI](https://github.com/jinganix/webpb/actions/workflows/ci.yml/badge.svg)](https://github.com/jinganix/webpb/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/jinganix/webpb/badge.svg?branch=master)](https://coveralls.io/github/jinganix/webpb?branch=master)
+[![lib coverage](https://codecov.io/gh/jinganix/webpb/flags/lib/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/lib)
+[![runtime-java coverage](https://codecov.io/gh/jinganix/webpb/flags/runtime-java/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/runtime-java)
+[![frontend coverage](https://codecov.io/gh/jinganix/webpb/flags/frontend/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/frontend)
+[![runtime-ts coverage](https://codecov.io/gh/jinganix/webpb/flags/runtime-ts/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/runtime-ts)
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 # webpb
@@ -26,7 +29,7 @@ or in `Windows`
 
 ### Run `frontend`
 
-Install [node.js](https://nodejs.org/en/) first, then use `npm` or `yarn` to run the command:
+Install [Node.js](https://nodejs.org/) and [protoc](https://grpc.io/docs/protoc-installation/), then:
 
 ```shell
 cd sample/frontend

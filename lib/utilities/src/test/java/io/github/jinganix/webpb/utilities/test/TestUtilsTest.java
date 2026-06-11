@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -43,115 +42,83 @@ import org.mockito.Mockito;
 @DisplayName("TestUtils")
 class TestUtilsTest {
 
-  @Nested
-  @DisplayName("createRequest")
-  class CreateRequest {
+  @Test
+  @DisplayName("should create request when dump is valid")
+  void shouldCreateRequestWhenDumpIsValid() {
+    // When / Then
+    assertThat(TestUtils.createRequest(Dump.test1)).isNotNull();
+  }
 
-    @Nested
-    @DisplayName("when dump is valid")
-    class WhenDumpIsValid {
+  @Test
+  @DisplayName("should throw when dump is invalid")
+  void shouldThrowWhenDumpIsInvalid() {
+    // Given
+    System.setIn(new ByteArrayInputStream("abc".getBytes()));
+    Dump dump = mock(Dump.class);
 
-      @Test
-      @DisplayName("then create")
-      void thenCreate() {
-        assertThat(TestUtils.createRequest(Dump.test1)).isNotNull();
-      }
-    }
+    // When / Then
+    assertThatThrownBy(() -> TestUtils.createRequest(dump)).isInstanceOf(RuntimeException.class);
+  }
 
-    @Nested
-    @DisplayName("when dump is invalid")
-    class WhenDumpIsInvalid {
+  @Test
+  @DisplayName("should throw when file is not found")
+  void shouldThrowWhenFileIsNotFound() {
+    // When / Then
+    assertThatThrownBy(() -> TestUtils.readFile("non_exists"))
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("File not found: non_exists");
+  }
 
-      @Test
-      @DisplayName("then throw error")
-      void thenThrowError() {
-        System.setIn(new ByteArrayInputStream("abc".getBytes()));
-        Dump dump = mock(Dump.class);
-        assertThatThrownBy(() -> TestUtils.createRequest(dump))
-            .isInstanceOf(RuntimeException.class);
-      }
+  @Test
+  @DisplayName("should throw when read stream fails")
+  void shouldThrowWhenReadStreamFails() {
+    // Given
+    try (MockedStatic<IOUtils> ioUtils = Mockito.mockStatic(IOUtils.class)) {
+      ioUtils
+          .when(() -> IOUtils.toString(any(InputStream.class), eq(StandardCharsets.UTF_8)))
+          .thenThrow(new IOException());
+
+      // When / Then
+      assertThatThrownBy(() -> TestUtils.readFile("/foo.test"))
+          .isInstanceOf(RuntimeException.class)
+          .hasCauseInstanceOf(IOException.class);
     }
   }
 
-  @Nested
-  @DisplayName("readFile")
-  class ReadFileClassTest {
+  @Test
+  @DisplayName("should write file when write succeeds")
+  void shouldWriteFileWhenWriteSucceeds() {
+    // Given
+    try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
+      fileUtils
+          .when(
+              () ->
+                  FileUtils.writeStringToFile(
+                      any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
+          .thenAnswer(x -> null);
 
-    @Nested
-    @DisplayName("when file not found")
-    class WhenFileNotFoundTest {
-
-      @Test
-      @DisplayName("then throw exception")
-      void thenThrowExceptionTest() {
-        assertThatThrownBy(() -> TestUtils.readFile("non_exists"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessage("File not found: non_exists");
-      }
-    }
-
-    @Nested
-    @DisplayName("when failed read stream")
-    class WhenFailedToReadStream {
-
-      @Test
-      @DisplayName("then throw exception")
-      void thenThrowExceptionTest() {
-        try (MockedStatic<IOUtils> ioUtils = Mockito.mockStatic(IOUtils.class)) {
-          ioUtils
-              .when(() -> IOUtils.toString(any(InputStream.class), eq(StandardCharsets.UTF_8)))
-              .thenThrow(new IOException());
-          assertThatThrownBy(() -> TestUtils.readFile("/foo.test"))
-              .isInstanceOf(RuntimeException.class)
-              .hasCauseInstanceOf(IOException.class);
-        }
-      }
+      // When / Then
+      assertThatCode(() -> TestUtils.writeFile(mock(File.class), "/hello"))
+          .doesNotThrowAnyException();
     }
   }
 
-  @Nested
-  @DisplayName("writeFile")
-  class WriteFileClassTest {
+  @Test
+  @DisplayName("should throw when write file fails")
+  void shouldThrowWhenWriteFileFails() {
+    // Given
+    try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
+      fileUtils
+          .when(
+              () ->
+                  FileUtils.writeStringToFile(
+                      any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
+          .thenThrow(new IOException());
 
-    @Nested
-    @DisplayName("when write file")
-    class WhenWriteFile {
-
-      @Test
-      @DisplayName("then success")
-      void thenSuccess() {
-        try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
-          fileUtils
-              .when(
-                  () ->
-                      FileUtils.writeStringToFile(
-                          any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
-              .thenAnswer(x -> null);
-          assertThatCode(() -> TestUtils.writeFile(mock(File.class), "/hello"))
-              .doesNotThrowAnyException();
-        }
-      }
-    }
-
-    @Nested
-    @DisplayName("when failed write file")
-    class WhenFailedToWriteFile {
-
-      @Test
-      @DisplayName("then throw exception")
-      void thenThrowExceptionTest() {
-        try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
-          fileUtils
-              .when(
-                  () ->
-                      FileUtils.writeStringToFile(
-                          any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
-              .thenThrow(new IOException());
-          assertThatThrownBy(() -> TestUtils.writeFile(mock(File.class), "/hello"))
-              .isInstanceOf(RuntimeException.class)
-              .hasCauseInstanceOf(IOException.class);
-        }
-      }
+      // When / Then
+      assertThatThrownBy(() -> TestUtils.writeFile(mock(File.class), "/hello"))
+          .isInstanceOf(RuntimeException.class)
+          .hasCauseInstanceOf(IOException.class);
     }
   }
 }

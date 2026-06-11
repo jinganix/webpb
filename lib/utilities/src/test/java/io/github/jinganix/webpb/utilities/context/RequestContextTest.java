@@ -18,20 +18,24 @@
 
 package io.github.jinganix.webpb.utilities.context;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.jinganix.webpb.tests.Dump;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("RequestContext")
 class RequestContextTest {
 
   @Test
-  void success() throws Exception {
+  @DisplayName("should load descriptors when dump is piped")
+  void shouldLoadDescriptorsWhenDumpIsPiped() throws Exception {
+    // Given / When / Then
     for (Dump dump : Dump.values()) {
       dump.pipe();
       RequestContext context = new RequestContext();
-      assertFalse(context.getDescriptors().isEmpty());
-      assertFalse(context.getTargetDescriptors().isEmpty());
+      assertThat(context.getDescriptors()).isNotEmpty();
+      assertThat(context.getTargetDescriptors()).isNotEmpty();
     }
   }
 }

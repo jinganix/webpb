@@ -29,13 +29,9 @@ import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveFi
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveMessage;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.validation;
 import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,129 +42,171 @@ import io.github.jinganix.webpb.commons.SegmentGroup;
 import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import java.util.Collections;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("DescriptorUtils")
 class DescriptorUtilsTest {
 
   @Test
-  void shouldCheckIsEnumSuccess() {
+  @DisplayName("should return true for enum fields when java type is enum")
+  void shouldReturnTrueForEnumFieldsWhenJavaTypeIsEnum() {
+    // Given
     FieldDescriptor fieldDescriptor = mock(FieldDescriptor.class);
     when(fieldDescriptor.getJavaType()).thenReturn(FieldDescriptor.JavaType.ENUM);
-    assertTrue(DescriptorUtils.isEnum(fieldDescriptor));
+
+    // When / Then
+    assertThat(DescriptorUtils.isEnum(fieldDescriptor)).isTrue();
 
     when(fieldDescriptor.getJavaType()).thenReturn(FieldDescriptor.JavaType.MESSAGE);
-    assertFalse(DescriptorUtils.isEnum(fieldDescriptor));
+    assertThat(DescriptorUtils.isEnum(fieldDescriptor)).isFalse();
   }
 
   @Test
-  void shouldCheckIsMessageSuccess() {
+  @DisplayName("should return true for message fields when java type is message")
+  void shouldReturnTrueForMessageFieldsWhenJavaTypeIsMessage() {
+    // Given
     FieldDescriptor fieldDescriptor = mock(FieldDescriptor.class);
     when(fieldDescriptor.getJavaType()).thenReturn(FieldDescriptor.JavaType.MESSAGE);
-    assertTrue(DescriptorUtils.isMessage(fieldDescriptor));
+
+    // When / Then
+    assertThat(DescriptorUtils.isMessage(fieldDescriptor)).isTrue();
 
     when(fieldDescriptor.getJavaType()).thenReturn(FieldDescriptor.JavaType.ENUM);
-    assertFalse(DescriptorUtils.isMessage(fieldDescriptor));
+    assertThat(DescriptorUtils.isMessage(fieldDescriptor)).isFalse();
   }
 
   @Test
-  void shouldResolveDescriptorSuccess() {
+  @DisplayName("should resolve message descriptor when name exists")
+  void shouldResolveMessageDescriptorWhenNameExists() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
-    assertNotNull(resolveMessage(context.getDescriptors(), "Test"));
-    assertNull(resolveMessage(context.getDescriptors(), "NotExists"));
+
+    // When / Then
+    assertThat(resolveMessage(context.getDescriptors(), "Test")).isNotNull();
+    assertThat(resolveMessage(context.getDescriptors(), "NotExists")).isNull();
   }
 
   @Test
-  void shouldResolveFileDescriptorSuccess() {
+  @DisplayName("should resolve file descriptor when name exists")
+  void shouldResolveFileDescriptorWhenNameExists() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test.proto");
-    assertNotNull(descriptor);
-    assertNotNull(resolveFile(singletonList(descriptor), "Include.proto"));
-    assertNull(resolveFile(context.getDescriptors(), "NotExists"));
+
+    // When / Then
+    assertThat(descriptor).isNotNull();
+    assertThat(resolveFile(singletonList(descriptor), "Include.proto")).isNotNull();
+    assertThat(resolveFile(context.getDescriptors(), "NotExists")).isNull();
   }
 
   @Test
-  void shouldResolveEnumDescriptorSuccess() {
+  @DisplayName("should resolve enum descriptor when name exists")
+  void shouldResolveEnumDescriptorWhenNameExists() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
-    assertNotNull(resolveEnum(context.getDescriptors(), "Enum"));
     FileDescriptor fileDescriptor =
         context.getDescriptors().stream()
             .filter(x -> "Test.proto".equals(x.getName()))
             .findFirst()
             .orElse(null);
-    assertNotNull(resolveEnum(Collections.singletonList(fileDescriptor), "Enum"));
-    assertNull(resolveEnum(context.getDescriptors(), "NotExists"));
+
+    // When / Then
+    assertThat(resolveEnum(context.getDescriptors(), "Enum")).isNotNull();
+    assertThat(resolveEnum(Collections.singletonList(fileDescriptor), "Enum")).isNotNull();
+    assertThat(resolveEnum(context.getDescriptors(), "NotExists")).isNull();
   }
 
   @Test
-  void shouldGetFieldTypeFilePackageSuccess() {
+  @DisplayName("should return field type package when field references external types")
+  void shouldReturnFieldTypePackageWhenFieldReferencesExternalTypes() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
-    assertNull(getFieldTypePackage(descriptor.getFields().get(0)));
-    assertEquals("IncludeProto", getFieldTypePackage(descriptor.getFields().get(1)));
-    assertEquals("IncludeProto", getFieldTypePackage(descriptor.getFields().get(2)));
+    assertThat(descriptor).isNotNull();
+
+    // When / Then
+    assertThat(getFieldTypePackage(descriptor.getFields().get(0))).isNull();
+    assertThat(getFieldTypePackage(descriptor.getFields().get(1))).isEqualTo("IncludeProto");
+    assertThat(getFieldTypePackage(descriptor.getFields().get(2))).isEqualTo("IncludeProto");
   }
 
   @Test
-  void shouldGetFieldTypeSimpleNameSuccess() {
+  @DisplayName("should return field type simple name when field has type")
+  void shouldReturnFieldTypeSimpleNameWhenFieldHasType() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
-    assertEquals("INT32", getFieldTypeSimpleName(descriptor.getFields().get(0)));
-    assertEquals("Message", getFieldTypeSimpleName(descriptor.getFields().get(1)));
-    assertEquals("Enum", getFieldTypeSimpleName(descriptor.getFields().get(2)));
+    assertThat(descriptor).isNotNull();
+
+    // When / Then
+    assertThat(getFieldTypeSimpleName(descriptor.getFields().get(0))).isEqualTo("INT32");
+    assertThat(getFieldTypeSimpleName(descriptor.getFields().get(1))).isEqualTo("Message");
+    assertThat(getFieldTypeSimpleName(descriptor.getFields().get(2))).isEqualTo("Enum");
   }
 
   @Test
-  void shouldGetFieldTypePackageSuccess() {
+  @DisplayName("should return field type full name when field has type")
+  void shouldReturnFieldTypeFullNameWhenFieldHasType() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
-    assertNull(getFieldTypePackage(descriptor.getFields().get(0)));
-    assertEquals("IncludeProto", getFieldTypePackage(descriptor.getFields().get(1)));
-    assertEquals("IncludeProto", getFieldTypePackage(descriptor.getFields().get(2)));
+    assertThat(descriptor).isNotNull();
+
+    // When / Then
+    assertThat(getFieldTypeFullName(descriptor.getFields().get(0))).isEqualTo("INT32");
+    assertThat(getFieldTypeFullName(descriptor.getFields().get(1)))
+        .isEqualTo("IncludeProto.Message");
+    assertThat(getFieldTypeFullName(descriptor.getFields().get(2))).isEqualTo("IncludeProto.Enum");
   }
 
   @Test
-  void shouldGetFieldTypeFullNameSuccess() {
+  @DisplayName("should return map key descriptor when field is a map")
+  void shouldReturnMapKeyDescriptorWhenFieldIsAMap() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
-    assertEquals("INT32", getFieldTypeFullName(descriptor.getFields().get(0)));
-    assertEquals("IncludeProto.Message", getFieldTypeFullName(descriptor.getFields().get(1)));
-    assertEquals("IncludeProto.Enum", getFieldTypeFullName(descriptor.getFields().get(2)));
+    assertThat(descriptor).isNotNull();
+
+    // When / Then
+    assertThat(getMapKeyDescriptor(descriptor.getFields().get(4))).isNotNull();
   }
 
   @Test
-  void shouldGetMapKeyDescriptorSuccess() {
+  @DisplayName("should return map value descriptor when field is a map")
+  void shouldReturnMapValueDescriptorWhenFieldIsAMap() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
-    assertNotNull(getMapKeyDescriptor(descriptor.getFields().get(4)));
+    assertThat(descriptor).isNotNull();
+
+    // When / Then
+    assertThat(getMapValueDescriptor(descriptor.getFields().get(4))).isNotNull();
   }
 
   @Test
-  void shouldGetMapValueDescriptorSuccess() {
-    RequestContext context = createRequest(Dump.test1);
-    Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
-    assertNotNull(descriptor);
-    assertNotNull(getMapValueDescriptor(descriptor.getFields().get(4)));
-  }
-
-  @Test
-  void shouldValidationSuccess() {
+  @DisplayName("should not throw when segment group accessors are valid")
+  void shouldNotThrowWhenSegmentGroupAccessorsAreValid() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     SegmentGroup group = SegmentGroup.of("/{test1}/{test2.id}");
-    assertDoesNotThrow(() -> validation(group, descriptor));
+
+    // When / Then
+    assertThatCode(() -> validation(group, descriptor)).doesNotThrowAnyException();
   }
 
   @Test
-  void shouldValidationThrowException() {
+  @DisplayName("should throw when segment group references invalid accessor")
+  void shouldThrowWhenSegmentGroupReferencesInvalidAccessor() {
+    // Given
     RequestContext context = createRequest(Dump.test1);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     SegmentGroup group = SegmentGroup.of("/{test1}/{test2.id}?value={notExists}");
-    assertThrows(
-        RuntimeException.class, () -> validation(group, descriptor), "Invalid accessor notExists");
+
+    // When / Then
+    assertThatThrownBy(() -> validation(group, descriptor))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Invalid accessor notExists");
   }
 }

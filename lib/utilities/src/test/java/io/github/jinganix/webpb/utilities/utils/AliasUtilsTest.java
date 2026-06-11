@@ -8,30 +8,22 @@ import io.github.jinganix.webpb.tests.Dump;
 import io.github.jinganix.webpb.utilities.context.RequestContext;
 import io.github.jinganix.webpb.utilities.test.TestUtils;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("AliasUtils")
-public class AliasUtilsTest {
+class AliasUtilsTest {
 
-  @Nested
-  @DisplayName("getAutoAliases")
-  class GetAutoAliases {
+  @Test
+  @DisplayName("should generate new alias when alias is in names")
+  void shouldGenerateNewAliasWhenAliasIsInNames() {
+    // Given
+    RequestContext context = TestUtils.createRequest(Dump.test2);
+    Descriptor descriptor = resolveMessage(context.getDescriptors(), "AliasSkip");
 
-    @Nested
-    @DisplayName("when alias is in names")
-    class WhenAliasIsInNames {
+    // When
+    var aliases = AliasUtils.getAutoAliases(descriptor);
 
-      @Test
-      @DisplayName("then generate new alias")
-      void thenGenerateNewAlias() {
-        RequestContext context = TestUtils.createRequest(Dump.test2);
-        Descriptor descriptor = resolveMessage(context.getDescriptors(), "AliasSkip");
-        assertThat(AliasUtils.getAutoAliases(descriptor))
-            .hasSize(2)
-            .containsEntry("a", "c")
-            .containsEntry("b", "d");
-      }
-    }
+    // Then
+    assertThat(aliases).hasSize(2).containsEntry("a", "c").containsEntry("b", "d");
   }
 }

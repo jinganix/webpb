@@ -1,0 +1,6 @@
+{{if .msgAnnos}}{{range $i, $a := .msgAnnos}}{{if $i}}
+{{end}}{{$a}}{{end}}{{end}}
+public static class {{.className}}{{if .extend}} extends {{.extend}}{{end}}{{if hasContent .implements}} implements{{range $i, $impl := .implements}}{{if $i}}, {{else}} {{end}}{{$impl}}{{end}}{{end}} {
+
+{{template "message.body" .}}
+}

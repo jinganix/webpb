@@ -2,19 +2,18 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":semanticCommits"
+    ":semanticCommits",
+    "schedule:weekly",
+    "group:allNonMajor"
   ],
   "packageRules": [
     {
       "matchUpdateTypes": [
-        "major",
         "minor",
         "patch"
       ],
-      "automerge": true,
-      "schedule": [
-        "on sunday"
-      ]
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
     }
   ]
 }

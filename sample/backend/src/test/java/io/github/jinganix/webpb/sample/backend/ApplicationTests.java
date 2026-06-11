@@ -18,12 +18,10 @@
 
 package io.github.jinganix.webpb.sample.backend;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mockStatic;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.boot.SpringApplication;
@@ -33,18 +31,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 @DisplayName("Application")
 class ApplicationTests {
 
-  @Nested
-  @DisplayName("when load context")
-  class WhenLoadContext {
-
-    @Test
-    @DisplayName("then load success")
-    void thenLoadSuccess() {
-      assertDoesNotThrow(Application::new);
-      try (MockedStatic<SpringApplication> application = mockStatic(SpringApplication.class)) {
-        assertNotNull(application);
-        Application.main(null);
-      }
+  @Test
+  @DisplayName("should load context when application starts")
+  void shouldLoadContextWhenApplicationStarts() {
+    // Given
+    // When / Then
+    assertThatCode(Application::new).doesNotThrowAnyException();
+    try (MockedStatic<SpringApplication> application = mockStatic(SpringApplication.class)) {
+      Application.main(null);
     }
   }
 }

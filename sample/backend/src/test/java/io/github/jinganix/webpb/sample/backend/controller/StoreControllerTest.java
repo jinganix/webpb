@@ -34,7 +34,6 @@ import io.github.jinganix.webpb.sample.proto.store.StoreGreetingResponse;
 import io.github.jinganix.webpb.sample.proto.store.StoreListRequest;
 import io.github.jinganix.webpb.sample.proto.store.StoreVisitRequest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,113 +67,76 @@ class StoreControllerTest {
         .content(objectMapper.writeValueAsString(message));
   }
 
-  @Nested
-  @DisplayName("getStore")
-  class GetStore {
+  @Test
+  @DisplayName("should return store details when visiting a store")
+  void shouldReturnStoreDetailsWhenVisitingAStore() throws Exception {
+    // Given
+    int storeId = 123;
+    String customer = "fakeName";
+    when(webpbClient.request(any(), any()))
+        .thenReturn(new StoreGreetingResponse("Welcome, " + customer));
 
-    @Nested
-    @DisplayName("when request is performed")
-    class WhenRequestIsPerformed {
-
-      @Test
-      @DisplayName("then response store")
-      void thenResponseStore() throws Exception {
-        int storeId = 123;
-        String customer = "fakeName";
-        when(webpbClient.request(any(), any()))
-            .thenReturn(new StoreGreetingResponse("Welcome, " + customer));
-
-        mvc.perform(
-                request(new StoreVisitRequest((long) storeId, customer))
-                    .content("{\"customer\": \"" + customer + "\"}"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.a.a", is(storeId)))
-            .andExpect(jsonPath("$.a.b", is("store-" + storeId)))
-            .andExpect(jsonPath("$.a.c", is("Chengdu")))
-            .andExpect(jsonPath("$.b", is("Welcome, " + customer)));
-      }
-    }
+    // When / Then
+    mvc.perform(
+            request(new StoreVisitRequest((long) storeId, customer))
+                .content("{\"customer\": \"" + customer + "\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.a.a", is(storeId)))
+        .andExpect(jsonPath("$.a.b", is("store-" + storeId)))
+        .andExpect(jsonPath("$.a.c", is("Chengdu")))
+        .andExpect(jsonPath("$.b", is("Welcome, " + customer)));
   }
 
-  @Nested
-  @DisplayName("GetStores")
-  class GetStores {
-
-    @Nested
-    @DisplayName("when page size is 11")
-    class WhenPageSizeIs11 {
-
-      @Test
-      @DisplayName("then response error")
-      void thenResponseError() throws Exception {
-        mvc.perform(request(new StoreListRequest(new PageablePb(true, 2, 11, null))))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors.['pageable.size']", is("must be between 1 and 10")));
-        ;
-      }
-    }
-
-    @Nested
-    @DisplayName("when pageable is null")
-    class WhenPageableIsNull {
-
-      @Test
-      @DisplayName("then response stores")
-      void thenResponseStores() throws Exception {
-        mvc.perform(request(new StoreListRequest(null)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.paging.page", is(1)))
-            .andExpect(jsonPath("$.stores", hasSize(10)));
-      }
-    }
-
-    @Nested
-    @DisplayName("when size and page of pageable is null")
-    class WhenSizeAndPageOfPageableIsNull {
-
-      @Test
-      @DisplayName("then response stores")
-      void thenResponseStores() throws Exception {
-        mvc.perform(request(new StoreListRequest(new PageablePb())))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.paging.page", is(1)))
-            .andExpect(jsonPath("$.stores", hasSize(10)));
-      }
-    }
-
-    @Nested
-    @DisplayName("when size and page of pageable is not null")
-    class WhenSizeAndPageOfPageableIsNotNull {
-
-      @Test
-      @DisplayName("then response stores")
-      void thenResponseStores() throws Exception {
-        mvc.perform(request(new StoreListRequest(new PageablePb(true, 2, 8, ""))))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.paging.page", is(2)))
-            .andExpect(jsonPath("$.stores", hasSize(8)));
-      }
-    }
+  @Test
+  @DisplayName("should return bad request when page size exceeds limit")
+  void shouldReturnBadRequestWhenPageSizeExceedsLimit() throws Exception {
+    // When / Then
+    mvc.perform(request(new StoreListRequest(new PageablePb(true, 2, 11, null))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errors.['pageable.size']", is("must be between 1 and 10")));
   }
 
-  @Nested
-  @DisplayName("greeting")
-  class Greeting {
+  @Test
+  @DisplayName("should return default page of stores when pageable is null")
+  void shouldReturnDefaultPageOfStoresWhenPageableIsNull() throws Exception {
+    // When / Then
+    mvc.perform(request(new StoreListRequest(null)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.paging.page", is(1)))
+        .andExpect(jsonPath("$.stores", hasSize(10)));
+  }
 
-    @Nested
-    @DisplayName("when request is performed")
-    class WhenRequestIsPerformed {
+  @Test
+  @DisplayName("should return default page of stores when pageable fields are null")
+  void shouldReturnDefaultPageOfStoresWhenPageableFieldsAreNull() throws Exception {
+    // When / Then
+    mvc.perform(request(new StoreListRequest(new PageablePb())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.paging.page", is(1)))
+        .andExpect(jsonPath("$.stores", hasSize(10)));
+  }
 
-      @Test
-      @DisplayName("then response greeting message")
-      void thenResponseGreetingMessage() throws Exception {
-        String customer = "fakeName";
-        mvc.perform(
-                request(new StoreGreetingRequest(customer))
-                    .content("{\"customer\": \"" + customer + "\"}"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.greeting", is("Welcome, " + customer)));
-      }
-    }
+  @Test
+  @DisplayName("should return requested page of stores when pageable is provided")
+  void shouldReturnRequestedPageOfStoresWhenPageableIsProvided() throws Exception {
+    // When / Then
+    mvc.perform(request(new StoreListRequest(new PageablePb(true, 2, 8, ""))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.paging.page", is(2)))
+        .andExpect(jsonPath("$.stores", hasSize(8)));
+  }
+
+  @Test
+  @DisplayName("should return greeting message when greeting is requested")
+  void shouldReturnGreetingMessageWhenGreetingIsRequested() throws Exception {
+    // Given
+    String customer = "fakeName";
+
+    // When / Then
+    mvc.perform(
+            request(new StoreGreetingRequest(customer))
+                .content("{\"customer\": \"" + customer + "\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.greeting", is("Welcome, " + customer)));
   }
 }

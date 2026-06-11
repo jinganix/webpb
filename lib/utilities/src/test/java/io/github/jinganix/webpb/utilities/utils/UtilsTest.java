@@ -18,103 +18,97 @@
 
 package io.github.jinganix.webpb.utilities.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Utils")
 class UtilsTest {
 
   @Test
-  void shouldNormalizeStringSuccess() {
-    Assertions.assertEquals("", Utils.normalize(""));
-    Assertions.assertEquals("", Utils.normalize("/"));
-    Assertions.assertEquals("", Utils.normalize("//"));
-    Assertions.assertEquals("/a", Utils.normalize("/a"));
-    Assertions.assertEquals("/a", Utils.normalize("a/"));
-    Assertions.assertEquals("/a", Utils.normalize("/a/"));
-    Assertions.assertEquals("/ab.c", Utils.normalize("//ab.c"));
-    Assertions.assertEquals("https://ab.c", Utils.normalize("https://ab.c"));
+  @DisplayName("should normalize path strings when given varied inputs")
+  void shouldNormalizePathStringsWhenGivenVariedInputs() {
+    // When / Then
+    assertThat(Utils.normalize("")).isEmpty();
+    assertThat(Utils.normalize("/")).isEmpty();
+    assertThat(Utils.normalize("//")).isEmpty();
+    assertThat(Utils.normalize("/a")).isEqualTo("/a");
+    assertThat(Utils.normalize("a/")).isEqualTo("/a");
+    assertThat(Utils.normalize("/a/")).isEqualTo("/a");
+    assertThat(Utils.normalize("//ab.c")).isEqualTo("/ab.c");
+    assertThat(Utils.normalize("https://ab.c")).isEqualTo("https://ab.c");
   }
 
   @Test
-  void shouldLimitNewlineSuccess() {
+  @DisplayName("should limit trailing newlines when count is specified")
+  void shouldLimitTrailingNewlinesWhenCountIsSpecified() {
+    // Given
     StringBuilder builder = new StringBuilder();
 
+    // When / Then
     Utils.limitNewline(builder, -1);
-    assertEquals("", builder.toString());
+    assertThat(builder).isEmpty();
 
     Utils.limitNewline(builder, 0);
-    assertEquals("", builder.toString());
+    assertThat(builder).isEmpty();
 
     builder.append("a");
     Utils.limitNewline(builder, 0);
-    assertEquals("a", builder.toString());
+    assertThat(builder).hasToString("a");
 
     builder.append("\n");
     Utils.limitNewline(builder, 1);
-    assertEquals("a\n", builder.toString());
+    assertThat(builder).hasToString("a\n");
 
     builder.append("\n\n");
     Utils.limitNewline(builder, 2);
-    assertEquals("a\n\n", builder.toString());
+    assertThat(builder).hasToString("a\n\n");
   }
 
   @Test
-  void shouldAlignNewlineSuccess() {
+  @DisplayName("should align trailing newlines when count is specified")
+  void shouldAlignTrailingNewlinesWhenCountIsSpecified() {
+    // Given
     StringBuilder builder = new StringBuilder();
 
+    // When / Then
     Utils.alignNewline(builder, -1);
-    assertEquals("", builder.toString());
+    assertThat(builder).isEmpty();
 
     Utils.alignNewline(builder, 1);
-    assertEquals("\n", builder.toString());
+    assertThat(builder).hasToString("\n");
 
     Utils.alignNewline(builder, 0);
-    assertEquals("", builder.toString());
+    assertThat(builder).isEmpty();
 
     builder.append("a");
     Utils.alignNewline(builder, 0);
-    assertEquals("a", builder.toString());
+    assertThat(builder).hasToString("a");
 
     Utils.alignNewline(builder, 1);
-    assertEquals("a\n", builder.toString());
+    assertThat(builder).hasToString("a\n");
 
     builder.append("\n");
     Utils.alignNewline(builder, 1);
-    assertEquals("a\n", builder.toString());
+    assertThat(builder).hasToString("a\n");
 
     builder.append("\n\n");
     Utils.alignNewline(builder, 2);
-    assertEquals("a\n\n", builder.toString());
+    assertThat(builder).hasToString("a\n\n");
   }
 
-  @Nested
-  @DisplayName("toBase52")
-  class ToBase52Test {
+  @Test
+  @DisplayName("should return A when num is 26")
+  void shouldReturnAWhenNumIs26() {
+    // When / Then
+    assertThat(Utils.toBase52(26)).isEqualTo("A");
+  }
 
-    @Nested
-    @DisplayName("when num is 26")
-    class WhenNumIs26Test {
-
-      @Test
-      @DisplayName("then base52 string is A")
-      void thenBase52StringIsLowercaseA() {
-        assertEquals("A", Utils.toBase52(26));
-      }
-    }
-
-    @Nested
-    @DisplayName("when num is 1378")
-    class WhenNumIs1378Test {
-
-      @Test
-      @DisplayName("then base52 string is AA")
-      void thenBase52StringIsLowercaseA() {
-        assertEquals("AA", Utils.toBase52(1378));
-      }
-    }
+  @Test
+  @DisplayName("should return AA when num is 1378")
+  void shouldReturnAAWhenNumIs1378() {
+    // When / Then
+    assertThat(Utils.toBase52(1378)).isEqualTo("AA");
   }
 }

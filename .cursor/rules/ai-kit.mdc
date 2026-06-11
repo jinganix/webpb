@@ -1,0 +1,20 @@
+---
+description: Project conventions for Java, tests, and Go plugin
+alwaysApply: true
+---
+
+# webpb conventions
+
+Before editing code or tests, read the matching doc under `ai-kit/`:
+
+- Java production code: `ai-kit/CODE_CONVENTIONS.md`
+- Java / Vitest tests: `ai-kit/TEST_CONVENTIONS.md`
+- Go plugin golden tests: `ai-kit/GO_TEST_CONVENTIONS.md`
+
+Key rules:
+
+- Java control flow always uses braced blocks on their own line.
+- Tests are behavior-first: `should ... when ...`; at most one `@Nested` level.
+- Codegen golden tests live in `plugin` (Go) only — do not add duplicate JUnit golden suites.
+
+After Java changes: `./gradlew spotlessApply && ./gradlew build`.

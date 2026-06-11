@@ -18,12 +18,8 @@
 
 package io.github.jinganix.webpb.runtime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.jinganix.webpb.runtime.model.BadRequest;
 import io.github.jinganix.webpb.runtime.model.FooRequest;
@@ -32,71 +28,107 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+@DisplayName("WebpbUtils")
 class WebpbUtilsTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
-  void shouldReadWebpbMetaSuccess() {
-    assertNotNull(WebpbUtils.readWebpbMeta(FooRequest.class));
+  @DisplayName("should return webpb meta when message defines it")
+  void shouldReturnWebpbMetaWhenMessageDefinesIt() {
+    // When / Then
+    assertThat(WebpbUtils.readWebpbMeta(FooRequest.class)).isNotNull();
   }
 
   @Test
-  void shouldReturnNullWhenWepbMetaNotExists() {
-    assertNull(WebpbUtils.readWebpbMeta(BadRequest.class));
+  @DisplayName("should return null when message has no webpb meta")
+  void shouldReturnNullWhenMessageHasNoWebpbMeta() {
+    // When / Then
+    assertThat(WebpbUtils.readWebpbMeta(BadRequest.class)).isNull();
   }
 
   @Test
-  void isValidPathTest() {
-    assertFalse(WebpbUtils.isValidPath(null));
-    assertFalse(WebpbUtils.isValidPath("//"));
-    assertFalse(WebpbUtils.isValidPath("abc"));
-    assertTrue(WebpbUtils.isValidPath(""));
-    assertTrue(WebpbUtils.isValidPath("/ /"));
-    assertTrue(WebpbUtils.isValidPath("/"));
-    assertTrue(WebpbUtils.isValidPath("/abc"));
-    assertTrue(WebpbUtils.isValidPath("https://abc"));
-    assertTrue(WebpbUtils.isValidPath("https://a/{b}"));
+  @DisplayName("should validate paths when given various inputs")
+  void shouldValidatePathsWhenGivenVariousInputs() {
+    // When / Then
+    assertThat(WebpbUtils.isValidPath(null)).isFalse();
+    assertThat(WebpbUtils.isValidPath("//")).isFalse();
+    assertThat(WebpbUtils.isValidPath("abc")).isFalse();
+    assertThat(WebpbUtils.isValidPath("")).isTrue();
+    assertThat(WebpbUtils.isValidPath("/ /")).isTrue();
+    assertThat(WebpbUtils.isValidPath("/")).isTrue();
+    assertThat(WebpbUtils.isValidPath("/abc")).isTrue();
+    assertThat(WebpbUtils.isValidPath("https://abc")).isTrue();
+    assertThat(WebpbUtils.isValidPath("https://a/{b}")).isTrue();
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenWithBaseUrl() throws MalformedURLException {
+  @DisplayName("should format url when base url is provided")
+  void shouldFormatUrlWhenBaseUrlIsProvided() throws MalformedURLException {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url = WebpbUtils.formatUrl(new URL("https://abc"), objectMapper, new FooRequest());
-    assertEquals("https://abc/domain/123/action?p=true&size=20&page=10", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://abc/domain/123/action?p=true&size=20&page=10");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenWithoutPageable() throws MalformedURLException {
+  @DisplayName("should format url when pageable fields are null")
+  void shouldFormatUrlWhenPageableFieldsAreNull() throws MalformedURLException {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             new URL("https://abc"),
             objectMapper,
             new FooRequest().setPageable(new Pageable().setPage(null).setSize(null)));
-    assertEquals("https://abc/domain/123/action?p=true", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://abc/domain/123/action?p=true");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenWithoutBaseUrl() {
+  @DisplayName("should format url when no base url is provided")
+  void shouldFormatUrlWhenNoBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url = WebpbUtils.formatUrl(null, objectMapper, new FooRequest());
-    assertEquals("/domain/123/action?p=true&size=20&page=10", url);
+
+    // Then
+    assertThat(url).isEqualTo("/domain/123/action?p=true&size=20&page=10");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenBaseUrlWithQuery() throws MalformedURLException {
+  @DisplayName("should format url when base url already has query parameters")
+  void shouldFormatUrlWhenBaseUrlAlreadyHasQueryParameters() throws MalformedURLException {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url = WebpbUtils.formatUrl(new URL("https://a?a=1"), objectMapper, new FooRequest());
-    assertEquals("https://a/domain/123/action?a=1&p=true&size=20&page=10", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://a/domain/123/action?a=1&p=true&size=20&page=10");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenOnlyQuery() {
+  @DisplayName("should format url when path contains only query parameters")
+  void shouldFormatUrlWhenPathContainsOnlyQueryParameters() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             null,
@@ -106,108 +138,165 @@ class WebpbUtilsTest {
                     .method("GET")
                     .path("/pagination={pagination}&size={pageable.size}&page={pageable.page}")
                     .build()));
-    assertEquals("?pagination=true&size=20&page=10", url);
+
+    // Then
+    assertThat(url).isEqualTo("?pagination=true&size=20&page=10");
   }
 
   @Test
-  void shouldFormatUrlSuccessGivenPathIsUrlWhenWithBaseUrl() throws MalformedURLException {
+  @DisplayName("should format url when path is root and base url is provided")
+  void shouldFormatUrlWhenPathIsRootAndBaseUrlIsProvided() throws MalformedURLException {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             new URL("https://domain"),
             objectMapper,
             new FooRequest(WebpbMeta.builder().method("GET").path("/").build()));
-    assertEquals("https://domain", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://domain");
   }
 
   @Test
-  void shouldFormatUrlSuccessGivenWithContext() throws MalformedURLException {
+  @DisplayName("should format url when context is set and base url is provided")
+  void shouldFormatUrlWhenContextIsSetAndBaseUrlIsProvided() throws MalformedURLException {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             new URL("https://domain"),
             objectMapper,
             new FooRequest(WebpbMeta.builder().method("GET").context("ctx").path("/").build()));
-    assertEquals("https://domain/ctx", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://domain/ctx");
   }
 
   @Test
-  void shouldFormatUrlSuccessGivenWithoutBaseUrl() {
+  @DisplayName("should format url when context is set and no base url is provided")
+  void shouldFormatUrlWhenContextIsSetAndNoBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             new FooRequest(WebpbMeta.builder().method("GET").context("ctx").path("/a/b").build()));
-    assertEquals("/ctx/a/b", url);
+
+    // Then
+    assertThat(url).isEqualTo("/ctx/a/b");
   }
 
   @Test
-  void shouldFormatUrlSuccessGivenWithoutBaseUrlAndPathIsUrl() {
+  @DisplayName("should format url when path is absolute and no base url is provided")
+  void shouldFormatUrlWhenPathIsAbsoluteAndNoBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             new FooRequest(
                 WebpbMeta.builder().method("GET").context("ctx").path("https://a.com/b").build()));
-    assertEquals("https://a.com/b", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://a.com/b");
   }
 
   @Test
-  void shouldFormatUrlSuccessGivenPathIsUrlWhenWithoutBaseUrl() {
+  @DisplayName("should format absolute path when no base url is provided")
+  void shouldFormatAbsolutePathWhenNoBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             null,
             objectMapper,
             new FooRequest(WebpbMeta.builder().method("GET").path("https://domain").build()));
-    assertEquals("https://domain", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://domain");
   }
 
   @Test
-  void shouldFormatUrlThrowExceptionGivenPathIsUrlWhenWithBaseUrl() {
+  @DisplayName("should throw when path is absolute url and base url is provided")
+  void shouldThrowWhenPathIsAbsoluteUrlAndBaseUrlIsProvided() {
+    // Given
     WebpbUtils.clearContextCache();
     FooRequest request =
         new FooRequest(WebpbMeta.builder().method("GET").path("https://domain").build());
-    assertThrows(
-        RuntimeException.class,
-        () -> WebpbUtils.formatUrl(new URL("https://abc"), objectMapper, request));
+
+    // When / Then
+    assertThatThrownBy(() -> WebpbUtils.formatUrl(new URL("https://abc"), objectMapper, request))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenRequestMissingValue() {
+  @DisplayName("should omit missing query values when request field is absent")
+  void shouldOmitMissingQueryValuesWhenRequestFieldIsAbsent() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             null,
             objectMapper,
             new FooRequest(WebpbMeta.builder().method("GET").path("https://domain?a={a}").build()));
-    assertEquals("https://domain", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://domain");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenQueryWithSuffix() {
+  @DisplayName("should preserve query suffix when placeholder has trailing text")
+  void shouldPreserveQuerySuffixWhenPlaceholderHasTrailingText() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             null,
             objectMapper,
             new FooRequest(
                 WebpbMeta.builder().method("GET").path("https://domain?data={data}hello").build()));
-    assertEquals("https://domain?data={data}hello", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://domain?data={data}hello");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenQueryWithOnlySuffix() {
+  @DisplayName("should preserve static query suffix when no placeholders are present")
+  void shouldPreserveStaticQuerySuffixWhenNoPlaceholdersArePresent() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             null,
             objectMapper,
             new FooRequest(WebpbMeta.builder().method("GET").path("https://domain?hello").build()));
-    assertEquals("https://domain?hello", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://domain?hello");
   }
 
   @Test
-  void shouldFormatUrlSuccessWhenWithMultiplePathVariables() {
+  @DisplayName("should substitute multiple path variables when all values exist")
+  void shouldSubstituteMultiplePathVariablesWhenAllValuesExist() {
+    // Given
     WebpbUtils.clearContextCache();
+
+    // When
     String url =
         WebpbUtils.formatUrl(
             null,
@@ -217,42 +306,60 @@ class WebpbUtilsTest {
                     .method("GET")
                     .path("https://{pagination}/{pageable.page}/{pageable.size}")
                     .build()));
-    assertEquals("https://true/10/20", url);
+
+    // Then
+    assertThat(url).isEqualTo("https://true/10/20");
   }
 
   @Test
-  void shouldThrowExceptionWhenPathVariableNotExists() {
+  @DisplayName("should throw when path variable is not found on message")
+  void shouldThrowWhenPathVariableIsNotFoundOnMessage() {
+    // Given
     WebpbUtils.clearContextCache();
-    assertThrows(
-        RuntimeException.class,
-        () ->
-            WebpbUtils.formatUrl(
-                null,
-                objectMapper,
-                new FooRequest(WebpbMeta.builder().method("GET").path("https://a/{b}/c").build())),
-        "Path variable 'a' not found");
+
+    // When / Then
+    assertThatThrownBy(
+            () ->
+                WebpbUtils.formatUrl(
+                    null,
+                    objectMapper,
+                    new FooRequest(
+                        WebpbMeta.builder().method("GET").path("https://a/{b}/c").build())))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
-  void givenNonEmptyParameters_whenUpdateMessage_ThenReturnUpdatedMessage() {
+  @DisplayName("should update message fields when parameters are provided")
+  void shouldUpdateMessageFieldsWhenParametersAreProvided() {
+    // Given
     Map<String, String> map = new HashMap<>();
     map.put("id", "12345678");
     map.put("size", "111");
     map.put("page", "222");
     map.put("fake1", null);
+
+    // When
     FooRequest message = WebpbUtils.updateMessage(new FooRequest(), map);
-    assertEquals(12345678, message.getId());
-    assertEquals(111, message.getPageable().getSize());
+
+    // Then
+    assertThat(message.getId()).isEqualTo(12345678);
+    assertThat(message.getPageable().getSize()).isEqualTo(111);
   }
 
   @Test
-  void givenWebpbMessage_whenSerialize_ThenReturnString() {
-    assertEquals("{\"data\":\"data123\"}", WebpbUtils.serialize(new FooRequest()));
+  @DisplayName("should serialize message when webpb message is provided")
+  void shouldSerializeMessageWhenWebpbMessageIsProvided() {
+    // When / Then
+    assertThat(WebpbUtils.serialize(new FooRequest())).isEqualTo("{\"data\":\"data123\"}");
   }
 
   @Test
-  void givenDataString_whenDeserialize_ThenReturnMessage() {
+  @DisplayName("should deserialize message when json string is provided")
+  void shouldDeserializeMessageWhenJsonStringIsProvided() {
+    // When
     FooRequest message = WebpbUtils.deserialize("{\"data\":\"data123\"}", FooRequest.class);
-    assertEquals("data123", message.getData());
+
+    // Then
+    assertThat(message.getData()).isEqualTo("data123");
   }
 }

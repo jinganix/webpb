@@ -45,12 +45,9 @@ module.exports = {
   ],
   resolve: {
     alias: {
-      "@proto": Path.resolve(
-        __dirname,
-        "../build/generated/sources/proto/main/ts",
-      ),
+      "@proto": Path.resolve(__dirname, "../generated/proto"),
       "@scripts": Path.resolve(__dirname, "../src/scripts"),
-      build: Path.resolve(__dirname, "../build"),
+      build: Path.resolve(__dirname, "../generated"),
     },
     extensions: [".ts", ".js"],
     preferRelative: true,

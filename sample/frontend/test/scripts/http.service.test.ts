@@ -4,7 +4,7 @@ import axios from "axios";
 
 jest.mock("axios");
 
-describe("http.service", () => {
+describe("HttpService", () => {
   const RESPONSE_DATA = StoreVisitResponse.create({
     greeting: "Welcome, Tom",
     store: {
@@ -14,44 +14,56 @@ describe("http.service", () => {
     },
   });
 
-  it("should request success", async () => {
+  it("should return response data when request succeeds", async () => {
+    // Given
     const httpService = new HttpService("https://abc");
     axios.request = jest.fn().mockResolvedValue({
       data: RESPONSE_DATA,
       status: 200,
     });
-    const res = await httpService.request<StoreVisitResponse>(
-      StoreVisitRequest.create({ customer: "Tom", id: "123" }),
-    );
+    const request = StoreVisitRequest.create({ customer: "Tom", id: "123" });
+
+    // When
+    const res = await httpService.request<StoreVisitResponse>(request);
+
+    // Then
     expect(res).toMatchObject(RESPONSE_DATA);
   });
 
-  it("should request success from alias", async () => {
+  it("should return response data when request succeeds with response type", async () => {
+    // Given
     const httpService = new HttpService("https://abc");
     axios.request = jest.fn().mockResolvedValue({
       data: RESPONSE_DATA,
       status: 200,
     });
-    const res = await httpService.request(
-      StoreVisitRequest.create({ customer: "Tom", id: "123" }),
-      StoreVisitResponse,
-    );
+    const request = StoreVisitRequest.create({ customer: "Tom", id: "123" });
+
+    // When
+    const res = await httpService.request(request, StoreVisitResponse);
+
+    // Then
     expect(res).toMatchObject(RESPONSE_DATA);
   });
 
-  it("should request failed", async () => {
+  it("should return response data when status is not 200", async () => {
+    // Given
     const httpService = new HttpService("https://abc");
     axios.request = jest.fn().mockResolvedValue({
       data: RESPONSE_DATA,
       status: 500,
     });
-    const res = await httpService.request<StoreVisitResponse>(
-      StoreVisitRequest.create({ customer: "Tom", id: "123" }),
-    );
+    const request = StoreVisitRequest.create({ customer: "Tom", id: "123" });
+
+    // When
+    const res = await httpService.request<StoreVisitResponse>(request);
+
+    // Then
     expect(res).toMatchObject(RESPONSE_DATA);
   });
 
-  it("given error with response when request then log success", async () => {
+  it("should throw when axios rejects with response", async () => {
+    // Given
     const httpService = new HttpService("https://abc");
     axios.request = jest.fn().mockRejectedValue({
       response: {
@@ -59,20 +71,23 @@ describe("http.service", () => {
         status: 500,
       },
     });
-    await expect(() =>
-      httpService.request<StoreVisitResponse>(
-        StoreVisitRequest.create({ customer: "Tom", id: "123" }),
-      ),
-    ).rejects.toThrow("Failed when request: https://abc/stores/123");
+    const request = StoreVisitRequest.create({ customer: "Tom", id: "123" });
+
+    // When / Then
+    await expect(() => httpService.request<StoreVisitResponse>(request)).rejects.toThrow(
+      "Failed when request: https://abc/stores/123",
+    );
   });
 
-  it("given error without response when request then log success", async () => {
+  it("should throw when axios rejects without response", async () => {
+    // Given
     const httpService = new HttpService("https://abc");
     axios.request = jest.fn().mockRejectedValue("error");
-    await expect(() =>
-      httpService.request<StoreVisitResponse>(
-        StoreVisitRequest.create({ customer: "Tom", id: "123" }),
-      ),
-    ).rejects.toThrow("Failed when request: https://abc/stores/123");
+    const request = StoreVisitRequest.create({ customer: "Tom", id: "123" });
+
+    // When / Then
+    await expect(() => httpService.request<StoreVisitResponse>(request)).rejects.toThrow(
+      "Failed when request: https://abc/stores/123",
+    );
   });
 });

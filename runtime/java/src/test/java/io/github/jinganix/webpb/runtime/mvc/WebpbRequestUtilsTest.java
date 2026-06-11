@@ -19,50 +19,69 @@
 package io.github.jinganix.webpb.runtime.mvc;
 
 import static io.github.jinganix.webpb.runtime.mvc.WebpbRequestUtils.mergeVariables;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("WebpbRequestUtils")
 class WebpbRequestUtilsTest {
 
   @Test
-  void givenTwoEmptyMaps_ThenMergeSuccess() {
-    assertTrue(mergeVariables(Collections.emptyMap(), Collections.emptyMap()).isEmpty());
+  @DisplayName("should return empty map when both inputs are empty")
+  void shouldReturnEmptyMapWhenBothInputsAreEmpty() {
+    // When
+    Map<String, String> result = mergeVariables(Collections.emptyMap(), Collections.emptyMap());
+
+    // Then
+    assertThat(result).isEmpty();
   }
 
   @Test
-  void givenAttributesNotEmpty_ThenMergeSuccess() {
+  @DisplayName("should include attributes when attribute map is not empty")
+  void shouldIncludeAttributesWhenAttributeMapIsNotEmpty() {
+    // Given
     Map<String, String> attributes = new HashMap<>();
     attributes.put("a", "b");
-    Map<String, String> map = mergeVariables(attributes, Collections.emptyMap());
-    assertEquals(1, map.size());
-    assertTrue(map.containsKey("a"));
+
+    // When
+    Map<String, String> result = mergeVariables(attributes, Collections.emptyMap());
+
+    // Then
+    assertThat(result).hasSize(1).containsKey("a");
   }
 
   @Test
-  void givenParameterMapNotEmpty_ThenMergeSuccess() {
+  @DisplayName("should include parameters when parameter map is not empty")
+  void shouldIncludeParametersWhenParameterMapIsNotEmpty() {
+    // Given
     Map<String, String[]> parameters = new HashMap<>();
     parameters.put("a", new String[] {"b"});
-    Map<String, String> map = mergeVariables(Collections.emptyMap(), parameters);
-    assertEquals(1, map.size());
-    assertTrue(map.containsKey("a"));
+
+    // When
+    Map<String, String> result = mergeVariables(Collections.emptyMap(), parameters);
+
+    // Then
+    assertThat(result).hasSize(1).containsKey("a");
   }
 
   @Test
-  void givenTwoNonEmptyMaps_ThenMergeSuccess() {
+  @DisplayName("should merge attributes and parameters when both are not empty")
+  void shouldMergeAttributesAndParametersWhenBothAreNotEmpty() {
+    // Given
     Map<String, String> attributes = new HashMap<>();
     attributes.put("a", "b");
 
     Map<String, String[]> parameters = new HashMap<>();
     parameters.put("c", new String[] {"d"});
 
-    Map<String, String> map = mergeVariables(attributes, parameters);
-    assertEquals(2, map.size());
-    assertTrue(map.containsKey("a"));
-    assertTrue(map.containsKey("c"));
+    // When
+    Map<String, String> result = mergeVariables(attributes, parameters);
+
+    // Then
+    assertThat(result).hasSize(2).containsKeys("a", "c");
   }
 }
