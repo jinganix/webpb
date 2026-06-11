@@ -839,6 +839,8 @@ func (x *OptFieldOpts) GetInQuery() bool {
 type JavaFieldOpts struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Annotation    []string               `protobuf:"bytes,1000,rep,name=annotation" json:"annotation,omitempty"`
+	AsSet         *bool                  `protobuf:"varint,1001,opt,name=as_set,json=asSet" json:"as_set,omitempty"`
+	AsCollection  *bool                  `protobuf:"varint,1002,opt,name=as_collection,json=asCollection" json:"as_collection,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -878,6 +880,20 @@ func (x *JavaFieldOpts) GetAnnotation() []string {
 		return x.Annotation
 	}
 	return nil
+}
+
+func (x *JavaFieldOpts) GetAsSet() bool {
+	if x != nil && x.AsSet != nil {
+		return *x.AsSet
+	}
+	return false
+}
+
+func (x *JavaFieldOpts) GetAsCollection() bool {
+	if x != nil && x.AsCollection != nil {
+		return *x.AsCollection
+	}
+	return false
 }
 
 type TsFieldOpts struct {
@@ -1270,11 +1286,13 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\x02ts\x18\xea\a \x01(\v2\f.TsFieldOptsR\x02ts\"E\n" +
 	"\fOptFieldOpts\x12\x19\n" +
 	"\aomitted\x18\xe8\a \x01(\bR\aomitted\x12\x1a\n" +
-	"\bin_query\x18\xe9\a \x01(\bR\ainQuery\"0\n" +
+	"\bin_query\x18\xe9\a \x01(\bR\ainQuery\"n\n" +
 	"\rJavaFieldOpts\x12\x1f\n" +
 	"\n" +
 	"annotation\x18\xe8\a \x03(\tR\n" +
-	"annotation\"b\n" +
+	"annotation\x12\x16\n" +
+	"\x06as_set\x18\xe9\a \x01(\bR\x05asSet\x12$\n" +
+	"\ras_collection\x18\xea\a \x01(\bR\fasCollection\"b\n" +
 	"\vTsFieldOpts\x12\x1c\n" +
 	"\tas_string\x18\xe8\a \x01(\bR\basString\x12\x15\n" +
 	"\x05alias\x18\xe9\a \x01(\tR\x05alias\x12\x1e\n" +
@@ -1296,8 +1314,8 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\x06e_opts\x12\x1c.google.protobuf.EnumOptions\x18\xe8\a \x01(\v2\t.EnumOptsR\x05eOpts:>\n" +
 	"\x04opts\x12\x1d.google.protobuf.FieldOptions\x18\xe8\a \x01(\v2\n" +
 	".FieldOptsR\x04opts:I\n" +
-	"\x06v_opts\x12!.google.protobuf.EnumValueOptions\x18\xe8\a \x01(\v2\x0e.EnumValueOptsR\x05vOptsB/\n" +
-	"-io.github.jinganix.webpb.utilities.descriptor"
+	"\x06v_opts\x12!.google.protobuf.EnumValueOptions\x18\xe8\a \x01(\v2\x0e.EnumValueOptsR\x05vOptsB[\n" +
+	"-io.github.jinganix.webpb.utilities.descriptorZ*github.com/jinganix/webpb/plugin/gen/webpb"
 
 var (
 	file_webpb_WebpbExtend_proto_rawDescOnce sync.Once

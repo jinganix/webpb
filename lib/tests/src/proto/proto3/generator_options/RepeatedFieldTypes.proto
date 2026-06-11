@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package RepeatedFieldTypesProto;
+
+option java_package = "repeated_field_types";
+
+import "webpb/WebpbExtend.proto";
+
+message RepeatedFieldTypes {
+  repeated string as_list = 1;
+  repeated string as_set = 2 [(opts).java = {as_set: true}];
+  repeated string as_collection = 3 [(opts).java = {as_collection: true}];
+}

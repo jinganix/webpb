@@ -274,6 +274,13 @@ func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) (str
 		if err != nil {
 			return "", err
 		}
+		javaOpts := core.GetFieldOpts(field, core.HasFieldJava).GetJava()
+		if javaOpts.GetAsSet() {
+			return g.imports.ImportClassOrInterface("Set<" + elemType + ">")
+		}
+		if javaOpts.GetAsCollection() {
+			return g.imports.ImportClassOrInterface("Collection<" + elemType + ">")
+		}
 		return g.imports.ImportClassOrInterface("List<" + elemType + ">")
 	}
 	return g.toType(field)

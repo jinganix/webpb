@@ -141,9 +141,18 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `opt` | `omitted` | Exclude field from generated API surface |
 | `opt` | `in_query` | Bind field to query string (for GET / path templates) |
 | `java` | `annotation` | Java field annotations (e.g. `@NotNull`, `@Pattern(...)`) |
+| `java` | `as_set` | Generate repeated fields as `Set<T>` instead of `List<T>` |
+| `java` | `as_collection` | Generate repeated fields as `Collection<T>` instead of `List<T>` |
 | `ts` | `as_string` | Serialize numeric field as string |
 | `ts` | `alias` | JSON property name override |
 | `ts` | `auto_alias` | Override alias behavior for this field |
+
+Repeated fields default to `List<T>`. Use Java field options to change the collection type:
+
+```protobuf
+repeated string tags = 1 [(opts).java = {as_set: true}];
+repeated int32 ids = 2 [(opts).java = {as_collection: true}];
+```
 
 ### Enum — `(e_opts)`
 
