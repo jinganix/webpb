@@ -18,69 +18,79 @@
 
 package io.github.jinganix.webpb.processor.misc;
 
-import java.lang.reflect.Method;
+import com.sun.tools.javac.tree.TreeMaker;
 
-/** Utilities to open JVM modules. */
-public class JvmOpens {
+/** Utilities to open JVM modules for javac internals. */
+public final class JvmOpens {
+
+  private static final String[] PACKAGES = {
+    "com.sun.tools.javac.code",
+    "com.sun.tools.javac.comp",
+    "com.sun.tools.javac.file",
+    "com.sun.tools.javac.main",
+    "com.sun.tools.javac.model",
+    "com.sun.tools.javac.parser",
+    "com.sun.tools.javac.processing",
+    "com.sun.tools.javac.tree",
+    "com.sun.tools.javac.util",
+    "com.sun.tools.javac.jvm",
+  };
+
+  private JvmOpens() {}
 
   /**
-   * Add opens for specified class.
+   * Add opens for specified class when javac internals are not already accessible.
    *
-   * @param type target class type.
+   * @param type target class type
    */
   public static void addOpens(Class<?> type) {
-    Class<?> classModule;
+    if (isJavacTreeAccessible()) {
+      return;
+    }
+
+    Class<?> moduleClass;
     try {
-      classModule = Class.forName("java.lang.Module");
+      moduleClass = Class.forName("java.lang.Module");
     } catch (ClassNotFoundException e) {
-      return; // jdk8-; this is not needed.
+      return;
     }
 
     Object jdkCompilerModule = getJdkCompilerModule();
     Object ownModule = getOwnModule(type);
-    String[] packages = {
-      "com.sun.tools.javac.code",
-      "com.sun.tools.javac.comp",
-      "com.sun.tools.javac.file",
-      "com.sun.tools.javac.main",
-      "com.sun.tools.javac.model",
-      "com.sun.tools.javac.parser",
-      "com.sun.tools.javac.processing",
-      "com.sun.tools.javac.tree",
-      "com.sun.tools.javac.util",
-      "com.sun.tools.javac.jvm",
-    };
+    if (jdkCompilerModule == null || ownModule == null) {
+      return;
+    }
 
     try {
-      Method m = classModule.getDeclaredMethod("implAddOpens", String.class, classModule);
-      long firstFieldOffset = getFirstFieldOffset();
-      Unsafe.putBooleanVolatile(m, firstFieldOffset, true);
-      for (String p : packages) {
-        m.invoke(jdkCompilerModule, p, ownModule);
+      var addOpens = Permit.getMethod(moduleClass, "implAddOpens", String.class, moduleClass);
+      for (String pkg : PACKAGES) {
+        addOpens.invoke(jdkCompilerModule, pkg, ownModule);
       }
     } catch (Exception ignored) {
       // ignored
     }
   }
 
-  private static long getFirstFieldOffset() {
+  private static boolean isJavacTreeAccessible() {
     try {
-      return Unsafe.objectFieldOffset(Parent.class.getDeclaredField("first"));
-    } catch (NoSuchFieldException | SecurityException e) {
-      // can't happen.
-      throw new RuntimeException(e);
+      TreeMaker.class.getDeclaredMethods();
+      return true;
+    } catch (Throwable ignored) {
+      return false;
     }
   }
 
   private static Object getJdkCompilerModule() {
     try {
-      Class<?> classModuleLayer = Class.forName("java.lang.ModuleLayer");
-      Method methodBoot = classModuleLayer.getDeclaredMethod("boot");
-      Object bootLayer = methodBoot.invoke(null);
-      Class<?> classOptional = Class.forName("java.util.Optional");
-      Method findModule = classModuleLayer.getDeclaredMethod("findModule", String.class);
+      Class<?> moduleLayerClass = Class.forName("java.lang.ModuleLayer");
+      var boot = moduleLayerClass.getDeclaredMethod("boot");
+      boot.setAccessible(true);
+      Object bootLayer = boot.invoke(null);
+      var findModule = moduleLayerClass.getDeclaredMethod("findModule", String.class);
+      findModule.setAccessible(true);
       Object compiler = findModule.invoke(bootLayer, "jdk.compiler");
-      return classOptional.getDeclaredMethod("get").invoke(compiler);
+      Class<?> optionalClass = Class.forName("java.util.Optional");
+      return optionalClass.getDeclaredMethod("get").invoke(compiler);
     } catch (Exception e) {
       return null;
     }
@@ -88,8 +98,8 @@ public class JvmOpens {
 
   private static Object getOwnModule(Class<?> type) {
     try {
-      Method m = Permit.getMethod(Class.class, "getModule");
-      return m.invoke(type);
+      var getModule = Permit.getMethod(Class.class, "getModule");
+      return getModule.invoke(type);
     } catch (Exception e) {
       return null;
     }

@@ -29,4 +29,13 @@ public interface Const {
 
   /** WebpbRequestMapping. */
   String WebpbRequestMapping = "io.github.jinganix.webpb.runtime.mvc.WebpbRequestMapping";
+
+  /** {@code message} attribute on webpb mapping annotations. */
+  String MESSAGE_ATTRIBUTE = "message";
+
+  /** Generated {@link io.github.jinganix.webpb.runtime.WebpbMessage} HTTP method constant. */
+  String WEBPB_METHOD = "WEBPB_METHOD";
+
+  /** Generated {@link io.github.jinganix.webpb.runtime.WebpbMessage} path constant. */
+  String WEBPB_PATH = "WEBPB_PATH";
 }
