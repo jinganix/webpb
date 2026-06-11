@@ -23,10 +23,15 @@ Generated code imports the [webpb](https://www.npmjs.com/package/webpb) runtime.
 
 ## Development
 
-Binaries are built from the Go plugin in `plugin/cmd/webpb-ts`.
+TypeScript sources live under `src/`. The published `bin` entry is compiled to
+`dist/bin/webpb-protoc-ts.js`; native plugin binaries are built from the Go
+plugin in `plugin/cmd/webpb-ts` into `vendor/`.
 
 ```bash
 cd plugin/npm/webpb-protoc-ts
-npm run pack      # host platform vendor binary + dist/*.tgz
-npm run publish   # all platforms + npm publish (requires NODE_AUTH_TOKEN)
+npm ci
+npm run check    # lint, test, compile TypeScript
+npm run build    # compile + vendor binary for host platform
+npm run pack     # host platform vendor binary + dist/*.tgz
+npm run publish  # all platforms + npm publish (requires NODE_AUTH_TOKEN)
 ```

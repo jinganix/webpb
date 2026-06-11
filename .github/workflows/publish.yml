@@ -98,7 +98,7 @@ jobs:
 
       - name: Publish webpb-protoc-ts to npm
         working-directory: plugin/npm/webpb-protoc-ts
-        run: npm run publish
+        run: npm ci && npm run publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

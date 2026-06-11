@@ -9,6 +9,7 @@
     "url": "https://github.com/jinganix/webpb",
     "directory": "plugin/npm/webpb-protoc-ts"
   },
+  "type": "module",
   "keywords": [
     "protoc",
     "protobuf",
@@ -16,18 +17,41 @@
     "webpb"
   ],
   "bin": {
-    "webpb-protoc-ts": "bin/webpb-protoc-ts.js"
+    "webpb-protoc-ts": "dist/bin/webpb-protoc-ts.js"
   },
   "files": [
-    "bin",
+    "dist/bin",
+    "dist/lib",
     "vendor",
     "README.md"
   ],
   "scripts": {
-    "sync-version": "node scripts/sync-version.mjs",
-    "build": "node scripts/build-vendor.mjs",
-    "build:all": "node scripts/build-vendor.mjs --all",
-    "pack": "npm run sync-version && npm run build && node scripts/pack.mjs",
-    "publish": "npm run sync-version && npm run build:all && npm publish --access public"
+    "build:js": "tsc",
+    "build": "npm run build:js && node dist/scripts/build-vendor.js",
+    "build:all": "npm run build:js && node dist/scripts/build-vendor.js --all",
+    "check": "npm run lint && npm run test && npm run build:js",
+    "lint": "eslint --quiet src test",
+    "lint:fix": "eslint --fix src test",
+    "pack": "npm run build:js && node dist/scripts/sync-version.js && npm run build && node dist/scripts/pack.js",
+    "publish": "npm run build:js && node dist/scripts/sync-version.js && npm run build:all && npm publish --access public",
+    "sync-version": "npm run build:js && node dist/scripts/sync-version.js",
+    "test": "vitest --coverage"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^2.1.0",
+    "@types/node": "^25.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
+    "@vitest/coverage-v8": "^4.1.7",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
+    "globals": "^16.2.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4",
+    "vitest": "^4.1.7"
   }
 }

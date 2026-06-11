@@ -148,10 +148,11 @@ cd plugin/npm/webpb-protoc-ts && npm run pack
 
 After editing tests, run **build** (Spotless + compile + tests). Prefer `spotlessApply` before manual formatting fixes.
 
-For TypeScript runtime and sample frontend:
+For TypeScript runtime, protoc-ts npm package, and sample frontend:
 
 ```bash
 cd runtime/ts && npm ci && npm run check
+cd plugin/npm/webpb-protoc-ts && npm ci && npm run check
 cd sample/frontend && npm ci && npm run check
 ```
 
