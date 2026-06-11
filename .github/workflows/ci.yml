@@ -174,23 +174,40 @@ jobs:
         working-directory: runtime/ts
         run: npm ci && npm run test
 
-      - name: Run Go plugin tests
-        if: runner.os != 'Windows'
-        shell: bash
-        working-directory: plugin
-        run: go test ./...
+      - name: Generate coverage reports
+        run: ./gradlew coverageReport --no-daemon -PskipGoTest=false
 
       - name: Check sample frontend
         working-directory: sample/frontend
         run: npm ci && npm run check
 
-      - name: Upload lib coverage to Codecov
+      - name: Upload lib-commons coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: lib/commons/build/reports/jacoco/test/jacocoTestReport.xml,lib/utilities/build/reports/jacoco/test/jacocoTestReport.xml
-          flags: lib
-          name: lib
+          files: lib/commons/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: lib-commons
+          name: lib-commons
+          disable_search: true
+          fail_ci_if_error: false
+
+      - name: Upload lib-utilities coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: lib/utilities/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: lib-utilities
+          name: lib-utilities
+          disable_search: true
+          fail_ci_if_error: false
+
+      - name: Upload plugin coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: plugin/build/reports/coverage/coverage.out
+          flags: plugin
+          name: plugin
           disable_search: true
           fail_ci_if_error: false
 
@@ -198,9 +215,19 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: runtime/java/build/reports/jacoco/test/jacocoTestReport.xml,runtime/processor/build/reports/jacoco/test/jacocoTestReport.xml
+          files: runtime/java/build/reports/jacoco/test/jacocoTestReport.xml
           flags: runtime-java
           name: runtime-java
+          disable_search: true
+          fail_ci_if_error: false
+
+      - name: Upload runtime-processor coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: runtime/processor/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: runtime-processor
+          name: runtime-processor
           disable_search: true
           fail_ci_if_error: false
 

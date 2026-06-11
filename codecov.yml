@@ -12,9 +12,15 @@ coverage:
 
 flag_management:
   individual_flags:
-    - name: lib
+    - name: lib-commons
+      carryforward: true
+    - name: lib-utilities
+      carryforward: true
+    - name: plugin
       carryforward: true
     - name: runtime-java
+      carryforward: true
+    - name: runtime-processor
       carryforward: true
     - name: sample-backend
       carryforward: true
