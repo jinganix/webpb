@@ -35,13 +35,17 @@ func (g *EnumGenerator) Generate(descriptor protoreflect.EnumDescriptor) (string
 		"enums":     g.getEnums(descriptor),
 	}
 	tmpl := "enum"
-	if g.isDefaultConstEnum() {
+	if g.isDefaultConstEnum(descriptor) {
 		tmpl = "const.enum"
 	}
 	return engine.Process(tmpl, data)
 }
 
-func (g *EnumGenerator) isDefaultConstEnum() bool {
+func (g *EnumGenerator) isDefaultConstEnum(descriptor protoreflect.EnumDescriptor) bool {
+	enumTs := core.GetEnumOpts(descriptor, core.HasEnumTs).GetTs()
+	if enumTs != nil && enumTs.DefaultConstEnum != nil {
+		return enumTs.GetDefaultConstEnum()
+	}
 	if g.fileOpts != nil && g.fileOpts.DefaultConstEnum != nil {
 		return g.fileOpts.GetDefaultConstEnum()
 	}

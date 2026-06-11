@@ -1,8 +1,12 @@
 [![CI](https://github.com/jinganix/webpb/actions/workflows/ci.yml/badge.svg)](https://github.com/jinganix/webpb/actions/workflows/ci.yml)
-[![lib coverage](https://codecov.io/gh/jinganix/webpb/flags/lib/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/lib)
-[![runtime-java coverage](https://codecov.io/gh/jinganix/webpb/flags/runtime-java/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/runtime-java)
-[![frontend coverage](https://codecov.io/gh/jinganix/webpb/flags/frontend/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/frontend)
-[![runtime-ts coverage](https://codecov.io/gh/jinganix/webpb/flags/runtime-ts/graph/badge.svg?branch=master)](https://codecov.io/gh/jinganix/webpb/flags/runtime-ts)
+[![lib-commons coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=lib-commons)](https://codecov.io/gh/jinganix/webpb/flags/lib-commons)
+[![lib-utilities coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=lib-utilities)](https://codecov.io/gh/jinganix/webpb/flags/lib-utilities)
+[![plugin coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=plugin)](https://codecov.io/gh/jinganix/webpb/flags/plugin)
+[![runtime-java coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=runtime-java)](https://codecov.io/gh/jinganix/webpb/flags/runtime-java)
+[![runtime-processor coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=runtime-processor)](https://codecov.io/gh/jinganix/webpb/flags/runtime-processor)
+[![sample-backend coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=sample-backend)](https://codecov.io/gh/jinganix/webpb/flags/sample-backend)
+[![frontend coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=frontend)](https://codecov.io/gh/jinganix/webpb/flags/frontend)
+[![runtime-ts coverage](https://codecov.io/gh/jinganix/webpb/branch/master/graph/badge.svg?flag=runtime-ts)](https://codecov.io/gh/jinganix/webpb/flags/runtime-ts)
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 # webpb
@@ -141,9 +145,18 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `opt` | `omitted` | Exclude field from generated API surface |
 | `opt` | `in_query` | Bind field to query string (for GET / path templates) |
 | `java` | `annotation` | Java field annotations (e.g. `@NotNull`, `@Pattern(...)`) |
+| `java` | `as_set` | Generate repeated fields as `Set<T>` instead of `List<T>` |
+| `java` | `as_collection` | Generate repeated fields as `Collection<T>` instead of `List<T>` |
 | `ts` | `as_string` | Serialize numeric field as string |
 | `ts` | `alias` | JSON property name override |
 | `ts` | `auto_alias` | Override alias behavior for this field |
+
+Repeated fields default to `List<T>`. Use Java field options to change the collection type:
+
+```protobuf
+repeated string tags = 1 [(opts).java = {as_set: true}];
+repeated int32 ids = 2 [(opts).java = {as_collection: true}];
+```
 
 ### Enum — `(e_opts)`
 

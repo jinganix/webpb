@@ -23,6 +23,14 @@ Run module tests only:
 ./gradlew :plugin:testGo
 ```
 
+Generate coverage reports for all subprojects with tests:
+
+```bash
+./gradlew coverageReport
+```
+
+JaCoCo XML reports are written under each Java module's `build/reports/jacoco/test/`. The Go plugin writes `plugin/build/reports/coverage/coverage.out`. TypeScript modules use Vitest/Jest (`runtime/ts/coverage/`, `sample/frontend/coverage/`).
+
 ## Conventional Commits
 
 Check if your commit messages meet the [conventional commit format](https://conventionalcommits.org).

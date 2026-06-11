@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package ImportTestProto;
+
+option java_package = "main";
+
+import "webpb/WebpbExtend.proto";
+import "EmptyJavaPackage.proto";
+
+message ImportTest {
+  option (m_opts).opt = {extends: "NoPackage"};
+
+  int32 foo_2 = 1;
+  string bar_2 = 2;
+  NoPackageProto.NoPackage no_package = 3;
+}

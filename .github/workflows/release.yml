@@ -4,8 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Enter release version, eg: 0.0.1'
+        description: 'Release version (x.y.z). Required when republishing only.'
         required: false
+      publish_only:
+        description: 'Republish to Maven/npm only (tag must already exist)'
+        type: boolean
+        default: false
 
 jobs:
   prepare:
@@ -24,8 +28,15 @@ jobs:
         run: |
           current_version=$(grep -m1 'version =' gradle.properties | grep -oE '([0-9]+\.[0-9]+\.[0-9]+)')
           input_version=${{ github.event.inputs.version }}
-          echo "Current version: ${current_version}, Input version: ${input_version}"
-          if [[ -n "${input_version}" ]]; then
+          publish_only=${{ github.event.inputs.publish_only }}
+          echo "Current version: ${current_version}, Input version: ${input_version}, Publish only: ${publish_only}"
+          if [[ "${publish_only}" == "true" ]]; then
+            if ! [[ "${input_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "ERROR: publish_only requires a valid version number (x.y.z)"
+              exit 1
+            fi
+            release_version=${input_version}
+          elif [[ -n "${input_version}" ]]; then
             if ! [[ "${input_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "ERROR: Invalid version number ${input_version}. Please use format x.y.z"
               exit 1
@@ -47,7 +58,12 @@ jobs:
 
       - name: Check tag existence
         run: |
-          if [ $(git tag -l v"${{ env.release_version }}") ]; then
+          if [[ "${{ github.event.inputs.publish_only }}" == "true" ]]; then
+            if ! [ $(git tag -l v"${{ env.release_version }}") ]; then
+              echo "ERROR: Tag v${{ env.release_version }} does not exist"
+              exit 1
+            fi
+          elif [ $(git tag -l v"${{ env.release_version }}") ]; then
             echo "ERROR: Tag v${{ env.release_version }} already exists"
             exit 1
           fi
@@ -66,6 +82,7 @@ jobs:
   update-release:
     name: Update release version
     needs: [prepare]
+    if: github.event.inputs.publish_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
@@ -125,6 +142,7 @@ jobs:
   bump-snapshot:
     name: Bump snapshot version
     needs: [update-release]
+    if: github.event.inputs.publish_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
@@ -193,6 +211,7 @@ jobs:
   release:
     name: Release
     needs: [update-release]
+    if: github.event.inputs.publish_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
@@ -223,6 +242,23 @@ jobs:
           fi
           echo "release_commit=${release_commit}" >> "${GITHUB_ENV}"
 
+      - name: Checkout release commit
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+          fetch-depth: 0
+          ref: ${{ env.release_commit }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: plugin/go.mod
+
+      - name: Build release binaries
+        run: |
+          chmod +x .github/scripts/build-release-binaries.sh
+          .github/scripts/build-release-binaries.sh
+
       - name: Create release tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.2
@@ -237,10 +273,15 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
+          artifacts: dist/*
 
   publish:
     name: Publish
-    needs: [release]
+    needs: [prepare, release]
+    if: |
+      !cancelled() &&
+      needs.prepare.result == 'success' &&
+      (github.event.inputs.publish_only == 'true' || needs.release.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Download release_version

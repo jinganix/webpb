@@ -87,20 +87,43 @@ tasks.named("build") {
   dependsOn(buildGoDump, buildGoJava, buildGoTs)
 }
 
+fun configureGoTestDeps(task: Task) {
+  task.dependsOn(buildGoDump, buildGoJava, buildGoTs)
+  task.dependsOn(project(":lib:tests").tasks.named("jar"))
+}
+
 tasks.register<Exec>("testGo") {
   group = "verification"
   description = "Run Go plugin tests (Java and TS golden)"
   onlyIf { !skipGoTest.get() }
-  dependsOn(
-    buildGoDump,
-    buildGoJava,
-    buildGoTs,
-    project(":lib:tests").tasks.named("classes"),
-  )
+  configureGoTestDeps(this)
   workingDir = projectDir
   doFirst {
     environment(System.getenv())
     commandLine(goExecutable(), "test", "./...")
+  }
+}
+
+val goCoverageProfile = layout.buildDirectory.file("reports/coverage/coverage.out")
+
+tasks.register<Exec>("testGoCoverage") {
+  group = "verification"
+  description = "Run Go plugin tests and write a coverage profile for Codecov"
+  onlyIf { !skipGoTest.get() }
+  configureGoTestDeps(this)
+  workingDir = projectDir
+  outputs.file(goCoverageProfile)
+  doFirst {
+    val profile = goCoverageProfile.get().asFile
+    profile.parentFile.mkdirs()
+    environment(System.getenv())
+    commandLine(
+      goExecutable(),
+      "test",
+      "-coverprofile=${profile.absolutePath}",
+      "-covermode=atomic",
+      "./...",
+    )
   }
 }
 

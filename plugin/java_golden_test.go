@@ -8,18 +8,11 @@ import (
 	"github.com/jinganix/webpb/plugin/internal/testutil"
 )
 
-var javaDumps = []string{
-	"alias_skip",
-	"auto_alias",
-	"core_codegen",
-	"enumeration",
-	"message_extends",
-	"generator_options",
-	"imports",
-}
+var javaDumps = append(proto2Dumps(), proto3Dumps()...)
 
 var javaErrorDumps = []string{
-	"errors",
+	"proto2_errors",
+	"proto3_errors",
 }
 
 func TestJavaGolden(t *testing.T) {

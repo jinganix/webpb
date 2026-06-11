@@ -107,6 +107,8 @@ message OptFieldOpts {
 
 message JavaFieldOpts {
   repeated string annotation = 1000;
+  optional bool as_set = 1001;
+  optional bool as_collection = 1002;
 }
 
 message TsFieldOpts {

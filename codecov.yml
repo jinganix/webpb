@@ -3,22 +3,114 @@ codecov:
 
 coverage:
   status:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: exclude
     project:
-      default:
+      default: false
+      lib-commons:
         informational: true
+        flags:
+          - lib-commons
+      lib-utilities:
+        informational: true
+        flags:
+          - lib-utilities
+      plugin:
+        informational: true
+        flags:
+          - plugin
+      runtime-java:
+        informational: true
+        flags:
+          - runtime-java
+      runtime-processor:
+        informational: true
+        flags:
+          - runtime-processor
+      sample-backend:
+        informational: true
+        flags:
+          - sample-backend
+      frontend:
+        informational: true
+        flags:
+          - frontend
+      runtime-ts:
+        informational: true
+        flags:
+          - runtime-ts
     patch:
-      default:
+      default: false
+      lib-commons:
         informational: true
+        flags:
+          - lib-commons
+      lib-utilities:
+        informational: true
+        flags:
+          - lib-utilities
+      plugin:
+        informational: true
+        flags:
+          - plugin
+      runtime-java:
+        informational: true
+        flags:
+          - runtime-java
+      runtime-processor:
+        informational: true
+        flags:
+          - runtime-processor
+      sample-backend:
+        informational: true
+        flags:
+          - sample-backend
+      frontend:
+        informational: true
+        flags:
+          - frontend
+      runtime-ts:
+        informational: true
+        flags:
+          - runtime-ts
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  show_carryforward_flags: true
 
 flag_management:
   individual_flags:
-    - name: lib
+    - name: lib-commons
+      paths:
+        - lib/commons/
+      carryforward: true
+    - name: lib-utilities
+      paths:
+        - lib/utilities/
+      carryforward: true
+    - name: plugin
+      paths:
+        - plugin/
       carryforward: true
     - name: runtime-java
+      paths:
+        - runtime/java/
+      carryforward: true
+    - name: runtime-processor
+      paths:
+        - runtime/processor/
       carryforward: true
     - name: sample-backend
+      paths:
+        - sample/backend/
       carryforward: true
     - name: frontend
+      paths:
+        - sample/frontend/
       carryforward: true
     - name: runtime-ts
+      paths:
+        - runtime/ts/
       carryforward: true

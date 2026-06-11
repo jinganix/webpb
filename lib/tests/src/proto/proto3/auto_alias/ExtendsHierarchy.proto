@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package ExtendsProto;
+
+option java_package = "auto.alias.extend";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {auto_alias: true};
+option (f_opts).java = {
+  field_annotation: '@JsonAlias("{{_FIELD_NAME_}}")'
+  field_annotation: '@JsonProperty("{{_ALIAS_}}")'
+  import: 'com.fasterxml.jackson.annotation.JsonAlias'
+  import: 'com.fasterxml.jackson.annotation.JsonProperty'
+};
+
+message Level3 {
+  int32 foo_1 = 1;
+}
+
+message Level2 {
+  option (m_opts).opt = {extends: "Level3"};
+
+  int32 foo_2 = 1;
+}
+
+message Level1 {
+  option (m_opts).opt = {extends: "Level2"};
+
+  int32 foo_3 = 1;
+  int64 foo_4 = 2;
+}

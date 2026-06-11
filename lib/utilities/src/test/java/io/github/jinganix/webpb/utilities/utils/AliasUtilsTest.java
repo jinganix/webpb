@@ -17,7 +17,7 @@ class AliasUtilsTest {
   @DisplayName("should generate new alias when alias is in names")
   void shouldGenerateNewAliasWhenAliasIsInNames() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.alias_skip);
+    RequestContext context = TestUtils.createRequest(Dump.proto2_alias_skip);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "AliasSkip");
 
     // When

@@ -10,19 +10,14 @@ import (
 	"github.com/jinganix/webpb/plugin/internal/tsgen"
 )
 
-var tsDumps = []string{
-	"alias_skip",
-	"auto_alias",
-	"core_codegen",
-	"enumeration",
-	"errors",
-	"message_extends",
-	"generator_options",
-	"imports",
-}
+var tsDumps = append(
+	append(proto2Dumps(), "proto2_errors"),
+	append(proto3Dumps(), "proto3_errors")...,
+)
 
 var tsErrorFiles = map[string][]string{
-	"errors": {"DuplicatedExtendsFields.proto"},
+	"proto2_errors": {"DuplicatedExtendsFields.proto"},
+	"proto3_errors": {"DuplicatedExtendsFields.proto"},
 }
 
 func TestTSGolden(t *testing.T) {
@@ -57,7 +52,7 @@ func TestTSGolden(t *testing.T) {
 			}
 			fromFiles, err := (&tsgen.FromAliasGenerator{}).Generate(genCtx)
 			if err != nil {
-				if dump != "errors" {
+				if !isErrorDump(dump) {
 					t.Fatalf("generate from alias: %v", err)
 				}
 			} else {
@@ -66,7 +61,7 @@ func TestTSGolden(t *testing.T) {
 				}
 			}
 			formatted := files
-			if dump != "errors" {
+			if !isErrorDump(dump) {
 				var err error
 				formatted, err = testutil.FormatGoldenFiles("ts", files)
 				if err != nil {

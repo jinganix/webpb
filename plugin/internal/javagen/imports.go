@@ -33,11 +33,16 @@ func GetLookup(fd protoreflect.FileDescriptor) ([]ImportPath, error) {
 	if fd == nil {
 		var lookup []ImportPath
 		for _, path := range []string{
+			"java.lang.Boolean",
+			"java.lang.Double",
+			"java.lang.Float",
 			"java.lang.Integer",
 			"java.lang.Long",
 			"java.lang.String",
+			"java.util.Collection",
 			"java.util.List",
 			"java.util.Map",
+			"java.util.Set",
 			core.RuntimePackage + ".WebpbMessage",
 			core.RuntimePackage + ".WebpbMeta",
 			core.RuntimePackage + ".WebpbSubValue",
@@ -54,11 +59,16 @@ func GetLookup(fd protoreflect.FileDescriptor) ([]ImportPath, error) {
 	}
 	var paths []string
 	paths = append(paths,
+		"java.lang.Boolean",
+		"java.lang.Double",
+		"java.lang.Float",
 		"java.lang.Integer",
 		"java.lang.Long",
 		"java.lang.String",
+		"java.util.Collection",
 		"java.util.List",
 		"java.util.Map",
+		"java.util.Set",
 		core.RuntimePackage+".WebpbMessage",
 		core.RuntimePackage+".WebpbMeta",
 		core.RuntimePackage+".WebpbSubValue",

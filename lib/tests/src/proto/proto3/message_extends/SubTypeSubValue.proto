@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package SubTypeSubValueProto;
+
+option java_package = "extend.test.main";
+
+import "webpb/WebpbExtend.proto";
+import "include/BaseType.proto";
+import "include2/BaseType.proto";
+import "CrossFileEnum.proto";
+
+enum SubTypeSubValueType {
+  subTypeSubValue0 = 0;
+  subTypeSubValue1 = 1;
+  subTypeSubValue2 = 2;
+}
+
+message SubTypeSubValueStringSuper {
+  option (m_opts).opt = {sub_type: 'type'};
+
+  string type = 1;
+}
+
+message SubTypeSubValueSuper {
+  option (m_opts).opt = {sub_type: 'type'};
+
+  SubTypeSubValueType type = 1;
+}
+
+message SubTypeSubValue0 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper"};
+
+  int32 value = 1;
+}
+
+message SubTypeSubValue1 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'SubTypeSubValueType.subTypeSubValue0'};
+
+  int32 value = 1;
+}
+
+message SubTypeSubValue2 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: [
+    'SubTypeSubValueType.subTypeSubValue1',
+    'SubTypeSubValueType.subTypeSubValue2'
+  ]};
+
+  int32 value = 1;
+}
+
+message SubTypeSubValue3 {
+  int32 value = 1;
+}
+
+message SubTypeSubValue4 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'foo'};
+
+  int32 value = 1;
+}
+
+message SubTypeSubValue5 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'foo.bar'};
+
+  int32 value = 1;
+}
+
+message SubTypeSubValue6 {
+  option (m_opts).opt = {extends: "SubTypeSubValueSuper", sub_values: 'AnotherEnum.Another.a'};
+
+  int32 value = 1;
+}

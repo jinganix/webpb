@@ -14,6 +14,8 @@ var javaPrimitiveTypes = map[protoreflect.Kind]string{
 	protoreflect.BoolKind:     "Boolean",
 	protoreflect.BytesKind:    "byte[]",
 	protoreflect.DoubleKind:   "Double",
+	protoreflect.Fixed32Kind:  "Integer",
+	protoreflect.Fixed64Kind:  "Long",
 	protoreflect.FloatKind:    "Float",
 	protoreflect.Int32Kind:    "Integer",
 	protoreflect.Int64Kind:    "Long",
@@ -271,6 +273,13 @@ func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) (str
 		elemType, err := g.toType(field)
 		if err != nil {
 			return "", err
+		}
+		javaOpts := core.GetFieldOpts(field, core.HasFieldJava).GetJava()
+		if javaOpts.GetAsSet() {
+			return g.imports.ImportClassOrInterface("Set<" + elemType + ">")
+		}
+		if javaOpts.GetAsCollection() {
+			return g.imports.ImportClassOrInterface("Collection<" + elemType + ">")
 		}
 		return g.imports.ImportClassOrInterface("List<" + elemType + ">")
 	}

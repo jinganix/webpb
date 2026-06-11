@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package RepeatedEnumProto;
+
+option java_package = "repeated_enum";
+
+import "webpb/WebpbExtend.proto";
+
+enum Status {
+  ACTIVE = 0;
+  INACTIVE = 1;
+}
+
+message RepeatedEnum {
+  repeated Status status = 1;
+  map<int32, Status> status_by_code = 2;
+}

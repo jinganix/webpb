@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package TestProto;
+
+option java_package = "test";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).java = {
+  import: 'b..b'
+};
+
+message Test {
+
+  int32 test1 = 1;
+}
