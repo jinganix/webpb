@@ -131,6 +131,7 @@ tasks.register<Exec>("testGoCoverage") {
 tasks.register<Exec>("verifyGoCoverage") {
   group = "verification"
   description = "Verify each Go source file has at least 90% line coverage"
+  onlyIf { !skipGoTest.get() }
   dependsOn(tasks.named("testGoCoverage"))
   val script = rootProject.layout.projectDirectory.file("scripts/check-go-file-coverage.py")
   val profile = goCoverageProfile
