@@ -16,38 +16,31 @@
  * https://github.com/jinganix/webpb
  */
 
-package io.github.jinganix.webpb.utilities.utils;
+package io.github.jinganix.webpb.runtime.enumeration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Templates")
-class TemplatesTest {
+@DisplayName("EnumValuesMap")
+class EnumValuesMapTest {
 
   @Test
-  @DisplayName("should throw when template is not found")
-  void shouldThrowWhenTemplateIsNotFound() {
-    // When / Then
-    assertThatThrownBy(() -> new Templates().process("non_exists.ftl", new HashMap<>()))
-        .isInstanceOf(RuntimeException.class);
+  @DisplayName("should return value map when class is enumeration")
+  void shouldReturnValueMapWhenClassIsEnumeration() {
+    // When
+    var valueMap = EnumValuesMap.getValueMap(IntegerEnum.class);
+
+    // Then
+    assertThat(valueMap).containsKey(1).containsKey("1");
+    assertThat(valueMap.get(1)).isEqualTo(IntegerEnum.A);
   }
 
   @Test
-  @DisplayName("should render template when template exists")
-  void shouldRenderTemplateWhenTemplateExists() {
-    // Given
-    Map<String, Object> data = new HashMap<>();
-    data.put("name", "webpb");
-
-    // When
-    String content = new Templates().process("hello.ftl", data);
-
-    // Then
-    assertThat(content.trim()).isEqualTo("Hello webpb!");
+  @DisplayName("should return null when class is not enumeration")
+  void shouldReturnNullWhenClassIsNotEnumeration() {
+    // When / Then
+    assertThat(EnumValuesMap.getValueMap(String.class)).isNull();
   }
 }

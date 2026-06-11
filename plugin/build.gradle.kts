@@ -122,8 +122,21 @@ tasks.register<Exec>("testGoCoverage") {
       "test",
       "-coverprofile=${profile.absolutePath}",
       "-covermode=atomic",
+      "-coverpkg=./...",
       "./...",
     )
+  }
+}
+
+tasks.register<Exec>("verifyGoCoverage") {
+  group = "verification"
+  description = "Verify each Go source file has at least 90% line coverage"
+  onlyIf { !skipGoTest.get() }
+  dependsOn(tasks.named("testGoCoverage"))
+  val script = rootProject.layout.projectDirectory.file("scripts/check-go-file-coverage.py")
+  val profile = goCoverageProfile
+  doFirst {
+    commandLine("python3", script.asFile.absolutePath, profile.get().asFile.absolutePath, "--min", "90")
   }
 }
 
@@ -145,5 +158,5 @@ tasks.register<Exec>("testTsGo") {
 }
 
 tasks.named("check") {
-  dependsOn(tasks.named("testGo"))
+  dependsOn(tasks.named("testGo"), tasks.named("verifyGoCoverage"))
 }

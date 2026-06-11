@@ -18,21 +18,18 @@
 
 package io.github.jinganix.webpb.runtime.mvc;
 
+import static io.github.jinganix.webpb.runtime.mvc.WebpbRequestUtils.mergeVariables;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Map;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.HandlerMapping;
 
-/** Variables resolver. */
+/** Resolves path and query variables from the current servlet request. */
 public class VariablesResolver {
-
-  private static boolean isJakarta;
-
-  static {
-    try {
-      Class.forName("jakarta.servlet.http.HttpServletRequest");
-      isJakarta = true;
-    } catch (ClassNotFoundException e) {
-      isJakarta = false;
-    }
-  }
 
   private VariablesResolver() {}
 
@@ -42,10 +39,19 @@ public class VariablesResolver {
    * @return map of variables.
    */
   public static Map<String, String> getVariableMap() {
-    if (isJakarta) {
-      return JakartaVariablesResolver.getVariableMap();
-    } else {
-      return JavaxVariablesResolver.getVariableMap();
+    RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+    if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
+      HttpServletRequest request = servletRequestAttributes.getRequest();
+      if (request == null) {
+        return Collections.emptyMap();
+      }
+      @SuppressWarnings("unchecked")
+      Map<String, String> attributes =
+          (Map<String, String>)
+              request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+      Map<String, String[]> parameters = request.getParameterMap();
+      return mergeVariables(attributes, parameters);
     }
+    return Collections.emptyMap();
   }
 }

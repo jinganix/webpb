@@ -33,3 +33,25 @@ func TestParseClassOrInterfaceType(t *testing.T) {
 		}
 	}
 }
+
+func TestParseClassOrInterfaceTypeErrors(t *testing.T) {
+	lookup, err := GetLookup(nil)
+	if err != nil {
+		t.Fatalf("lookup: %v", err)
+	}
+	parser := &typeParser{imports: NewImports("test", lookup, nil)}
+	for _, input := range []string{"", "List<String", "Map<>"} {
+		if _, err := parser.parseClassOrInterfaceType(input); err == nil {
+			t.Fatalf("expected error for %q", input)
+		}
+	}
+}
+
+func TestSplitGenericArgsErrors(t *testing.T) {
+	if _, err := splitGenericArgs(""); err == nil {
+		t.Fatal("expected error for empty generic args")
+	}
+	if _, err := splitGenericArgs("A<B>>"); err == nil {
+		t.Fatal("expected error for unbalanced generics")
+	}
+}

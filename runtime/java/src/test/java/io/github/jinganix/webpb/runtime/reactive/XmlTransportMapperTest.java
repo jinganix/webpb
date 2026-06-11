@@ -16,38 +16,29 @@
  * https://github.com/jinganix/webpb
  */
 
-package io.github.jinganix.webpb.utilities.utils;
+package io.github.jinganix.webpb.runtime.reactive;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.HashMap;
-import java.util.Map;
+import io.github.jinganix.webpb.runtime.model.FooRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Templates")
-class TemplatesTest {
+@DisplayName("XmlTransportMapper")
+class XmlTransportMapperTest {
 
   @Test
-  @DisplayName("should throw when template is not found")
-  void shouldThrowWhenTemplateIsNotFound() {
-    // When / Then
-    assertThatThrownBy(() -> new Templates().process("non_exists.ftl", new HashMap<>()))
-        .isInstanceOf(RuntimeException.class);
-  }
-
-  @Test
-  @DisplayName("should render template when template exists")
-  void shouldRenderTemplateWhenTemplateExists() {
+  @DisplayName("should write and read xml values when mapper is configured")
+  void shouldWriteAndReadXmlValuesWhenMapperIsConfigured() {
     // Given
-    Map<String, Object> data = new HashMap<>();
-    data.put("name", "webpb");
+    XmlTransportMapper mapper = new XmlTransportMapper();
+    FooRequest request = new FooRequest().setData("hello");
 
     // When
-    String content = new Templates().process("hello.ftl", data);
+    String xml = mapper.writeValue(request);
+    FooRequest parsed = mapper.readValue(xml.getBytes(), FooRequest.class);
 
     // Then
-    assertThat(content.trim()).isEqualTo("Hello webpb!");
+    assertThat(parsed.getData()).isEqualTo("hello");
   }
 }

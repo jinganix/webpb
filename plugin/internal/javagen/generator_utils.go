@@ -7,9 +7,5 @@ import (
 
 // GetJavaPackage returns the java_package option for a descriptor's file.
 func GetJavaPackage(descriptor protoreflect.Descriptor) string {
-	opts, ok := descriptor.ParentFile().Options().(*descriptorpb.FileOptions)
-	if !ok {
-		return ""
-	}
-	return opts.GetJavaPackage()
+	return descriptor.ParentFile().Options().(*descriptorpb.FileOptions).GetJavaPackage()
 }

@@ -22,6 +22,13 @@ export default defineConfig({
     coverage: {
       include: ["src/**/*.ts"],
       reporter: ["text", "html", "lcov"],
+      thresholds: {
+        perFile: true,
+        branches: 90,
+        functions: 90,
+        lines: 90,
+        statements: 90,
+      },
     },
     watch: false,
   },
