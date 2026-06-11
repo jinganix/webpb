@@ -33,14 +33,20 @@ function ensurePlugin() {
   }
 }
 
+function protocPath(filePath) {
+  return process.platform === 'win32'
+    ? filePath.replace(/\\/g, '/')
+    : filePath;
+}
+
 function runProtoc() {
   mkdirSync(outDir, { recursive: true });
   const protoc = process.env.PROTOC ?? 'protoc';
   const args = [
-    ...includeDirs.flatMap((dir) => ['-I', dir]),
-    `--plugin=protoc-gen-ts=${pluginBin}`,
-    `--ts_out=${outDir}`,
-    ...protoFiles,
+    ...includeDirs.flatMap((dir) => ['-I', protocPath(dir)]),
+    `--plugin=protoc-gen-ts=${protocPath(pluginBin)}`,
+    `--ts_out=${protocPath(outDir)}`,
+    ...protoFiles.map(protocPath),
   ];
   const result = spawnSync(protoc, args, { stdio: 'inherit' });
   if (result.error) {
