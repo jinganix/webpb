@@ -9,17 +9,17 @@ import (
 )
 
 var javaDumps = []string{
+	"alias_skip",
 	"auto_alias",
+	"core_codegen",
 	"enumeration",
-	"extends_test",
-	"import_test",
-	"test1",
-	"test2",
+	"message_extends",
+	"generator_options",
+	"imports",
 }
 
 var javaErrorDumps = []string{
-	"error_test",
-	"test3",
+	"errors",
 }
 
 func TestJavaGolden(t *testing.T) {

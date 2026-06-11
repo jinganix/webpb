@@ -11,18 +11,18 @@ import (
 )
 
 var tsDumps = []string{
+	"alias_skip",
 	"auto_alias",
+	"core_codegen",
 	"enumeration",
-	"error_test",
-	"extends_test",
-	"import_test",
-	"test1",
-	"test2",
-	"test3",
+	"errors",
+	"message_extends",
+	"generator_options",
+	"imports",
 }
 
 var tsErrorFiles = map[string][]string{
-	"error_test": {"DuplicatedFieldsError.proto"},
+	"errors": {"DuplicatedExtendsFields.proto"},
 }
 
 func TestTSGolden(t *testing.T) {
@@ -57,7 +57,7 @@ func TestTSGolden(t *testing.T) {
 			}
 			fromFiles, err := (&tsgen.FromAliasGenerator{}).Generate(genCtx)
 			if err != nil {
-				if dump != "error_test" {
+				if dump != "errors" {
 					t.Fatalf("generate from alias: %v", err)
 				}
 			} else {
@@ -66,7 +66,7 @@ func TestTSGolden(t *testing.T) {
 				}
 			}
 			formatted := files
-			if dump != "error_test" {
+			if dump != "errors" {
 				var err error
 				formatted, err = testutil.FormatGoldenFiles("ts", files)
 				if err != nil {

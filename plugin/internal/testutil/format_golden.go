@@ -14,7 +14,7 @@ const (
 )
 
 // FormatGoldenFiles applies project formatters to generated golden files in-place
-// under the staging directory. Keys are relative paths (e.g. "test1/test/Test.java").
+// under the staging directory. Keys are relative paths (e.g. "core_codegen/test/Test.java").
 func FormatGoldenFiles(lang string, files map[string]string) (map[string]string, error) {
 	switch lang {
 	case "java":

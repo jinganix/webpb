@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package AnotherEnum;
+
+option java_package = "extend.test.main";
+
+import "webpb/WebpbExtend.proto";
+import "include/BaseType.proto";
+import "include2/BaseType.proto";
+
+enum Another {
+  a = 0;
+}

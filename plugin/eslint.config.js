@@ -2,7 +2,7 @@ import baseConfig from "../runtime/ts/eslint.config.js";
 
 export default [
   {
-    ignores: ["testdata/ts/error_test/**"],
+    ignores: ["testdata/ts/errors/**"],
   },
   ...baseConfig,
   {
