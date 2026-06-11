@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package PrimitiveTypesProto;
+
+option java_package = "primitive";
+
+import "webpb/WebpbExtend.proto";
+
+message PrimitiveTypes {
+  required float float_field = 1;
+  required double double_field = 2;
+  required uint32 uint32_field = 3;
+  required uint64 uint64_field = 4;
+  required sint32 sint32_field = 5;
+  required sint64 sint64_field = 6;
+  required fixed32 fixed32_field = 7;
+  required fixed64 fixed64_field = 8;
+  required sfixed32 sfixed32_field = 9;
+  required sfixed64 sfixed64_field = 10;
+  repeated float repeated_float = 11;
+}

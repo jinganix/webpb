@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package HttpMethodsProto;
+
+option java_package = "http";
+
+import "webpb/WebpbExtend.proto";
+
+message PostRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    context: "api"
+    path: "/items/{id}"
+  };
+
+  required int32 id = 1;
+  optional string body = 2;
+}
+
+message PutRequest {
+  option (m_opts).opt = {
+    method: "PUT"
+    context: "api"
+    path: "/items/{id}"
+  };
+
+  required int32 id = 1;
+  required string body = 2;
+}
+
+message DeleteRequest {
+  option (m_opts).opt = {
+    method: "DELETE"
+    context: "api"
+    path: "/items/{id}"
+  };
+
+  required int32 id = 1;
+}

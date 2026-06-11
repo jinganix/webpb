@@ -17,6 +17,8 @@ var tsPrimitiveTypes = map[protoreflect.Kind]string{
 	protoreflect.BoolKind:     "boolean",
 	protoreflect.BytesKind:    "Uint8Array",
 	protoreflect.DoubleKind:   "number",
+	protoreflect.Fixed32Kind:  "number",
+	protoreflect.Fixed64Kind:  "number",
 	protoreflect.FloatKind:    "number",
 	protoreflect.Int32Kind:    "number",
 	protoreflect.Int64Kind:    "number",
@@ -341,7 +343,7 @@ func (g *MessageGenerator) containsMessage(field protoreflect.FieldDescriptor) b
 }
 
 func (g *MessageGenerator) toType(field protoreflect.FieldDescriptor, toI bool) string {
-	if field.Kind() == protoreflect.Int64Kind || field.Kind() == protoreflect.Sint64Kind || field.Kind() == protoreflect.Sfixed64Kind || field.Kind() == protoreflect.Uint64Kind {
+	if field.Kind() == protoreflect.Int64Kind || field.Kind() == protoreflect.Sint64Kind || field.Kind() == protoreflect.Sfixed64Kind || field.Kind() == protoreflect.Fixed64Kind || field.Kind() == protoreflect.Uint64Kind {
 		if g.webpbOpts.GetInt64AsString() || g.fileOpts.GetInt64AsString() || core.GetFieldOpts(field, core.HasFieldTs).GetTs().GetAsString() {
 			return "string"
 		}

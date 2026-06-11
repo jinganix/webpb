@@ -14,6 +14,8 @@ var javaPrimitiveTypes = map[protoreflect.Kind]string{
 	protoreflect.BoolKind:     "Boolean",
 	protoreflect.BytesKind:    "byte[]",
 	protoreflect.DoubleKind:   "Double",
+	protoreflect.Fixed32Kind:  "Integer",
+	protoreflect.Fixed64Kind:  "Long",
 	protoreflect.FloatKind:    "Float",
 	protoreflect.Int32Kind:    "Integer",
 	protoreflect.Int64Kind:    "Long",
