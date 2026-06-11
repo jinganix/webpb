@@ -27,7 +27,7 @@ export class BadAnnotation implements IBadAnnotation, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IBadAnnotation): BadAnnotation {

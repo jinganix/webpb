@@ -10,10 +10,7 @@ export interface IImportPathNotFound extends BadImport.IExtends {
   bar_2: string;
 }
 
-export class ImportPathNotFound
-  extends BadImport.Extends
-  implements IImportPathNotFound, Webpb.WebpbMessage
-{
+export class ImportPathNotFound extends BadImport.Extends implements IImportPathNotFound, Webpb.WebpbMessage {
   foo_2!: number;
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
@@ -32,7 +29,7 @@ export class ImportPathNotFound
         context: "",
         method: "",
         path: "",
-      }) as Webpb.WebpbMeta;
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IImportPathNotFound): ImportPathNotFound {

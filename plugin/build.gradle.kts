@@ -15,9 +15,39 @@ repositories {
 
 extensions.configure<SpotlessExtension> {
   java {
-    target("testdata/java/**/*.java")
+    target("testdata/java/**/*.java", "build/golden-format/java/**/*.java")
     googleJavaFormat(versionGoogleJavaFormat)
   }
+}
+
+tasks.register<Exec>("formatTestdataTs") {
+  group = "formatting"
+  description = "Format plugin/testdata/ts with project prettier and eslint"
+  workingDir = layout.projectDirectory.asFile
+  val eslint = rootProject.layout.projectDirectory.file("runtime/ts/node_modules/.bin/eslint")
+  val prettier = rootProject.layout.projectDirectory.file("runtime/ts/node_modules/.bin/prettier")
+  val prettierConfig = rootProject.layout.projectDirectory.file("runtime/ts/.prettierrc.js")
+  commandLine(
+    "bash",
+    "-c",
+    """
+    set -euo pipefail
+    if [ ! -x '${prettier.asFile.path}' ]; then
+      echo 'Run npm ci in runtime/ts first' >&2
+      exit 1
+    fi
+    '${prettier.asFile.path}' --write 'testdata/ts/**/*.ts' --ignore-path .prettierignore --config '${prettierConfig.asFile.path}'
+    if [ -x '${eslint.asFile.path}' ]; then
+      '${eslint.asFile.path}' --fix 'testdata/ts/**/*.ts'
+    fi
+    """.trimIndent(),
+  )
+}
+
+tasks.register("formatTestdata") {
+  group = "formatting"
+  description = "Format plugin/testdata with spotless (Java) and prettier/eslint (TS)"
+  dependsOn(tasks.named("spotlessApply"), tasks.named("formatTestdataTs"))
 }
 
 val pluginBinDir = layout.projectDirectory.dir("bin")

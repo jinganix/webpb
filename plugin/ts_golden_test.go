@@ -45,7 +45,7 @@ func TestTSGolden(t *testing.T) {
 					t.Fatalf("generate %s: %v", fd.Path(), err)
 				}
 				if content != "" {
-					files[string(fd.Package())+".ts"] = content
+					files[path.Base(string(fd.Package())+".ts")] = content
 				}
 			}
 			subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.TargetDescriptors)
@@ -53,7 +53,7 @@ func TestTSGolden(t *testing.T) {
 				t.Fatalf("generate subtypes: %v", err)
 			}
 			for k, v := range subFiles {
-				files[k] = v
+				files[path.Base(k)] = v
 			}
 			fromFiles, err := (&tsgen.FromAliasGenerator{}).Generate(genCtx)
 			if err != nil {
@@ -62,11 +62,18 @@ func TestTSGolden(t *testing.T) {
 				}
 			} else {
 				for k, v := range fromFiles {
-					files[k] = v
+					files[path.Base(k)] = v
 				}
 			}
-			for name, content := range files {
-				key := path.Base(name)
+			formatted := files
+			if dump != "error_test" {
+				var err error
+				formatted, err = testutil.FormatGoldenFiles("ts", files)
+				if err != nil {
+					t.Fatalf("format golden: %v", err)
+				}
+			}
+			for key, content := range formatted {
 				expected, err := testutil.ReadExpected("ts", dump, key)
 				if err != nil {
 					if os.IsNotExist(err) {

@@ -4,4 +4,6 @@
 export type { IBadExtends } from "./BadExtendsProto";
 import * as BadExtendsProto from "./BadExtendsProto";
 
-export type BadExtendsFooTypes = BadExtendsProto.IBadExtends;
+export type BadExtendsFooTypes =
+  | BadExtendsProto.IBadExtends
+;
