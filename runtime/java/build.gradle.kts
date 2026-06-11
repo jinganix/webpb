@@ -1,6 +1,5 @@
 import utils.Vers.versionJackson
 import utils.Vers.versionJakartaServletApi
-import utils.Vers.versionJavaxServletApi
 import utils.Vers.versionReactorNetty
 import utils.Vers.versionSpringFramework
 import utils.signAndPublish
@@ -13,32 +12,16 @@ dependencies {
   api(project(":lib:commons"))
   compileOnly("tools.jackson.dataformat:jackson-dataformat-xml:${versionJackson}")
   compileOnly("jakarta.servlet:jakarta.servlet-api:${versionJakartaServletApi}")
-  compileOnly("javax.servlet:javax.servlet-api:${versionJavaxServletApi}")
   compileOnly("org.springframework:spring-messaging:${versionSpringFramework}")
   compileOnly("org.springframework:spring-webflux:${versionSpringFramework}")
   compileOnly("org.springframework:spring-webmvc:${versionSpringFramework}")
   implementation("tools.jackson.core:jackson-databind:${versionJackson}")
+  testImplementation("tools.jackson.dataformat:jackson-dataformat-xml:${versionJackson}")
   testImplementation("io.projectreactor.netty:reactor-netty:${versionReactorNetty}")
-  testImplementation("javax.servlet:javax.servlet-api:${versionJavaxServletApi}") {
-    when {
-      JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21) ->
-        testImplementation("jakarta.servlet:jakarta.servlet-api:${versionJakartaServletApi}")
-    }
-  }
+  testImplementation("jakarta.servlet:jakarta.servlet-api:${versionJakartaServletApi}")
   testImplementation("org.springframework:spring-test:${versionSpringFramework}")
   testImplementation("org.springframework:spring-webflux:${versionSpringFramework}")
   testImplementation("org.springframework:spring-webmvc:${versionSpringFramework}")
-}
-
-val jacocoClassDirs =
-  sourceSets.main.get().output.asFileTree.matching {
-    exclude("io/github/jinganix/webpb/runtime/mvc/VariablesResolver")
-  }
-tasks.jacocoTestReport {
-  classDirectories.setFrom(jacocoClassDirs)
-}
-tasks.jacocoTestCoverageVerification {
-  classDirectories.setFrom(jacocoClassDirs)
 }
 
 signAndPublish("webpb-runtime", "The webpb runtime library for JAVA")

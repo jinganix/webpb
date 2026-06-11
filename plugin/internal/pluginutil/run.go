@@ -8,12 +8,17 @@ import (
 	pluginpb "google.golang.org/protobuf/types/pluginpb"
 )
 
+var (
+	stdin  io.Reader = os.Stdin
+	stdout io.Writer = os.Stdout
+)
+
 // GenerateFunc produces generated files from a protoc request.
 type GenerateFunc func(req *pluginpb.CodeGeneratorRequest) ([]*pluginpb.CodeGeneratorResponse_File, error)
 
 // Run executes a protoc plugin using the standard stdin/stdout protocol.
 func Run(generate GenerateFunc) {
-	data, err := io.ReadAll(os.Stdin)
+	data, err := io.ReadAll(stdin)
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +39,7 @@ func writeResponse(resp *pluginpb.CodeGeneratorResponse) {
 	if err != nil {
 		panic(err)
 	}
-	if _, err := os.Stdout.Write(out); err != nil {
+	if _, err := stdout.Write(out); err != nil {
 		panic(err)
 	}
 }

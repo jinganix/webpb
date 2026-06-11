@@ -228,10 +228,16 @@ func ResolveFile(descriptors []protoreflect.FileDescriptor, regex string) protor
 // GetFieldTypePackage returns the package of a field's message or enum type.
 func GetFieldTypePackage(field protoreflect.FieldDescriptor) string {
 	if IsMessage(field) {
-		return string(field.Message().ParentFile().Package())
+		if fd := field.Message().ParentFile(); fd != nil {
+			return string(fd.Package())
+		}
+		return ""
 	}
 	if IsEnum(field) {
-		return string(field.Enum().ParentFile().Package())
+		if fd := field.Enum().ParentFile(); fd != nil {
+			return string(fd.Package())
+		}
+		return ""
 	}
 	return ""
 }
@@ -292,7 +298,7 @@ func validateAccessor(accessor string, descriptor protoreflect.MessageDescriptor
 		}
 		descriptor = field.Message()
 		if descriptor.Fields().ByName(protoreflect.Name(names[i+1])) == nil {
-			if resolved := findMessageDescriptor(files, descriptor.FullName()); resolved != nil {
+			if resolved := FindMessageDescriptor(files, descriptor.FullName()); resolved != nil {
 				descriptor = resolved
 			}
 		}
@@ -300,7 +306,8 @@ func validateAccessor(accessor string, descriptor protoreflect.MessageDescriptor
 	return true
 }
 
-func findMessageDescriptor(files []protoreflect.FileDescriptor, name protoreflect.FullName) protoreflect.MessageDescriptor {
+// FindMessageDescriptor locates a message descriptor by full name across files.
+func FindMessageDescriptor(files []protoreflect.FileDescriptor, name protoreflect.FullName) protoreflect.MessageDescriptor {
 	var search func(protoreflect.MessageDescriptor) protoreflect.MessageDescriptor
 	search = func(descriptor protoreflect.MessageDescriptor) protoreflect.MessageDescriptor {
 		if descriptor.FullName() == name {

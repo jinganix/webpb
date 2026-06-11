@@ -22,11 +22,15 @@ import static io.github.jinganix.webpb.utilities.test.TestUtils.createRequest;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getFieldTypeFullName;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getFieldTypePackage;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getFieldTypeSimpleName;
+import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getGenericDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapKeyDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.getMapValueDescriptor;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveEnum;
+import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveEnumValue;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveFile;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveMessage;
+import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveNestedTypes;
+import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.resolveTopLevelTypes;
 import static io.github.jinganix.webpb.utilities.utils.DescriptorUtils.validation;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -194,6 +198,23 @@ class DescriptorUtilsTest {
 
     // When / Then
     assertThatCode(() -> validation(group, descriptor)).doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("should resolve nested and top level descriptors when dump is valid")
+  void shouldResolveNestedAndTopLevelDescriptorsWhenDumpIsValid() {
+    // Given
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
+    FileDescriptor fileDescriptor = context.getDescriptors().get(0);
+
+    // When / Then
+    assertThat(resolveTopLevelTypes(fileDescriptor)).isNotEmpty();
+    assertThat(resolveNestedTypes(resolveMessage(context.getDescriptors(), "Test"))).isNotEmpty();
+    assertThat(
+            getGenericDescriptor(
+                resolveMessage(context.getDescriptors(), "Test").getFields().get(1)))
+        .isNotNull();
+    assertThat(resolveEnumValue(context.getDescriptors(), "NotExists")).isNull();
   }
 
   @Test

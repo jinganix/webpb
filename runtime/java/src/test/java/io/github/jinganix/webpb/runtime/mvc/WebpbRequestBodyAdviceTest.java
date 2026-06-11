@@ -40,6 +40,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
+import tools.jackson.databind.json.JsonMapper;
 
 @DisplayName("WebpbRequestBodyAdvice")
 class WebpbRequestBodyAdviceTest {
@@ -50,6 +51,20 @@ class WebpbRequestBodyAdviceTest {
     assertThat(method).isNotNull();
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(advice, method);
     return handlerMethod.getMethodParameters()[0];
+  }
+
+  @Test
+  @DisplayName("should support webpb message parameters when constructed with object mapper")
+  void shouldSupportWebpbMessageParametersWhenConstructedWithObjectMapper() {
+    // Given
+    WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice(JsonMapper.builder().build());
+    MethodParameter methodParameter = getMethodParameter(advice);
+
+    // When / Then
+    assertThat(
+            advice.supports(
+                methodParameter, mock(Type.class), ObjectToStringHttpMessageConverter.class))
+        .isTrue();
   }
 
   @Test
@@ -142,6 +157,37 @@ class WebpbRequestBodyAdviceTest {
 
       // Then
       assertThat(body).isEqualTo(request);
+    }
+  }
+
+  @Test
+  @DisplayName("should merge variables into body when request has webpb meta")
+  void shouldMergeVariablesIntoBodyWhenRequestHasWebpbMeta() {
+    // Given
+    WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
+    MethodParameter methodParameter = getMethodParameter(advice);
+    FooRequest request = new FooRequest();
+
+    // When
+    try (MockedStatic<RequestContextHolder> holder = mockStatic(RequestContextHolder.class)) {
+      MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+      servletRequest.setParameter("id", "42");
+      servletRequest.setAttribute(
+          HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.emptyMap());
+      ServletRequestAttributes attributes = new ServletRequestAttributes(servletRequest);
+      holder.when(RequestContextHolder::getRequestAttributes).thenReturn(attributes);
+
+      FooRequest body =
+          (FooRequest)
+              advice.afterBodyRead(
+                  request,
+                  mock(HttpInputMessage.class),
+                  methodParameter,
+                  mock(Type.class),
+                  ObjectToStringHttpMessageConverter.class);
+
+      // Then
+      assertThat(body.getId()).isEqualTo(42);
     }
   }
 

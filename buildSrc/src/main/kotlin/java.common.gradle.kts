@@ -89,5 +89,13 @@ tasks.jacocoTestCoverageVerification {
         minimum = BigDecimal.valueOf(Props.jacocoMinCoverage)
       }
     }
+    rule {
+      element = "CLASS"
+      limit {
+        counter = "LINE"
+        value = "COVEREDRATIO"
+        minimum = BigDecimal.valueOf(Props.jacocoMinCoverage)
+      }
+    }
   }
 }

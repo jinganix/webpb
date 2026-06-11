@@ -240,6 +240,17 @@ describe("toAlias", () => {
     });
   });
 
+  it("should return value unchanged when property has no alias method", () => {
+    // Given
+    const nested = { value: 1 };
+
+    // When
+    const result = toAlias({ nested }, {});
+
+    // Then
+    expect(result).toStrictEqual({ nested: { value: 1 } });
+  });
+
   it("should call toAlias recursively when property has toAlias method", () => {
     // Given
     const b: Record<string, unknown> = { b: 2, c: 3 };

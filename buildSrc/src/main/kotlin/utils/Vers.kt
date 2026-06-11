@@ -41,7 +41,6 @@ object Vers {
   lateinit var versionJakartaServletApi: String
   lateinit var versionJakartaXml: String
   lateinit var versionJavaParser: String
-  lateinit var versionJavaxServletApi: String
   lateinit var versionJupiter: String
   lateinit var versionLombok: String
   lateinit var versionMockitoCore: String

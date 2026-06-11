@@ -21,6 +21,8 @@ package io.github.jinganix.webpb.utilities.utils;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,5 +42,19 @@ class ResultWriterTest {
   void shouldNotWriteWhenContentIsEmpty() {
     // When / Then
     assertThatCode(() -> new ResultWriter(null).write("a", null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("should write protobuf response when content is not empty")
+  void shouldWriteProtobufResponseWhenContentIsNotEmpty() {
+    // Given
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    PrintStream stream = new PrintStream(buffer);
+
+    // When
+    new ResultWriter(stream).write("a.java", "class A {}");
+
+    // Then
+    assertThatCode(buffer::toByteArray).doesNotThrowAnyException();
   }
 }
