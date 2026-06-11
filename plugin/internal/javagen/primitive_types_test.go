@@ -8,7 +8,7 @@ import (
 )
 
 func TestPrimitiveTypesFields(t *testing.T) {
-	ctx, err := testutil.CreateContext("generator_options")
+	ctx, err := testutil.CreateContext("proto2_generator_options")
 	if err != nil {
 		t.Fatalf("create context: %v", err)
 	}

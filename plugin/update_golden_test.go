@@ -14,16 +14,10 @@ import (
 	"github.com/jinganix/webpb/plugin/internal/tsgen"
 )
 
-var updateDumps = []string{
-	"alias_skip",
-	"auto_alias",
-	"core_codegen",
-	"enumeration",
-	"errors",
-	"message_extends",
-	"generator_options",
-	"imports",
-}
+var updateDumps = append(
+	append(proto2Dumps(), "proto2_errors"),
+	append(proto3Dumps(), "proto3_errors")...,
+)
 
 func TestUpdateJavaGolden(t *testing.T) {
 	generator := javagen.NewGenerator()
@@ -31,7 +25,7 @@ func TestUpdateJavaGolden(t *testing.T) {
 	for _, dump := range updateDumps {
 		dump := dump
 		t.Run(dump, func(t *testing.T) {
-			if dump == "errors" {
+			if isErrorDump(dump) {
 				t.Skip("errors case is validated by TestJavaGoldenErrors")
 			}
 			ctx, err := testutil.CreateContext(dump)
@@ -99,7 +93,7 @@ func TestUpdateTSGolden(t *testing.T) {
 			}
 			fromFiles, err := (&tsgen.FromAliasGenerator{}).Generate(genCtx)
 			if err != nil {
-				if dump != "errors" {
+				if !isErrorDump(dump) {
 					t.Fatalf("generate from alias: %v", err)
 				}
 			} else {
@@ -107,7 +101,7 @@ func TestUpdateTSGolden(t *testing.T) {
 					files[path.Base(k)] = v
 				}
 			}
-			if dump == "errors" {
+			if isErrorDump(dump) {
 				return
 			}
 			formatted, err := testutil.FormatGoldenFiles("ts", files)
@@ -116,6 +110,9 @@ func TestUpdateTSGolden(t *testing.T) {
 			}
 			for key, content := range formatted {
 				out := filepath.Join(root, dump, key)
+				if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
+					t.Fatalf("mkdir: %v", err)
+				}
 				if err := os.WriteFile(out, []byte(content), 0o644); err != nil {
 					t.Fatalf("write %s: %v", out, err)
 				}

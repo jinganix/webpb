@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package BadClassOrInterfaceProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message BadAnnotation {
+  option (m_opts).opt = {extends: "....BadClassOrInterface"};
+
+  int32 foo_2 = 1;
+  string bar_2 = 2;
+}

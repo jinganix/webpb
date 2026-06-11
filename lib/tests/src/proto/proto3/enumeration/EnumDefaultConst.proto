@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package EnumDefaultConstProto;
+
+option java_package = "constant.enum4";
+
+import "webpb/WebpbExtend.proto";
+
+enum ConstEnum4 {
+  option (e_opts).ts = {default_const_enum: true};
+
+  DEFAULT = 0;
+  OTHER = 1;
+}

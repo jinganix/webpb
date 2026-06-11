@@ -103,8 +103,8 @@ Use `@ParameterizedTest` when several cases differ only by inputs or collaborato
 
 Golden output for Java and TypeScript protoc plugins is verified in `plugin`:
 
-- Fixtures: proto under `lib/tests/src/proto/test/{case}/`, dumps under `lib/tests/src/main/resources/{case}/dump/test.dump`.
-- Expected outputs: `plugin/testdata/java/{case}/` (Java), `plugin/testdata/ts/{case}/` (TypeScript).
+- Fixtures: proto under `lib/tests/src/proto/proto2/{case}/` or `lib/tests/src/proto/proto3/{case}/`; dumps under `lib/tests/src/main/resources/{syntax}_{case}/dump/test.dump`.
+- Expected outputs: `plugin/testdata/java/{syntax}_{case}/` (Java), `plugin/testdata/ts/{syntax}_{case}/` (TypeScript).
 - Run: `./gradlew :plugin:testGo` or `cd plugin && go test ./...`.
 
 See [GO_TEST_CONVENTIONS.md](GO_TEST_CONVENTIONS.md) for details.

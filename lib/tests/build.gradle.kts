@@ -20,10 +20,13 @@ dependencies {
   implementation(project(":lib:proto"))
 }
 
-file("src/proto/test").listFiles()?.filter { it.isDirectory }?.forEach {
-  sourceSets.create(it.name) {
-    proto {
-      srcDir(it.absolutePath)
+listOf("proto2", "proto3").forEach { syntax ->
+  file("src/proto/$syntax").listFiles()?.filter { it.isDirectory }?.forEach { case ->
+    val sourceSetName = "${syntax}_${case.name}"
+    sourceSets.create(sourceSetName) {
+      proto {
+        srcDir(case.absolutePath)
+      }
     }
   }
 }

@@ -80,7 +80,7 @@ class DescriptorUtilsTest {
   @DisplayName("should resolve message descriptor when name exists")
   void shouldResolveMessageDescriptorWhenNameExists() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
 
     // When / Then
     assertThat(resolveMessage(context.getDescriptors(), "Test")).isNotNull();
@@ -91,7 +91,7 @@ class DescriptorUtilsTest {
   @DisplayName("should resolve file descriptor when name exists")
   void shouldResolveFileDescriptorWhenNameExists() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     FileDescriptor descriptor = resolveFile(context.getDescriptors(), "CoreMessages.proto");
 
     // When / Then
@@ -104,7 +104,7 @@ class DescriptorUtilsTest {
   @DisplayName("should resolve enum descriptor when name exists")
   void shouldResolveEnumDescriptorWhenNameExists() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     FileDescriptor fileDescriptor =
         context.getDescriptors().stream()
             .filter(x -> "CoreMessages.proto".equals(x.getName()))
@@ -121,7 +121,7 @@ class DescriptorUtilsTest {
   @DisplayName("should return field type package when field references external types")
   void shouldReturnFieldTypePackageWhenFieldReferencesExternalTypes() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
 
@@ -135,7 +135,7 @@ class DescriptorUtilsTest {
   @DisplayName("should return field type simple name when field has type")
   void shouldReturnFieldTypeSimpleNameWhenFieldHasType() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
 
@@ -149,7 +149,7 @@ class DescriptorUtilsTest {
   @DisplayName("should return field type full name when field has type")
   void shouldReturnFieldTypeFullNameWhenFieldHasType() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
 
@@ -164,7 +164,7 @@ class DescriptorUtilsTest {
   @DisplayName("should return map key descriptor when field is a map")
   void shouldReturnMapKeyDescriptorWhenFieldIsAMap() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
 
@@ -176,7 +176,7 @@ class DescriptorUtilsTest {
   @DisplayName("should return map value descriptor when field is a map")
   void shouldReturnMapValueDescriptorWhenFieldIsAMap() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
 
@@ -188,7 +188,7 @@ class DescriptorUtilsTest {
   @DisplayName("should not throw when segment group accessors are valid")
   void shouldNotThrowWhenSegmentGroupAccessorsAreValid() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     SegmentGroup group = SegmentGroup.of("/{test1}/{test2.id}");
 
@@ -200,7 +200,7 @@ class DescriptorUtilsTest {
   @DisplayName("should throw when segment group references invalid accessor")
   void shouldThrowWhenSegmentGroupReferencesInvalidAccessor() {
     // Given
-    RequestContext context = createRequest(Dump.core_codegen);
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     SegmentGroup group = SegmentGroup.of("/{test1}/{test2.id}?value={notExists}");
 
