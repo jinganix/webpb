@@ -43,7 +43,7 @@ func TestJavaGolden(t *testing.T) {
 					if err != nil {
 						t.Fatalf("read expected %s/%s: %v", dump, key, err)
 					}
-					if content != expected {
+					if !testutil.GoldenEqual(content, expected) {
 						t.Fatalf("mismatch for %s/%s", dump, key)
 					}
 				}

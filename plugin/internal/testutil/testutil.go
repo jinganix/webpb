@@ -57,7 +57,8 @@ func CreateContext(dump string) (*core.RequestContext, error) {
 	return core.NewRequestContext(req)
 }
 
-func normalizeEOL(s string) string {
+// NormalizeEOL converts CRLF to LF for cross-platform golden comparisons.
+func NormalizeEOL(s string) string {
 	return strings.ReplaceAll(s, "\r\n", "\n")
 }
 
@@ -68,5 +69,10 @@ func ReadExpected(lang, dump, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return normalizeEOL(string(data)), nil
+	return NormalizeEOL(string(data)), nil
+}
+
+// GoldenEqual reports whether generated and expected golden content match.
+func GoldenEqual(got, want string) bool {
+	return NormalizeEOL(got) == NormalizeEOL(want)
 }

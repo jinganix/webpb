@@ -74,7 +74,7 @@ func TestTSGolden(t *testing.T) {
 					}
 					t.Fatalf("read expected %s/%s: %v", dump, key, err)
 				}
-				if content != expected {
+				if !testutil.GoldenEqual(content, expected) {
 					t.Fatalf("mismatch for %s/%s", dump, key)
 				}
 			}
