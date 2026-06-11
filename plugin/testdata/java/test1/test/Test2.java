@@ -17,9 +17,11 @@ public class Test2 extends AbstractClass implements WebpbMessage {
 
   public static final String WEBPB_CONTEXT = "/test";
 
-  public static final String WEBPB_PATH = "/test/{test2}?id={test1}&data1={test3.test1}&data2={test3.test2}";
+  public static final String WEBPB_PATH =
+      "/test/{test2}?id={test1}&data1={test3.test1}&data2={test3.test2}";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -34,8 +36,7 @@ public class Test2 extends AbstractClass implements WebpbMessage {
 
   private Map<Integer, Test1> test4;
 
-  public Test2() {
-  }
+  public Test2() {}
 
   public Test2(Long test1, String test2, Test6 test3, Map<Integer, Test1> test4) {
     this.test1 = test1;

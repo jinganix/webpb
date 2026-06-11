@@ -25,7 +25,7 @@ export class IgnoreTest implements IIgnoreTest, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IIgnoreTest): IgnoreTest {

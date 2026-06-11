@@ -20,7 +20,8 @@ public class Test6 implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -31,8 +32,7 @@ public class Test6 implements WebpbMessage {
 
   private Integer test2;
 
-  public Test6() {
-  }
+  public Test6() {}
 
   public Test6(String test1, Integer test2) {
     this.test1 = test1;

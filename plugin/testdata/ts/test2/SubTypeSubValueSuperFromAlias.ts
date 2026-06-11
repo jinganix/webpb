@@ -4,9 +4,18 @@
 import * as AnotherEnum from "./AnotherEnum";
 import * as SubTypeSubValueProto from "./SubTypeSubValueProto";
 
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueProto.SubTypeSubValueType.subTypeSubValue0] = SubTypeSubValueProto.SubTypeSubValue1.fromAlias;
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueProto.SubTypeSubValueType.subTypeSubValue1] = SubTypeSubValueProto.SubTypeSubValue2.fromAlias;
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[SubTypeSubValueProto.SubTypeSubValueType.subTypeSubValue2] = SubTypeSubValueProto.SubTypeSubValue2.fromAlias;
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo"] = SubTypeSubValueProto.SubTypeSubValue4.fromAlias;
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo.bar"] = SubTypeSubValueProto.SubTypeSubValue5.fromAlias;
-SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[AnotherEnum.Another.a] = SubTypeSubValueProto.SubTypeSubValue6.fromAlias;
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[
+  SubTypeSubValueProto.SubTypeSubValueType.subTypeSubValue0
+] = SubTypeSubValueProto.SubTypeSubValue1.fromAlias;
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[
+  SubTypeSubValueProto.SubTypeSubValueType.subTypeSubValue1
+] = SubTypeSubValueProto.SubTypeSubValue2.fromAlias;
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[
+  SubTypeSubValueProto.SubTypeSubValueType.subTypeSubValue2
+] = SubTypeSubValueProto.SubTypeSubValue2.fromAlias;
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo"] =
+  SubTypeSubValueProto.SubTypeSubValue4.fromAlias;
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases["foo.bar"] =
+  SubTypeSubValueProto.SubTypeSubValue5.fromAlias;
+SubTypeSubValueProto.SubTypeSubValueSuper.fromAliases[AnotherEnum.Another.a] =
+  SubTypeSubValueProto.SubTypeSubValue6.fromAlias;

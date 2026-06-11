@@ -9,7 +9,6 @@ import lombok.ToString;
 
 @ToString
 public enum Test implements Enumeration<Integer> {
-
   DEFAULT(0),
   OTHER(100);
 
@@ -21,12 +20,12 @@ public enum Test implements Enumeration<Integer> {
 
   public static Test fromValue(Integer value) {
     switch (value) {
-    case 0:
-      return DEFAULT;
-    case 100:
-      return OTHER;
-    default:
-      return null;
+      case 0:
+        return DEFAULT;
+      case 100:
+        return OTHER;
+      default:
+        return null;
     }
   }
 

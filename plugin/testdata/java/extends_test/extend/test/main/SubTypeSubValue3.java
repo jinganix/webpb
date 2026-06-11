@@ -15,7 +15,8 @@ public class SubTypeSubValue3 implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -24,8 +25,7 @@ public class SubTypeSubValue3 implements WebpbMessage {
 
   private Integer value;
 
-  public SubTypeSubValue3() {
-  }
+  public SubTypeSubValue3() {}
 
   public SubTypeSubValue3(Integer value) {
     this.value = value;

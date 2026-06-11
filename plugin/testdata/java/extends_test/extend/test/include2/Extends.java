@@ -15,7 +15,8 @@ public class Extends implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -26,8 +27,7 @@ public class Extends implements WebpbMessage {
 
   private String bar_1;
 
-  public Extends() {
-  }
+  public Extends() {}
 
   public Extends(Integer foo_1, String bar_1) {
     this.foo_1 = foo_1;

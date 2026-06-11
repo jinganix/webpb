@@ -9,7 +9,6 @@ import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public enum Test3 implements Enumeration<String> {
-
   test3_1("test3_1"),
   test3_2("test3_2"),
   test3_3("test3_3");
@@ -22,14 +21,14 @@ public enum Test3 implements Enumeration<String> {
 
   public static Test3 fromValue(String value) {
     switch (value) {
-    case "test3_1":
-      return test3_1;
-    case "test3_2":
-      return test3_2;
-    case "test3_3":
-      return test3_3;
-    default:
-      return null;
+      case "test3_1":
+        return test3_1;
+      case "test3_2":
+        return test3_2;
+      case "test3_3":
+        return test3_3;
+      default:
+        return null;
     }
   }
 

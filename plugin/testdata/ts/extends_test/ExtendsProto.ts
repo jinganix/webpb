@@ -27,7 +27,7 @@ export class Extends implements IExtends, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IExtends): Extends {

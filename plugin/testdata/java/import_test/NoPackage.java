@@ -13,7 +13,8 @@ public class NoPackage implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -26,8 +27,7 @@ public class NoPackage implements WebpbMessage {
 
   private NoPackageTest test;
 
-  public NoPackage() {
-  }
+  public NoPackage() {}
 
   public NoPackage(Integer foo_1, String bar_1, NoPackageTest test) {
     this.foo_1 = foo_1;

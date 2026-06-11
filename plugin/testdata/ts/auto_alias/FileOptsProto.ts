@@ -25,7 +25,7 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ILevel3): Level3 {
@@ -34,14 +34,14 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
 
   static fromAlias(data?: unknown): Level3 {
     const p = Webpb.toAlias(data, {
-      "a": "test1",
+      a: "test1",
     }) as Record<string, unknown>;
     return Object.assign(new Level3(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      "test1": "a",
+      test1: "a",
     });
   }
 }
@@ -73,7 +73,7 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ILevel2): Level2 {
@@ -82,20 +82,23 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
 
   static fromAlias(data?: unknown): Level2 {
     const p = Webpb.toAlias(data, {
-      "a": "test1",
-      "b": "test2",
-      "c": "test3",
+      a: "test1",
+      b: "test2",
+      c: "test3",
     }) as Record<string, unknown>;
     p?.test2 && (p.test2 = Level3.fromAlias(p.test2));
-    p?.test3 && (p.test3 = (p.test3 as Webpb.WebpbMessage[]).map((x) => Level3.fromAlias(x)));
+    p?.test3 &&
+      (p.test3 = (p.test3 as Webpb.WebpbMessage[]).map((x) =>
+        Level3.fromAlias(x),
+      ));
     return Object.assign(new Level2(), p);
   }
 
   toWebpbAlias(): unknown {
     const p = Webpb.toAlias(this, {
-      "test1": "a",
-      "test2": "b",
-      "test3": "c",
+      test1: "a",
+      test2: "b",
+      test3: "c",
     }) as Record<string, unknown>;
     p.b && (p.b = (p.b as Webpb.WebpbMessage).toWebpbAlias());
     p.c && (p.c = (p.c as Webpb.WebpbMessage[]).map((x) => x.toWebpbAlias()));
@@ -131,15 +134,17 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
     p?.test2 && (this.test2 = Level2.create(p.test2));
     p?.test3 && (this.test3 = p.test3.map((x) => Level2.create(x)));
     p?.test4 && (this.test4 = Level3.create(p.test4));
-    p?.test5 && (this.test5 = Webpb.mapValues(p.test5, (x) => Level3.create(x)));
-    p?.test6 && (this.test6 = Webpb.mapValues(p.test6, (x) => Level3.create(x)));
+    p?.test5 &&
+      (this.test5 = Webpb.mapValues(p.test5, (x) => Level3.create(x)));
+    p?.test6 &&
+      (this.test6 = Webpb.mapValues(p.test6, (x) => Level3.create(x)));
     this.webpbMeta = () =>
       ({
         class: "Level1",
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ILevel1): Level1 {
@@ -148,29 +153,34 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
 
   static fromAlias(data?: unknown): Level1 {
     const p = Webpb.toAlias(data, {
-      "a": "test1",
-      "b": "test2",
-      "c": "test3",
-      "d": "test4",
-      "e": "test5",
-      "f": "test6",
+      a: "test1",
+      b: "test2",
+      c: "test3",
+      d: "test4",
+      e: "test5",
+      f: "test6",
     }) as Record<string, unknown>;
     p?.test2 && (p.test2 = Level2.fromAlias(p.test2));
-    p?.test3 && (p.test3 = (p.test3 as Webpb.WebpbMessage[]).map((x) => Level2.fromAlias(x)));
+    p?.test3 &&
+      (p.test3 = (p.test3 as Webpb.WebpbMessage[]).map((x) =>
+        Level2.fromAlias(x),
+      ));
     p?.test4 && (p.test4 = Level3.fromAlias(p.test4));
-    p?.test5 && (p.test5 = Webpb.mapValues(p.test5, (x) => Level3.fromAlias(x)));
-    p?.test6 && (p.test6 = Webpb.mapValues(p.test6, (x) => Level3.fromAlias(x)));
+    p?.test5 &&
+      (p.test5 = Webpb.mapValues(p.test5, (x) => Level3.fromAlias(x)));
+    p?.test6 &&
+      (p.test6 = Webpb.mapValues(p.test6, (x) => Level3.fromAlias(x)));
     return Object.assign(new Level1(), p);
   }
 
   toWebpbAlias(): unknown {
     const p = Webpb.toAlias(this, {
-      "test1": "a",
-      "test2": "b",
-      "test3": "c",
-      "test4": "d",
-      "test5": "e",
-      "test6": "f",
+      test1: "a",
+      test2: "b",
+      test3: "c",
+      test4: "d",
+      test5: "e",
+      test6: "f",
     }) as Record<string, unknown>;
     p.b && (p.b = (p.b as Webpb.WebpbMessage).toWebpbAlias());
     p.c && (p.c = (p.c as Webpb.WebpbMessage[]).map((x) => x.toWebpbAlias()));

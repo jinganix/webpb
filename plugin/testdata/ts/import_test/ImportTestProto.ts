@@ -11,7 +11,10 @@ export interface IImportTest extends NoPackageProto.INoPackage {
   no_package: NoPackageProto.INoPackage;
 }
 
-export class ImportTest extends NoPackageProto.NoPackage implements IImportTest, Webpb.WebpbMessage {
+export class ImportTest
+  extends NoPackageProto.NoPackage
+  implements IImportTest, Webpb.WebpbMessage
+{
   foo_2!: number;
   bar_2!: string;
   no_package!: NoPackageProto.INoPackage;
@@ -25,14 +28,15 @@ export class ImportTest extends NoPackageProto.NoPackage implements IImportTest,
   protected constructor(p?: IImportTest) {
     super();
     Webpb.assign(p, this, []);
-    p?.no_package && (this.no_package = NoPackageProto.NoPackage.create(p.no_package));
+    p?.no_package &&
+      (this.no_package = NoPackageProto.NoPackage.create(p.no_package));
     this.webpbMeta = () =>
       ({
         class: "ImportTest",
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IImportTest): ImportTest {
@@ -41,7 +45,8 @@ export class ImportTest extends NoPackageProto.NoPackage implements IImportTest,
 
   static fromAlias(data?: unknown): ImportTest {
     const p = data as Record<string, unknown>;
-    p?.no_package && (p.no_package = NoPackageProto.NoPackage.fromAlias(p.no_package));
+    p?.no_package &&
+      (p.no_package = NoPackageProto.NoPackage.fromAlias(p.no_package));
     return Object.assign(new ImportTest(), p);
   }
 

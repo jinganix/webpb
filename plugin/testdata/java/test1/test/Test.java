@@ -33,18 +33,17 @@ public class Test implements WebpbMessage {
 
   public static final String WEBPB_PATH = "/test/{test1}";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
     return WEBPB_META;
   }
 
-  @InQuery
-  private Integer test1;
+  @InQuery private Integer test1;
 
-  @NotNull
-  private Message test2;
+  @NotNull private Message test2;
 
   private Enum test3;
 
@@ -80,8 +79,7 @@ public class Test implements WebpbMessage {
 
   private String test19;
 
-  public Test() {
-  }
+  public Test() {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class NestedTest implements WebpbMessage {
@@ -92,7 +90,12 @@ public class Test implements WebpbMessage {
 
     public static final String WEBPB_PATH = "/test/nested/{test1}";
 
-    public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+    public static final WebpbMeta WEBPB_META =
+        new WebpbMeta.Builder()
+            .method(WEBPB_METHOD)
+            .context(WEBPB_CONTEXT)
+            .path(WEBPB_PATH)
+            .build();
 
     @Override
     public WebpbMeta webpbMeta() {
@@ -101,8 +104,7 @@ public class Test implements WebpbMessage {
 
     private Integer test1;
 
-    public NestedTest() {
-    }
+    public NestedTest() {}
 
     public NestedTest(Integer test1) {
       this.test1 = test1;
@@ -118,7 +120,12 @@ public class Test implements WebpbMessage {
 
     public static final String WEBPB_PATH = "";
 
-    public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+    public static final WebpbMeta WEBPB_META =
+        new WebpbMeta.Builder()
+            .method(WEBPB_METHOD)
+            .context(WEBPB_CONTEXT)
+            .path(WEBPB_PATH)
+            .build();
 
     @Override
     public WebpbMeta webpbMeta() {
@@ -127,8 +134,7 @@ public class Test implements WebpbMessage {
 
     private String test;
 
-    public Test17() {
-    }
+    public Test17() {}
 
     public Test17(String test) {
       this.test = test;

@@ -27,7 +27,7 @@ export class AliasSkip implements IAliasSkip, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IAliasSkip): AliasSkip {

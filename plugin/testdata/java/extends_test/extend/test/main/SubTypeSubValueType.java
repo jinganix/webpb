@@ -7,7 +7,6 @@ package extend.test.main;
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 
 public enum SubTypeSubValueType implements Enumeration<Integer> {
-
   subTypeSubValue0(0),
   subTypeSubValue1(1),
   subTypeSubValue2(2);
@@ -20,14 +19,14 @@ public enum SubTypeSubValueType implements Enumeration<Integer> {
 
   public static SubTypeSubValueType fromValue(Integer value) {
     switch (value) {
-    case 0:
-      return subTypeSubValue0;
-    case 1:
-      return subTypeSubValue1;
-    case 2:
-      return subTypeSubValue2;
-    default:
-      return null;
+      case 0:
+        return subTypeSubValue0;
+      case 1:
+        return subTypeSubValue1;
+      case 2:
+        return subTypeSubValue2;
+      default:
+        return null;
     }
   }
 

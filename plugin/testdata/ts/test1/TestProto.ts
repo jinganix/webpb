@@ -12,11 +12,7 @@ export enum Test3 {
   test3_3 = "test3_3",
 }
 
-export const Test3Values = [
-  Test3.test3_1,
-  Test3.test3_2,
-  Test3.test3_3,
-];
+export const Test3Values = [Test3.test3_1, Test3.test3_2, Test3.test3_3];
 
 export const enum ConstTest3 {
   test3_1 = "test3_1",
@@ -36,11 +32,7 @@ export enum Test5 {
   test5_3 = "test5_3",
 }
 
-export const Test5Values = [
-  Test5.test5_1,
-  Test5.test5_2,
-  Test5.test5_3,
-];
+export const Test5Values = [Test5.test5_1, Test5.test5_2, Test5.test5_3];
 
 export const enum ConstTest5 {
   test5_1 = "text1",
@@ -77,13 +69,13 @@ export class Test1 implements ITest1, Webpb.WebpbMessage {
         context: "/test",
         method: "GET",
         path: `/test${Webpb.query("?", {
-          "a": "123",
-          "b": p?.test1,
-          "c": "321",
-          "d": p?.test2,
-          "e": "456",
+          a: "123",
+          b: p?.test1,
+          c: "321",
+          d: p?.test2,
+          e: "456",
         })}`,
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ITest1): Test1 {
@@ -116,7 +108,8 @@ export class Test2 extends AbstractClass implements ITest2, Webpb.WebpbMessage {
   static CLASS = "Test2";
   static CONTEXT = "/test";
   static METHOD = "GET";
-  static PATH = "/test/{test2}?id={test1}&data1={test3.test1}&data2={test3.test2}";
+  static PATH =
+    "/test/{test2}?id={test1}&data1={test3.test1}&data2={test3.test2}";
 
   protected constructor(p?: ITest2) {
     super();
@@ -129,11 +122,11 @@ export class Test2 extends AbstractClass implements ITest2, Webpb.WebpbMessage {
         context: "/test",
         method: "GET",
         path: `/test/${p?.test2}${Webpb.query("?", {
-          "id": p?.test1,
-          "data1": Webpb.getter(p, "test3.test1"),
-          "data2": Webpb.getter(p, "test3.test2"),
+          data1: Webpb.getter(p, "test3.test1"),
+          data2: Webpb.getter(p, "test3.test2"),
+          id: p?.test1,
         })}`,
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ITest2): Test2 {
@@ -179,7 +172,7 @@ export class Test4 implements ITest4, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ITest4): Test4 {
@@ -188,16 +181,16 @@ export class Test4 implements ITest4, Webpb.WebpbMessage {
 
   static fromAlias(data?: unknown): Test4 {
     const p = Webpb.toAlias(data, {
-      "aliasTest1": "test1",
-      "aliasTest2": "test2",
+      aliasTest1: "test1",
+      aliasTest2: "test2",
     }) as Record<string, unknown>;
     return Object.assign(new Test4(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      "test1": "aliasTest1",
-      "test2": "aliasTest2",
+      test1: "aliasTest1",
+      test2: "aliasTest2",
     });
   }
 }
@@ -225,7 +218,7 @@ export class Test6 implements ITest6, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ITest6): Test6 {
@@ -294,11 +287,16 @@ export class Test implements ITest, Webpb.WebpbMessage {
     Webpb.assign(p, this, ["test1", "test9"]);
     p?.test2 && (this.test2 = IncludeProto.Message.create(p.test2));
     p?.test4 && (this.test4 = Test4.create(p.test4));
-    p?.test6 && (this.test6 = Webpb.mapValues(p.test6, (x) => IncludeProto.Message.create(x)));
+    p?.test6 &&
+      (this.test6 = Webpb.mapValues(p.test6, (x) =>
+        IncludeProto.Message.create(x),
+      ));
     p?.test8 && (this.test8 = Test.NestedTest.create(p.test8));
-    p?.test11 && (this.test11 = p.test11.map((x) => IncludeProto.Message.create(x)));
+    p?.test11 &&
+      (this.test11 = p.test11.map((x) => IncludeProto.Message.create(x)));
     p?.test12 && (this.test12 = IncludeProto.Message.Nested.create(p.test12));
-    p?.test13 && (this.test13 = p.test13.map((x) => Include2Proto.Message.create(x)));
+    p?.test13 &&
+      (this.test13 = p.test13.map((x) => Include2Proto.Message.create(x)));
     p?.test14 && (this.test14 = Include2Proto.Message.Nested.create(p.test14));
     p?.test17 && (this.test17 = Test.Test17.create(p.test17));
     this.webpbMeta = () =>
@@ -307,7 +305,7 @@ export class Test implements ITest, Webpb.WebpbMessage {
         context: "/test",
         method: "GET",
         path: `/test/${p?.test1}`,
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ITest): Test {
@@ -316,14 +314,23 @@ export class Test implements ITest, Webpb.WebpbMessage {
 
   static fromAlias(data?: unknown): Test {
     const p = data as Record<string, unknown>;
-    p?.test11 && (p.test11 = (p.test11 as Webpb.WebpbMessage[]).map((x) => IncludeProto.Message.fromAlias(x)));
+    p?.test11 &&
+      (p.test11 = (p.test11 as Webpb.WebpbMessage[]).map((x) =>
+        IncludeProto.Message.fromAlias(x),
+      ));
     p?.test12 && (p.test12 = IncludeProto.Message.Nested.fromAlias(p.test12));
-    p?.test13 && (p.test13 = (p.test13 as Webpb.WebpbMessage[]).map((x) => Include2Proto.Message.fromAlias(x)));
+    p?.test13 &&
+      (p.test13 = (p.test13 as Webpb.WebpbMessage[]).map((x) =>
+        Include2Proto.Message.fromAlias(x),
+      ));
     p?.test14 && (p.test14 = Include2Proto.Message.Nested.fromAlias(p.test14));
     p?.test17 && (p.test17 = Test.Test17.fromAlias(p.test17));
     p?.test2 && (p.test2 = IncludeProto.Message.fromAlias(p.test2));
     p?.test4 && (p.test4 = Test4.fromAlias(p.test4));
-    p?.test6 && (p.test6 = Webpb.mapValues(p.test6, (x) => IncludeProto.Message.fromAlias(x)));
+    p?.test6 &&
+      (p.test6 = Webpb.mapValues(p.test6, (x) =>
+        IncludeProto.Message.fromAlias(x),
+      ));
     p?.test8 && (p.test8 = Test.NestedTest.fromAlias(p.test8));
     return Object.assign(new Test(), p);
   }
@@ -355,7 +362,7 @@ export namespace Test {
           context: "/test",
           method: "GET",
           path: `/test/nested/${p?.test1}`,
-        } as Webpb.WebpbMeta);
+        }) as Webpb.WebpbMeta;
     }
 
     static create(p?: INestedTest): NestedTest {
@@ -392,7 +399,7 @@ export namespace Test {
           context: "",
           method: "",
           path: "",
-        } as Webpb.WebpbMeta);
+        }) as Webpb.WebpbMeta;
     }
 
     static create(p?: ITest17): Test17 {

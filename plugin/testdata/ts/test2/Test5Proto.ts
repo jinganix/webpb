@@ -7,17 +7,11 @@ export enum Test {
   OTHER = 100,
 }
 
-export const TestValues = [
-  Test.DEFAULT,
-  Test.OTHER,
-];
+export const TestValues = [Test.DEFAULT, Test.OTHER];
 
 export const enum ConstTest {
   DEFAULT = 0,
   OTHER = 100,
 }
 
-export const ConstTestValues = [
-  ConstTest.DEFAULT,
-  ConstTest.OTHER,
-];
+export const ConstTestValues = [ConstTest.DEFAULT, ConstTest.OTHER];

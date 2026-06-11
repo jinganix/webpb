@@ -6,14 +6,10 @@ export enum Another {
   a = 0,
 }
 
-export const AnotherValues = [
-  Another.a,
-];
+export const AnotherValues = [Another.a];
 
 export const enum ConstAnother {
   a = 0,
 }
 
-export const ConstAnotherValues = [
-  ConstAnother.a,
-];
+export const ConstAnotherValues = [ConstAnother.a];

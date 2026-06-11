@@ -17,7 +17,8 @@ public class Level3 implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -28,8 +29,7 @@ public class Level3 implements WebpbMessage {
   @JsonProperty("a")
   private Integer foo_1;
 
-  public Level3() {
-  }
+  public Level3() {}
 
   public Level3(Integer foo_1) {
     this.foo_1 = foo_1;

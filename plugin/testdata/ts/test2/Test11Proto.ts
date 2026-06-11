@@ -28,7 +28,7 @@ export class Test11 implements ITest11, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ITest11): Test11 {

@@ -5,7 +5,6 @@
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 
 public enum Direction implements Enumeration<Integer> {
-
   asc(0),
   desc(1);
 
@@ -17,12 +16,12 @@ public enum Direction implements Enumeration<Integer> {
 
   public static Direction fromValue(Integer value) {
     switch (value) {
-    case 0:
-      return asc;
-    case 1:
-      return desc;
-    default:
-      return null;
+      case 0:
+        return asc;
+      case 1:
+        return desc;
+      default:
+        return null;
     }
   }
 

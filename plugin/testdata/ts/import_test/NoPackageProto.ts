@@ -25,7 +25,7 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: INoPackageTest): NoPackageTest {
@@ -67,7 +67,7 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: INoPackage): NoPackage {

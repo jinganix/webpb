@@ -5,6 +5,7 @@
 import * as Webpb from "webpb";
 import * as AnotherEnum from "./AnotherEnum";
 import * as SubTypeSubValueProto from "./SubTypeSubValueProto";
+
 import("./SubTypeSubValueSuperFromAlias");
 
 export enum SubTypeSubValueType {
@@ -35,10 +36,15 @@ export interface ISubTypeSubValueStringSuper {
   type: string;
 }
 
-export class SubTypeSubValueStringSuper implements ISubTypeSubValueStringSuper, Webpb.WebpbMessage {
+export class SubTypeSubValueStringSuper
+  implements ISubTypeSubValueStringSuper, Webpb.WebpbMessage
+{
   type!: string;
   webpbMeta: () => Webpb.WebpbMeta;
-  static fromAliases: Record<string, (data?: unknown) => SubTypeSubValueStringSuper> = {};
+  static fromAliases: Record<
+    string,
+    (data?: unknown) => SubTypeSubValueStringSuper
+  > = {};
 
   static CLASS = "SubTypeSubValueStringSuper";
   static CONTEXT = "";
@@ -53,7 +59,7 @@ export class SubTypeSubValueStringSuper implements ISubTypeSubValueStringSuper, 
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValueStringSuper): SubTypeSubValueStringSuper {
@@ -61,7 +67,9 @@ export class SubTypeSubValueStringSuper implements ISubTypeSubValueStringSuper, 
   }
 
   static fromAlias(data?: unknown): SubTypeSubValueStringSuper {
-    return SubTypeSubValueStringSuper.create(data as ISubTypeSubValueStringSuper);
+    return SubTypeSubValueStringSuper.create(
+      data as ISubTypeSubValueStringSuper,
+    );
   }
 
   toWebpbAlias(): unknown {
@@ -69,14 +77,21 @@ export class SubTypeSubValueStringSuper implements ISubTypeSubValueStringSuper, 
   }
 }
 
-export interface ISubTypeSubValueSuper<T extends SubTypeSubValueType = SubTypeSubValueType> {
+export interface ISubTypeSubValueSuper<
+  T extends SubTypeSubValueType = SubTypeSubValueType,
+> {
   type: T;
 }
 
-export class SubTypeSubValueSuper<T extends SubTypeSubValueType = SubTypeSubValueType> implements ISubTypeSubValueSuper<T>, Webpb.WebpbMessage {
+export class SubTypeSubValueSuper<
+  T extends SubTypeSubValueType = SubTypeSubValueType,
+>
+  implements ISubTypeSubValueSuper<T>, Webpb.WebpbMessage
+{
   type!: T;
   webpbMeta: () => Webpb.WebpbMeta;
-  static fromAliases: Record<string, (data?: unknown) => SubTypeSubValueSuper> = {};
+  static fromAliases: Record<string, (data?: unknown) => SubTypeSubValueSuper> =
+    {};
 
   static CLASS = "SubTypeSubValueSuper";
   static CONTEXT = "";
@@ -91,7 +106,7 @@ export class SubTypeSubValueSuper<T extends SubTypeSubValueType = SubTypeSubValu
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValueSuper): SubTypeSubValueSuper {
@@ -107,11 +122,15 @@ export class SubTypeSubValueSuper<T extends SubTypeSubValueType = SubTypeSubValu
   }
 }
 
-export interface ISubTypeSubValue0 extends SubTypeSubValueProto.ISubTypeSubValueSuper {
+export interface ISubTypeSubValue0
+  extends SubTypeSubValueProto.ISubTypeSubValueSuper {
   value: number;
 }
 
-export class SubTypeSubValue0 extends SubTypeSubValueProto.SubTypeSubValueSuper implements ISubTypeSubValue0, Webpb.WebpbMessage {
+export class SubTypeSubValue0
+  extends SubTypeSubValueProto.SubTypeSubValueSuper
+  implements ISubTypeSubValue0, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -129,7 +148,7 @@ export class SubTypeSubValue0 extends SubTypeSubValueProto.SubTypeSubValueSuper 
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue0): SubTypeSubValue0 {
@@ -149,7 +168,10 @@ export interface ISubTypeSubValue1 extends SubTypeSubValueProto.ISubTypeSubValue
   value: number;
 }
 
-export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue0> implements ISubTypeSubValue1, Webpb.WebpbMessage {
+export class SubTypeSubValue1
+  extends SubTypeSubValueProto.SubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue0>
+  implements ISubTypeSubValue1, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -167,7 +189,7 @@ export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper<
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue1): SubTypeSubValue1 {
@@ -183,11 +205,18 @@ export class SubTypeSubValue1 extends SubTypeSubValueProto.SubTypeSubValueSuper<
   }
 }
 
-export interface ISubTypeSubValue2 extends SubTypeSubValueProto.ISubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2> {
+export interface ISubTypeSubValue2 extends SubTypeSubValueProto.ISubTypeSubValueSuper<
+  SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2
+> {
   value: number;
 }
 
-export class SubTypeSubValue2 extends SubTypeSubValueProto.SubTypeSubValueSuper<SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2> implements ISubTypeSubValue2, Webpb.WebpbMessage {
+export class SubTypeSubValue2
+  extends SubTypeSubValueProto.SubTypeSubValueSuper<
+    SubTypeSubValueType.subTypeSubValue1 | SubTypeSubValueType.subTypeSubValue2
+  >
+  implements ISubTypeSubValue2, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -205,7 +234,7 @@ export class SubTypeSubValue2 extends SubTypeSubValueProto.SubTypeSubValueSuper<
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue2): SubTypeSubValue2 {
@@ -242,7 +271,7 @@ export class SubTypeSubValue3 implements ISubTypeSubValue3, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue3): SubTypeSubValue3 {
@@ -262,7 +291,10 @@ export interface ISubTypeSubValue4 extends SubTypeSubValueProto.ISubTypeSubValue
   value: number;
 }
 
-export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper<"foo"> implements ISubTypeSubValue4, Webpb.WebpbMessage {
+export class SubTypeSubValue4
+  extends SubTypeSubValueProto.SubTypeSubValueSuper<"foo">
+  implements ISubTypeSubValue4, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -280,7 +312,7 @@ export class SubTypeSubValue4 extends SubTypeSubValueProto.SubTypeSubValueSuper<
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue4): SubTypeSubValue4 {
@@ -300,7 +332,10 @@ export interface ISubTypeSubValue5 extends SubTypeSubValueProto.ISubTypeSubValue
   value: number;
 }
 
-export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper<"foo.bar"> implements ISubTypeSubValue5, Webpb.WebpbMessage {
+export class SubTypeSubValue5
+  extends SubTypeSubValueProto.SubTypeSubValueSuper<"foo.bar">
+  implements ISubTypeSubValue5, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -318,7 +353,7 @@ export class SubTypeSubValue5 extends SubTypeSubValueProto.SubTypeSubValueSuper<
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue5): SubTypeSubValue5 {
@@ -338,7 +373,10 @@ export interface ISubTypeSubValue6 extends SubTypeSubValueProto.ISubTypeSubValue
   value: number;
 }
 
-export class SubTypeSubValue6 extends SubTypeSubValueProto.SubTypeSubValueSuper<AnotherEnum.Another.a> implements ISubTypeSubValue6, Webpb.WebpbMessage {
+export class SubTypeSubValue6
+  extends SubTypeSubValueProto.SubTypeSubValueSuper<AnotherEnum.Another.a>
+  implements ISubTypeSubValue6, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -356,7 +394,7 @@ export class SubTypeSubValue6 extends SubTypeSubValueProto.SubTypeSubValueSuper<
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue6): SubTypeSubValue6 {

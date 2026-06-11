@@ -13,5 +13,4 @@ export type SubTypeSubValueSuperTypes =
   | SubTypeSubValueProto.ISubTypeSubValue2
   | SubTypeSubValueProto.ISubTypeSubValue4
   | SubTypeSubValueProto.ISubTypeSubValue5
-  | SubTypeSubValueProto.ISubTypeSubValue6
-;
+  | SubTypeSubValueProto.ISubTypeSubValue6;

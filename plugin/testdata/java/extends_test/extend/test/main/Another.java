@@ -7,7 +7,6 @@ package extend.test.main;
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 
 public enum Another implements Enumeration<Integer> {
-
   a(0);
 
   private Integer value;
@@ -18,10 +17,10 @@ public enum Another implements Enumeration<Integer> {
 
   public static Another fromValue(Integer value) {
     switch (value) {
-    case 0:
-      return a;
-    default:
-      return null;
+      case 0:
+        return a;
+      default:
+        return null;
     }
   }
 

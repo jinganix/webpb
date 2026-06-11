@@ -15,7 +15,8 @@ public class ImportTest extends NoPackage implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -28,8 +29,7 @@ public class ImportTest extends NoPackage implements WebpbMessage {
 
   private NoPackage no_package;
 
-  public ImportTest() {
-  }
+  public ImportTest() {}
 
   public ImportTest(Integer foo_2, String bar_2, NoPackage no_package) {
     this.foo_2 = foo_2;

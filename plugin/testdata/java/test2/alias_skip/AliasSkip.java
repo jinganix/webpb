@@ -15,7 +15,8 @@ public class AliasSkip implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -26,8 +27,7 @@ public class AliasSkip implements WebpbMessage {
 
   private Integer b;
 
-  public AliasSkip() {
-  }
+  public AliasSkip() {}
 
   public AliasSkip(Integer a, Integer b) {
     this.a = a;

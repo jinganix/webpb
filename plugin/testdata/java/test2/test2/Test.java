@@ -15,7 +15,8 @@ public class Test implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -28,8 +29,7 @@ public class Test implements WebpbMessage {
 
   private Boolean isTest3;
 
-  public Test() {
-  }
+  public Test() {}
 
   public Test(Integer test1, Boolean test2, Boolean isTest3) {
     this.test1 = test1;

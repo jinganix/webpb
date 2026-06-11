@@ -8,17 +8,13 @@ export enum Enum {
   DEFAULT = 0,
 }
 
-export const EnumValues = [
-  Enum.DEFAULT,
-];
+export const EnumValues = [Enum.DEFAULT];
 
 export const enum ConstEnum {
   DEFAULT = 0,
 }
 
-export const ConstEnumValues = [
-  ConstEnum.DEFAULT,
-];
+export const ConstEnumValues = [ConstEnum.DEFAULT];
 
 export interface IMessage {
   id: number;
@@ -41,7 +37,7 @@ export class Message implements IMessage, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMessage): Message {
@@ -79,7 +75,7 @@ export namespace Message {
           context: "",
           method: "",
           path: "",
-        } as Webpb.WebpbMeta);
+        }) as Webpb.WebpbMeta;
     }
 
     static create(p?: INested): Nested {

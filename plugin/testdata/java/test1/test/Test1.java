@@ -18,7 +18,8 @@ public class Test1 implements WebpbMessage, InterfaceA, InterfaceB {
 
   public static final String WEBPB_PATH = "/test?a=123&b={test1}&c=321&d={test2}&e=456";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -29,8 +30,7 @@ public class Test1 implements WebpbMessage, InterfaceA, InterfaceB {
 
   private Integer test2;
 
-  public Test1() {
-  }
+  public Test1() {}
 
   public Test1(Long test1, Integer test2) {
     this.test1 = test1;

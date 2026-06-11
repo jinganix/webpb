@@ -2,17 +2,20 @@
 // https://github.com/jinganix/webpb
 // Main.proto
 
+import { Custom } from "external/custom";
 import * as Webpb from "webpb";
 import * as Extends2Proto from "./Extends2Proto";
 import * as ExtendsProto from "./ExtendsProto";
-import { Custom } from 'external/custom'
 
 export interface IMain1 extends Extends2Proto.IExtends {
   foo_2: number;
   bar_2: string;
 }
 
-export class Main1 extends Extends2Proto.Extends implements IMain1, Webpb.WebpbMessage {
+export class Main1
+  extends Extends2Proto.Extends
+  implements IMain1, Webpb.WebpbMessage
+{
   foo_2!: number;
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
@@ -31,7 +34,7 @@ export class Main1 extends Extends2Proto.Extends implements IMain1, Webpb.WebpbM
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMain1): Main1 {
@@ -52,7 +55,10 @@ export interface IMain2 extends ExtendsProto.IExtends {
   bar_2: string;
 }
 
-export class Main2 extends ExtendsProto.Extends implements IMain2, Webpb.WebpbMessage {
+export class Main2
+  extends ExtendsProto.Extends
+  implements IMain2, Webpb.WebpbMessage
+{
   foo_2!: number;
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
@@ -71,7 +77,7 @@ export class Main2 extends ExtendsProto.Extends implements IMain2, Webpb.WebpbMe
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMain2): Main2 {
@@ -92,7 +98,10 @@ export interface IMain3 extends Extends2Proto.IExtends {
   bar_2: string;
 }
 
-export class Main3 extends Extends2Proto.Extends implements IMain3, Webpb.WebpbMessage {
+export class Main3
+  extends Extends2Proto.Extends
+  implements IMain3, Webpb.WebpbMessage
+{
   foo_2!: number;
   bar_2!: string;
   webpbMeta: () => Webpb.WebpbMeta;
@@ -111,7 +120,7 @@ export class Main3 extends Extends2Proto.Extends implements IMain3, Webpb.WebpbM
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMain3): Main3 {
@@ -151,7 +160,7 @@ export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMain4): Main4 {

@@ -10,7 +10,6 @@ import test.message.InterfaceB;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public enum Test5 implements Enumeration<String>, InterfaceA, InterfaceB {
-
   test5_1("text1"),
   test5_2("text2"),
   test5_3("test5_3");
@@ -23,14 +22,14 @@ public enum Test5 implements Enumeration<String>, InterfaceA, InterfaceB {
 
   public static Test5 fromValue(String value) {
     switch (value) {
-    case "text1":
-      return test5_1;
-    case "text2":
-      return test5_2;
-    case "test5_3":
-      return test5_3;
-    default:
-      return null;
+      case "text1":
+        return test5_1;
+      case "text2":
+        return test5_2;
+      case "test5_3":
+        return test5_3;
+      default:
+        return null;
     }
   }
 

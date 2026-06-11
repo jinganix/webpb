@@ -15,7 +15,8 @@ public class Test9 implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -24,8 +25,7 @@ public class Test9 implements WebpbMessage {
 
   private Long test1;
 
-  public Test9() {
-  }
+  public Test9() {}
 
   public Test9(Long test1) {
     this.test1 = test1;

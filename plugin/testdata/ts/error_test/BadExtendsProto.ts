@@ -8,7 +8,10 @@ export interface IBadExtends extends IBadExtendsFoo<"foo"> {
   value: number;
 }
 
-export class BadExtends extends BadExtendsFoo<"foo"> implements IBadExtends, Webpb.WebpbMessage {
+export class BadExtends
+  extends BadExtendsFoo<"foo">
+  implements IBadExtends, Webpb.WebpbMessage
+{
   value!: number;
   webpbMeta: () => Webpb.WebpbMeta;
 
@@ -26,7 +29,7 @@ export class BadExtends extends BadExtendsFoo<"foo"> implements IBadExtends, Web
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IBadExtends): BadExtends {

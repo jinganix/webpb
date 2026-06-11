@@ -1,8 +1,23 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
 import org.gradle.internal.os.OperatingSystem
 import utils.goExecutable
 
 plugins {
   base
+  id("com.diffplug.spotless")
+}
+
+val versionGoogleJavaFormat: String by project
+
+repositories {
+  mavenCentral()
+}
+
+extensions.configure<SpotlessExtension> {
+  java {
+    target("testdata/java/**/*.java")
+    googleJavaFormat(versionGoogleJavaFormat)
+  }
 }
 
 val pluginBinDir = layout.projectDirectory.dir("bin")

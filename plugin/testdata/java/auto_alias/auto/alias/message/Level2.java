@@ -16,7 +16,8 @@ public class Level2 implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -29,8 +30,7 @@ public class Level2 implements WebpbMessage {
 
   private List<Level3> test3;
 
-  public Level2() {
-  }
+  public Level2() {}
 
   public Level2(Integer test1, Level3 test2, List<Level3> test3) {
     this.test1 = test1;

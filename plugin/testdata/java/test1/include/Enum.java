@@ -15,7 +15,6 @@ import io.github.jinganix.webpb.runtime.enumeration.EnumerationSerializer;
 @JsonDeserialize(using = EnumerationDeserializer.class)
 @JsonSerialize(using = EnumerationSerializer.class)
 public enum Enum implements Enumeration<Integer> {
-
   DEFAULT(0);
 
   private Integer value;
@@ -26,10 +25,10 @@ public enum Enum implements Enumeration<Integer> {
 
   public static Enum fromValue(Integer value) {
     switch (value) {
-    case 0:
-      return DEFAULT;
-    default:
-      return null;
+      case 0:
+        return DEFAULT;
+      default:
+        return null;
     }
   }
 

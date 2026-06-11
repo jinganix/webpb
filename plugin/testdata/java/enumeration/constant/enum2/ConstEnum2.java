@@ -7,7 +7,6 @@ package constant.enum2;
 import io.github.jinganix.webpb.runtime.enumeration.Enumeration;
 
 public enum ConstEnum2 implements Enumeration<Integer> {
-
   DEFAULT(0);
 
   private Integer value;
@@ -18,10 +17,10 @@ public enum ConstEnum2 implements Enumeration<Integer> {
 
   public static ConstEnum2 fromValue(Integer value) {
     switch (value) {
-    case 0:
-      return DEFAULT;
-    default:
-      return null;
+      case 0:
+        return DEFAULT;
+      default:
+        return null;
     }
   }
 

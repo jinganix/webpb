@@ -14,7 +14,8 @@ public class MapValueTestPb implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -23,8 +24,7 @@ public class MapValueTestPb implements WebpbMessage {
 
   private Map<String, Direction> sort;
 
-  public MapValueTestPb() {
-  }
+  public MapValueTestPb() {}
 
   public MapValueTestPb(Map<String, Direction> sort) {
     this.sort = sort;

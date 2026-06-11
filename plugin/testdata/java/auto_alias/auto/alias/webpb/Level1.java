@@ -21,7 +21,8 @@ public class Level1 implements WebpbMessage {
 
   public static final String WEBPB_PATH = "";
 
-  public static final WebpbMeta WEBPB_META = new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
+  public static final WebpbMeta WEBPB_META =
+      new WebpbMeta.Builder().method(WEBPB_METHOD).context(WEBPB_CONTEXT).path(WEBPB_PATH).build();
 
   @Override
   public WebpbMeta webpbMeta() {
@@ -52,6 +53,5 @@ public class Level1 implements WebpbMessage {
   @JsonAlias("test6")
   private Map<String, Level3> test6;
 
-  public Level1() {
-  }
+  public Level1() {}
 }

@@ -9,20 +9,14 @@ export enum Direction {
   desc = 1,
 }
 
-export const DirectionValues = [
-  Direction.asc,
-  Direction.desc,
-];
+export const DirectionValues = [Direction.asc, Direction.desc];
 
 export const enum ConstDirection {
   asc = 0,
   desc = 1,
 }
 
-export const ConstDirectionValues = [
-  ConstDirection.asc,
-  ConstDirection.desc,
-];
+export const ConstDirectionValues = [ConstDirection.asc, ConstDirection.desc];
 
 export interface IMapValueTestPb {
   sort: Record<string, Direction>;
@@ -45,7 +39,7 @@ export class MapValueTestPb implements IMapValueTestPb, Webpb.WebpbMessage {
         context: "",
         method: "",
         path: "",
-      } as Webpb.WebpbMeta);
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMapValueTestPb): MapValueTestPb {
