@@ -18,7 +18,7 @@
 
 package io.github.jinganix.webpb.processor.misc;
 
-import com.sun.tools.javac.tree.TreeMaker;
+import java.lang.reflect.Method;
 
 /** Utilities to open JVM modules for javac internals. */
 public final class JvmOpens {
@@ -39,15 +39,13 @@ public final class JvmOpens {
   private JvmOpens() {}
 
   /**
-   * Add opens for specified class when javac internals are not already accessible.
+   * Open javac internals to the module of {@code anchor}.
    *
-   * @param type target class type
+   * <p>Modeled after {@code lombok.javac.apt.LombokProcessor#addOpensForLombok()}.
+   *
+   * @param anchor class whose module receives the opens
    */
-  public static void addOpens(Class<?> type) {
-    if (isJavacTreeAccessible()) {
-      return;
-    }
-
+  public static void addOpens(Class<?> anchor) {
     Class<?> moduleClass;
     try {
       moduleClass = Class.forName("java.lang.Module");
@@ -56,50 +54,39 @@ public final class JvmOpens {
     }
 
     Object jdkCompilerModule = getJdkCompilerModule();
-    Object ownModule = getOwnModule(type);
+    Object ownModule = getOwnModule(anchor);
     if (jdkCompilerModule == null || ownModule == null) {
       return;
     }
 
     try {
-      var addOpens = Permit.getMethod(moduleClass, "implAddOpens", String.class, moduleClass);
+      Method implAddOpens =
+          Permit.getMethod(moduleClass, "implAddOpens", String.class, moduleClass);
       for (String pkg : PACKAGES) {
-        addOpens.invoke(jdkCompilerModule, pkg, ownModule);
+        implAddOpens.invoke(jdkCompilerModule, pkg, ownModule);
       }
     } catch (Exception ignored) {
       // ignored
     }
   }
 
-  private static boolean isJavacTreeAccessible() {
+  private static Object getOwnModule(Class<?> anchor) {
     try {
-      TreeMaker.class.getDeclaredMethods();
-      return true;
-    } catch (Throwable ignored) {
-      return false;
+      return Permit.getMethod(Class.class, "getModule").invoke(anchor);
+    } catch (Exception e) {
+      return null;
     }
   }
 
   private static Object getJdkCompilerModule() {
     try {
       Class<?> moduleLayerClass = Class.forName("java.lang.ModuleLayer");
-      var boot = moduleLayerClass.getDeclaredMethod("boot");
-      boot.setAccessible(true);
+      Method boot = moduleLayerClass.getDeclaredMethod("boot");
       Object bootLayer = boot.invoke(null);
-      var findModule = moduleLayerClass.getDeclaredMethod("findModule", String.class);
-      findModule.setAccessible(true);
-      Object compiler = findModule.invoke(bootLayer, "jdk.compiler");
       Class<?> optionalClass = Class.forName("java.util.Optional");
+      Method findModule = moduleLayerClass.getDeclaredMethod("findModule", String.class);
+      Object compiler = findModule.invoke(bootLayer, "jdk.compiler");
       return optionalClass.getDeclaredMethod("get").invoke(compiler);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private static Object getOwnModule(Class<?> type) {
-    try {
-      var getModule = Permit.getMethod(Class.class, "getModule");
-      return getModule.invoke(type);
     } catch (Exception e) {
       return null;
     }

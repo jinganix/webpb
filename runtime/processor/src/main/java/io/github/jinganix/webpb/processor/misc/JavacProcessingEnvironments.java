@@ -34,6 +34,7 @@ public final class JavacProcessingEnvironments {
    * @return javac environment, or {@code null} if unavailable
    */
   public static JavacProcessingEnvironment unwrap(ProcessingEnvironment processingEnv) {
+    JvmOpens.addOpens(JavacProcessingEnvironments.class);
     if (processingEnv instanceof JavacProcessingEnvironment javacProcessingEnvironment) {
       return javacProcessingEnvironment;
     }

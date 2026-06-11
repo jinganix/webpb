@@ -38,7 +38,6 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
 import io.github.jinganix.webpb.processor.misc.JavacProcessingEnvironments;
-import io.github.jinganix.webpb.processor.misc.JvmOpens;
 import io.github.jinganix.webpb.processor.misc.TreeMakerImport;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -53,11 +52,7 @@ import javax.lang.model.element.TypeElement;
 /** Shared javac AST rewriting for webpb Spring mapping annotations. */
 abstract class AbstractWebpbMappingProcessor extends AbstractProcessor {
 
-  static {
-    JvmOpens.addOpens(AbstractWebpbMappingProcessor.class);
-  }
-
-  private final TreeMakerImport treeMakerImport = new TreeMakerImport();
+  private TreeMakerImport treeMakerImport;
   private Trees trees;
   private TreeMaker treeMaker;
   private Names names;
@@ -76,6 +71,7 @@ abstract class AbstractWebpbMappingProcessor extends AbstractProcessor {
     if (env == null) {
       throw new RuntimeException("JavacProcessingEnvironment is required.");
     }
+    this.treeMakerImport = new TreeMakerImport();
     this.trees = Trees.instance(env);
     this.treeMaker = TreeMaker.instance(env.getContext());
     this.names = Names.instance(env.getContext());
