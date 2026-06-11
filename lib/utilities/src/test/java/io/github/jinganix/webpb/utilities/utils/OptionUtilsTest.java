@@ -53,8 +53,8 @@ class OptionUtilsTest {
   @DisplayName("should return file opts when descriptor has options")
   void shouldReturnFileOptsWhenDescriptorHasOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
-    FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test.proto");
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
+    FileDescriptor descriptor = resolveFile(context.getDescriptors(), "CoreMessages.proto");
 
     // When
     FileOpts javaOpts = OptionUtils.getOpts(descriptor, FileOpts::hasJava);
@@ -69,8 +69,8 @@ class OptionUtilsTest {
   @DisplayName("should return default file opts when parse fails")
   void shouldReturnDefaultFileOptsWhenParseFails() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
-    FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test.proto");
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
+    FileDescriptor descriptor = resolveFile(context.getDescriptors(), "CoreMessages.proto");
 
     // When / Then
     try (MockedStatic<FileOpts> opts = mockStatic(FileOpts.class)) {
@@ -85,8 +85,8 @@ class OptionUtilsTest {
   @DisplayName("should return default file opts when descriptor is null or has no options")
   void shouldReturnDefaultFileOptsWhenDescriptorIsNullOrHasNoOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test2);
-    FileDescriptor descriptor = resolveFile(context.getDescriptors(), "Test1.proto");
+    RequestContext context = TestUtils.createRequest(Dump.generator_options);
+    FileDescriptor descriptor = resolveFile(context.getDescriptors(), "EmptyMessage.proto");
 
     // When / Then
     assertThat(OptionUtils.getOpts((FileDescriptor) null, o -> true))
@@ -98,7 +98,7 @@ class OptionUtilsTest {
   @DisplayName("should return message opts when descriptor has options")
   void shouldReturnMessageOptsWhenDescriptorHasOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
 
     // When
@@ -114,7 +114,7 @@ class OptionUtilsTest {
   @DisplayName("should return default message opts when parse fails")
   void shouldReturnDefaultMessageOptsWhenParseFails() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
 
     // When / Then
@@ -130,7 +130,7 @@ class OptionUtilsTest {
   @DisplayName("should return default message opts when descriptor is null or has no options")
   void shouldReturnDefaultMessageOptsWhenDescriptorIsNullOrHasNoOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test2);
+    RequestContext context = TestUtils.createRequest(Dump.generator_options);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test1");
 
     // When / Then
@@ -144,7 +144,7 @@ class OptionUtilsTest {
   @DisplayName("should return enum opts when descriptor has options")
   void shouldReturnEnumOptsWhenDescriptorHasOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     EnumDescriptor enumDescriptor = resolveEnum(context.getDescriptors(), "Enum");
 
     // When
@@ -160,7 +160,7 @@ class OptionUtilsTest {
   @DisplayName("should return default enum opts when parse fails")
   void shouldReturnDefaultEnumOptsWhenParseFails() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     EnumDescriptor enumDescriptor = resolveEnum(context.getDescriptors(), "Enum");
 
     // When / Then
@@ -176,7 +176,7 @@ class OptionUtilsTest {
   @DisplayName("should return default enum opts when descriptor is null or has no options")
   void shouldReturnDefaultEnumOptsWhenDescriptorIsNullOrHasNoOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test2);
+    RequestContext context = TestUtils.createRequest(Dump.generator_options);
     EnumDescriptor enumDescriptor = resolveEnum(context.getDescriptors(), "Enum");
 
     // When / Then
@@ -190,7 +190,7 @@ class OptionUtilsTest {
   @DisplayName("should return field opts when descriptor has options")
   void shouldReturnFieldOptsWhenDescriptorHasOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
     FieldDescriptor fieldDescriptor = descriptor.getFields().get(0);
@@ -208,7 +208,7 @@ class OptionUtilsTest {
   @DisplayName("should return default field opts when parse fails")
   void shouldReturnDefaultFieldOptsWhenParseFails() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
     assertThat(descriptor).isNotNull();
     FieldDescriptor fieldDescriptor = descriptor.getFields().get(0);
@@ -226,7 +226,7 @@ class OptionUtilsTest {
   @DisplayName("should return default field opts when descriptor is null or has no options")
   void shouldReturnDefaultFieldOptsWhenDescriptorIsNullOrHasNoOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test6");
     assertThat(descriptor).isNotNull();
     FieldDescriptor fieldDescriptor = descriptor.getFields().get(0);
@@ -242,7 +242,7 @@ class OptionUtilsTest {
   @DisplayName("should return enum value opts when descriptor has options")
   void shouldReturnEnumValueOptsWhenDescriptorHasOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     EnumDescriptor descriptor = resolveEnum(context.getDescriptors(), "Test5");
     assertThat(descriptor).isNotNull();
     EnumValueDescriptor enumValueDescriptor = descriptor.getValues().get(0);
@@ -260,7 +260,7 @@ class OptionUtilsTest {
   @DisplayName("should return default enum value opts when parse fails")
   void shouldReturnDefaultEnumValueOptsWhenParseFails() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     EnumDescriptor descriptor = resolveEnum(context.getDescriptors(), "Test5");
     assertThat(descriptor).isNotNull();
     EnumValueDescriptor enumValueDescriptor = descriptor.getValues().get(0);
@@ -278,7 +278,7 @@ class OptionUtilsTest {
   @DisplayName("should return default enum value opts when descriptor is null or has no options")
   void shouldReturnDefaultEnumValueOptsWhenDescriptorIsNullOrHasNoOptions() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     EnumDescriptor descriptor = resolveEnum(context.getDescriptors(), "Test5");
     assertThat(descriptor).isNotNull();
     EnumValueDescriptor enumValueDescriptor = descriptor.getValues().get(2);
@@ -294,7 +294,7 @@ class OptionUtilsTest {
   @DisplayName("should detect string value enums when opt marks them as string")
   void shouldDetectStringValueEnumsWhenOptMarksThemAsString() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     EnumDescriptor descriptor1 = resolveEnum(context.getDescriptors(), "Test3");
     EnumDescriptor descriptor2 = resolveEnum(context.getDescriptors(), "Test5");
     EnumDescriptor descriptor3 = resolveEnum(context.getDescriptors(), "Enum");
@@ -309,21 +309,21 @@ class OptionUtilsTest {
   @DisplayName("should throw when duplicated fields exist")
   void shouldThrowWhenDuplicatedFieldsExist() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.error_test);
+    RequestContext context = TestUtils.createRequest(Dump.errors);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test2");
 
     // When / Then
     assertThatThrownBy(() -> OptionUtils.checkDuplicatedFields(descriptor))
         .isInstanceOf(RuntimeException.class)
         .hasMessage(
-            "Duplicated field name `Test2.foo` in DuplicatedFieldsError.proto when extends");
+            "Duplicated field name `Test2.foo` in DuplicatedExtendsFields.proto when extends");
   }
 
   @Test
   @DisplayName("should not throw when no duplicated fields exist")
   void shouldNotThrowWhenNoDuplicatedFieldsExist() {
     // Given
-    RequestContext context = TestUtils.createRequest(Dump.test1);
+    RequestContext context = TestUtils.createRequest(Dump.core_codegen);
     Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
 
     // When / Then

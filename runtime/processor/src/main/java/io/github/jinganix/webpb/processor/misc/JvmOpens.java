@@ -20,76 +20,73 @@ package io.github.jinganix.webpb.processor.misc;
 
 import java.lang.reflect.Method;
 
-/** Utilities to open JVM modules. */
-public class JvmOpens {
+/** Utilities to open JVM modules for javac internals. */
+public final class JvmOpens {
+
+  private static final String[] PACKAGES = {
+    "com.sun.tools.javac.code",
+    "com.sun.tools.javac.comp",
+    "com.sun.tools.javac.file",
+    "com.sun.tools.javac.main",
+    "com.sun.tools.javac.model",
+    "com.sun.tools.javac.parser",
+    "com.sun.tools.javac.processing",
+    "com.sun.tools.javac.tree",
+    "com.sun.tools.javac.util",
+    "com.sun.tools.javac.jvm",
+  };
+
+  private JvmOpens() {}
 
   /**
-   * Add opens for specified class.
+   * Open javac internals to the module of {@code anchor}.
    *
-   * @param type target class type.
+   * <p>Modeled after {@code lombok.javac.apt.LombokProcessor#addOpensForLombok()}.
+   *
+   * @param anchor class whose module receives the opens
    */
-  public static void addOpens(Class<?> type) {
-    Class<?> classModule;
+  public static void addOpens(Class<?> anchor) {
+    Class<?> moduleClass;
     try {
-      classModule = Class.forName("java.lang.Module");
+      moduleClass = Class.forName("java.lang.Module");
     } catch (ClassNotFoundException e) {
-      return; // jdk8-; this is not needed.
+      return;
     }
 
     Object jdkCompilerModule = getJdkCompilerModule();
-    Object ownModule = getOwnModule(type);
-    String[] packages = {
-      "com.sun.tools.javac.code",
-      "com.sun.tools.javac.comp",
-      "com.sun.tools.javac.file",
-      "com.sun.tools.javac.main",
-      "com.sun.tools.javac.model",
-      "com.sun.tools.javac.parser",
-      "com.sun.tools.javac.processing",
-      "com.sun.tools.javac.tree",
-      "com.sun.tools.javac.util",
-      "com.sun.tools.javac.jvm",
-    };
+    Object ownModule = getOwnModule(anchor);
+    if (jdkCompilerModule == null || ownModule == null) {
+      return;
+    }
 
     try {
-      Method m = classModule.getDeclaredMethod("implAddOpens", String.class, classModule);
-      long firstFieldOffset = getFirstFieldOffset();
-      Unsafe.putBooleanVolatile(m, firstFieldOffset, true);
-      for (String p : packages) {
-        m.invoke(jdkCompilerModule, p, ownModule);
+      Method implAddOpens =
+          Permit.getMethod(moduleClass, "implAddOpens", String.class, moduleClass);
+      for (String pkg : PACKAGES) {
+        implAddOpens.invoke(jdkCompilerModule, pkg, ownModule);
       }
     } catch (Exception ignored) {
       // ignored
     }
   }
 
-  private static long getFirstFieldOffset() {
+  private static Object getOwnModule(Class<?> anchor) {
     try {
-      return Unsafe.objectFieldOffset(Parent.class.getDeclaredField("first"));
-    } catch (NoSuchFieldException | SecurityException e) {
-      // can't happen.
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static Object getJdkCompilerModule() {
-    try {
-      Class<?> classModuleLayer = Class.forName("java.lang.ModuleLayer");
-      Method methodBoot = classModuleLayer.getDeclaredMethod("boot");
-      Object bootLayer = methodBoot.invoke(null);
-      Class<?> classOptional = Class.forName("java.util.Optional");
-      Method findModule = classModuleLayer.getDeclaredMethod("findModule", String.class);
-      Object compiler = findModule.invoke(bootLayer, "jdk.compiler");
-      return classOptional.getDeclaredMethod("get").invoke(compiler);
+      return Permit.getMethod(Class.class, "getModule").invoke(anchor);
     } catch (Exception e) {
       return null;
     }
   }
 
-  private static Object getOwnModule(Class<?> type) {
+  private static Object getJdkCompilerModule() {
     try {
-      Method m = Permit.getMethod(Class.class, "getModule");
-      return m.invoke(type);
+      Class<?> moduleLayerClass = Class.forName("java.lang.ModuleLayer");
+      Method boot = moduleLayerClass.getDeclaredMethod("boot");
+      Object bootLayer = boot.invoke(null);
+      Class<?> optionalClass = Class.forName("java.util.Optional");
+      Method findModule = moduleLayerClass.getDeclaredMethod("findModule", String.class);
+      Object compiler = findModule.invoke(bootLayer, "jdk.compiler");
+      return optionalClass.getDeclaredMethod("get").invoke(compiler);
     } catch (Exception e) {
       return null;
     }

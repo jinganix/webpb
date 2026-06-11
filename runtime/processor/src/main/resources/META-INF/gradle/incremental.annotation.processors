@@ -1,0 +1,2 @@
+io.github.jinganix.webpb.processor.WebpbRequestMappingProcessor,dynamic
+io.github.jinganix.webpb.processor.WebpbMessageMappingProcessor,dynamic

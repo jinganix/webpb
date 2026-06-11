@@ -1,2 +1,3 @@
+io.github.jinganix.webpb.processor.misc.WebpbJavacBootstrap
 io.github.jinganix.webpb.processor.WebpbRequestMappingProcessor
 io.github.jinganix.webpb.processor.WebpbMessageMappingProcessor

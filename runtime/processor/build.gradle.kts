@@ -6,19 +6,36 @@ plugins {
   id("java.library")
 }
 
+val javacInternalsExports =
+  listOf(
+    "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+  )
+
+val javacInternalsOpens =
+  listOf(
+    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+  )
+
 if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
   tasks.withType<JavaCompile> {
-    val args = options.compilerArgs
-    args.addAll(listOf("--add-exports", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"))
-    args.addAll(
-      listOf(
-        "--add-exports",
-        "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED"
-      )
-    )
-    args.addAll(listOf("--add-exports", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"))
-    args.addAll(listOf("--add-exports", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"))
+    options.compilerArgs.addAll(javacInternalsExports)
   }
+}
+
+tasks.test {
+  jvmArgs(javacInternalsOpens)
 }
 
 dependencies {

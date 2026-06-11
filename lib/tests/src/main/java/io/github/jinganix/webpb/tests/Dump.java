@@ -22,14 +22,14 @@ import java.io.InputStream;
 
 /** Utilities to handle test dump files. */
 public enum Dump {
+  alias_skip,
   auto_alias,
+  core_codegen,
   enumeration,
-  error_test,
-  extends_test,
-  import_test,
-  test1,
-  test2,
-  test3;
+  errors,
+  generator_options,
+  message_extends,
+  imports;
 
   private final String dumpName;
 

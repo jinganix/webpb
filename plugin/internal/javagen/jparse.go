@@ -152,9 +152,26 @@ func parseAnnotationName(s string) (string, string, error) {
 func splitAnnotationPairs(s string) []string {
 	var pairs []string
 	depth := 0
+	inString := false
+	var quote byte
 	start := 0
 	for i := 0; i < len(s); i++ {
-		switch s[i] {
+		ch := s[i]
+		if inString {
+			if ch == '\\' && i+1 < len(s) {
+				i++
+				continue
+			}
+			if ch == quote {
+				inString = false
+				quote = 0
+			}
+			continue
+		}
+		switch ch {
+		case '"', '\'':
+			inString = true
+			quote = ch
 		case '(':
 			depth++
 		case ')':

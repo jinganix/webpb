@@ -46,7 +46,7 @@ class TestUtilsTest {
   @DisplayName("should create request when dump is valid")
   void shouldCreateRequestWhenDumpIsValid() {
     // When / Then
-    assertThat(TestUtils.createRequest(Dump.test1)).isNotNull();
+    assertThat(TestUtils.createRequest(Dump.core_codegen)).isNotNull();
   }
 
   @Test

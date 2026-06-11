@@ -22,6 +22,19 @@
 | Expected TS output | `plugin/testdata/ts/{case}/` |
 | Test harness | `plugin/internal/testutil/` |
 
+### Fixture cases (`{case}`)
+
+| Case | Purpose |
+|------|---------|
+| `core_codegen` | End-to-end happy path: REST paths, annotations, maps, nested types, imports |
+| `generator_options` | File/message/field generator options and edge cases (empty message, `is*` booleans, skipped packages) |
+| `alias_skip` | Auto-alias collision avoidance (`a`/`b` → `c`/`d`) |
+| `auto_alias` | Auto-alias at webpb / file / message / field levels and extends hierarchy |
+| `enumeration` | Const enum defaults and map-valued enums |
+| `message_extends` | `extends`, `sub_type`, `sub_values`, cross-file references |
+| `imports` | Extends types with empty `java_package` |
+| `errors` | Invalid annotations, imports, extends targets, duplicated fields, bad Java imports |
+
 Run golden tests after building dumps:
 
 ```bash
@@ -57,10 +70,4 @@ Do not commit scratch diff artifacts (`.golden-got.*`, `.golden-want.*`).
 
 Go plugin tests run via `./gradlew :plugin:testGo` as part of `./gradlew build`.
 
-The TypeScript protoc plugin is published to npm as `webpb-protoc-ts`:
-
-```bash
-cd plugin/npm/webpb-protoc-ts
-npm run pack      # local tarball in dist/
-npm run publish   # release (requires NODE_AUTH_TOKEN)
-```
+The TypeScript protoc plugin is published to Maven Central as `webpb-protoc-ts` via `./gradlew :plugin:ts:publish`.

@@ -9,17 +9,17 @@ import (
 )
 
 var javaDumps = []string{
+	"alias_skip",
 	"auto_alias",
+	"core_codegen",
 	"enumeration",
-	"extends_test",
-	"import_test",
-	"test1",
-	"test2",
+	"message_extends",
+	"generator_options",
+	"imports",
 }
 
 var javaErrorDumps = []string{
-	"error_test",
-	"test3",
+	"errors",
 }
 
 func TestJavaGolden(t *testing.T) {
@@ -31,21 +31,28 @@ func TestJavaGolden(t *testing.T) {
 			if err != nil {
 				t.Fatalf("create context: %v", err)
 			}
+			generated := map[string]string{}
 			for _, fd := range ctx.TargetDescriptors {
-				fd := fd
 				files, err := generator.Generate(fd)
 				if err != nil {
 					t.Fatalf("generate %s: %v", fd.Path(), err)
 				}
 				for name, content := range files {
 					key := strings.TrimPrefix(name, "/")
-					expected, err := testutil.ReadExpected("java", dump, key)
-					if err != nil {
-						t.Fatalf("read expected %s/%s: %v", dump, key, err)
-					}
-					if !testutil.GoldenEqual(content, expected) {
-						t.Fatalf("mismatch for %s/%s", dump, key)
-					}
+					generated[key] = content
+				}
+			}
+			formatted, err := testutil.FormatGoldenFiles("java", generated)
+			if err != nil {
+				t.Fatalf("format golden: %v", err)
+			}
+			for key, content := range formatted {
+				expected, err := testutil.ReadExpected("java", dump, key)
+				if err != nil {
+					t.Fatalf("read expected %s/%s: %v", dump, key, err)
+				}
+				if !testutil.GoldenEqual(content, expected) {
+					t.Fatalf("mismatch for %s/%s", dump, key)
 				}
 			}
 		})

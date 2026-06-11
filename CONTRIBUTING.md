@@ -6,7 +6,7 @@
 - Tests: [ai-kit/TEST_CONVENTIONS.md](ai-kit/TEST_CONVENTIONS.md)
 - Go plugin tests: [ai-kit/GO_TEST_CONVENTIONS.md](ai-kit/GO_TEST_CONVENTIONS.md)
 
-The TypeScript protoc plugin is published to npm as [`webpb-protoc-ts`](plugin/npm/webpb-protoc-ts).
+The TypeScript protoc plugin is published to Maven Central as `webpb-protoc-ts` (`plugin/ts`).
 
 The TypeScript runtime library is published to npm as [`webpb`](runtime/ts).
 

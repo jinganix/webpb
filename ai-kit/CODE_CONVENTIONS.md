@@ -38,4 +38,4 @@ After editing Java production code, verify build from repository root. Prefer au
 
 When Spotless or compile errors remain after `spotlessApply`, fix them manually and re-run build.
 
-Relevant modules include `lib/commons`, `lib/utilities`, `plugin` (Go protoc plugins), `plugin/npm/webpb-protoc-ts` (npm package, published via npm scripts), `runtime/java`, `runtime/processor`, and `sample/backend`.
+Relevant modules include `lib/commons`, `lib/utilities`, `plugin` (Go protoc plugins), `plugin/java` and `plugin/ts` (Maven-published protoc plugin launchers), `runtime/java`, `runtime/processor`, and `sample/backend`.

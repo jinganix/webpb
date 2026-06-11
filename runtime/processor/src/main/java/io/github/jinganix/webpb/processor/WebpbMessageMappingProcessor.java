@@ -18,176 +18,46 @@
 
 package io.github.jinganix.webpb.processor;
 
-import static javax.tools.Diagnostic.Kind.ERROR;
-
-import com.sun.source.util.TreePath;
-import com.sun.source.util.Trees;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.processing.JavacProcessingEnvironment;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.tree.TreeScanner;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Names;
-import io.github.jinganix.webpb.processor.misc.JvmOpens;
-import io.github.jinganix.webpb.processor.misc.TreeMakerImport;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 
 /** Process the WebpbMessageMapping and transform it to Spring MessageMapping. */
 @SupportedAnnotationTypes(Const.WebpbMessageMapping)
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
-public class WebpbMessageMappingProcessor extends AbstractProcessor {
+public class WebpbMessageMappingProcessor extends AbstractWebpbMappingProcessor {
 
-  private static final String SPRING_ANNOTATION =
-      "org.springframework.messaging.handler.annotation";
-
-  static {
-    JvmOpens.addOpens(WebpbMessageMappingProcessor.class);
-  }
-
-  private final TreeMakerImport treeMakerImport = new TreeMakerImport();
-  private Trees trees;
-  private TreeMaker treeMaker;
-  private Names names;
+  private static final String SPRING_MESSAGING = "org.springframework.messaging.handler.annotation";
 
   @Override
-  public synchronized void init(ProcessingEnvironment processingEnv) {
-    super.init(processingEnv);
-    JavacProcessingEnvironment env = getJavacProcessingEnvironment(processingEnv);
-    if (env == null) {
-      throw new RuntimeException("JavacProcessingEnvironment is required.");
-    }
-    this.trees = Trees.instance(env);
-    this.treeMaker = TreeMaker.instance(env.getContext());
-    this.names = Names.instance(env.getContext());
+  protected String sourceAnnotationName() {
+    return Const.WebpbMessageMapping;
   }
 
   @Override
-  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    for (Element element : roundEnv.getRootElements()) {
-      processUnit(toUnit(element));
-    }
-    return false;
+  protected String missingMessageError() {
+    return "Should specify a message for WebpbMessageMapping";
   }
 
-  private JavacProcessingEnvironment getJavacProcessingEnvironment(Object procEnv) {
-    if (procEnv instanceof JavacProcessingEnvironment) {
-      return (JavacProcessingEnvironment) procEnv;
-    }
-
-    logError("Can't get the delegate of the gradle IncrementalProcessingEnvironment.");
-    return null;
-  }
-
-  private JCCompilationUnit toUnit(Element element) {
-    TreePath path = trees.getPath(element);
-    return (JCCompilationUnit) path.getCompilationUnit();
-  }
-
-  private void processUnit(JCCompilationUnit unit) {
-    new TreeScanner() {
-      @Override
-      public void visitMethodDef(JCMethodDecl tree) {
-        tree.mods.annotations =
-            List.from(
-                tree.mods.annotations.stream()
-                    .map(annotation -> transformAnnotation(unit, tree, annotation))
-                    .collect(Collectors.toList()));
-        super.visitMethodDef(tree);
-      }
-    }.scan(unit);
-  }
-
-  private JCAnnotation transformAnnotation(
+  @Override
+  protected JCAnnotation transformWebpbAnnotation(
       JCCompilationUnit unit, JCMethodDecl method, JCAnnotation annotation) {
-    if (annotation.annotationType.type == null) {
-      return annotation;
-    }
-    if (!annotation.annotationType.type.toString().equals(Const.WebpbMessageMapping)) {
-      return annotation;
-    }
-    ArrayList<JCTree.JCExpression> args = new ArrayList<>();
-    unit.defs = addImport(unit.defs, SPRING_ANNOTATION, "MessageMapping");
-    ClassSymbol messageSymbol = null;
-    for (JCTree.JCExpression arg : annotation.args) {
-      JCTree.JCAssign assign = (JCTree.JCAssign) arg;
-      messageSymbol =
-          assign.rhs.type.allparams().stream()
-              .filter(type -> type.tsym instanceof ClassSymbol)
-              .findFirst()
-              .map(type -> (ClassSymbol) type.tsym)
-              .orElse(null);
-    }
-    if (messageSymbol == null) {
-      for (JCTree.JCVariableDecl parameter : method.getParameters()) {
-        TypeSymbol typeSymbol = parameter.sym.type.tsym;
-        for (Type type : ((ClassSymbol) typeSymbol).getInterfaces()) {
-          if (Const.WebpbMessage.equals(type.tsym.getQualifiedName().toString())) {
-            messageSymbol = ((ClassSymbol) typeSymbol);
-            break;
-          }
-        }
-      }
-    }
-    if (messageSymbol == null) {
-      logError("Should specify a message for WebpbMessageMapping");
-      return annotation;
-    }
-    processSymbolUnit(messageSymbol, args);
-    return treeMaker.Annotation(
-        treeMaker.Ident(names.fromString("MessageMapping")), List.from(args));
+    return replaceAnnotation(
+        unit, method, annotation, "MessageMapping", SPRING_MESSAGING, new ArrayList<>());
   }
 
-  private void processSymbolUnit(TypeSymbol symbol, ArrayList<JCTree.JCExpression> args) {
-    for (Symbol element : symbol.getEnclosedElements()) {
-      if (!(element instanceof Symbol.VarSymbol)) {
-        continue;
-      }
-      Symbol.VarSymbol varSymbol = (Symbol.VarSymbol) element;
-      if ("WEBPB_PATH".equals(varSymbol.getSimpleName().toString())) {
-        String path = varSymbol.getConstValue().toString();
-        String mappingPath = path.split("\\?")[0];
-        args.add(treeMaker.Literal(mappingPath));
-      }
+  @Override
+  protected void enrichFromMessage(
+      JCCompilationUnit unit, TypeSymbol messageSymbol, ArrayList<JCExpression> args) {
+    String path = webpbMappingPath(messageSymbol);
+    if (path != null) {
+      args.add(treeMaker().Literal(path));
     }
-  }
-
-  private List<JCTree> addImport(List<JCTree> trees, String identifier, String name) {
-    JCTree.JCImport jcImport =
-        treeMakerImport.Import(
-            treeMaker,
-            treeMaker.Select(treeMaker.Ident(names.fromString(identifier)), names.fromString(name)),
-            false);
-    ArrayList<JCTree> jcTrees = new ArrayList<>();
-    for (JCTree tree : trees) {
-      if (jcImport != null && tree.hasTag(JCTree.Tag.CLASSDEF)) {
-        jcTrees.add(jcImport);
-        jcTrees.add(tree);
-        jcImport = null;
-      } else {
-        jcTrees.add(tree);
-      }
-    }
-    return List.from(jcTrees);
-  }
-
-  private void logError(String error) {
-    processingEnv.getMessager().printMessage(ERROR, error);
   }
 }

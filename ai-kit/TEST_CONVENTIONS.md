@@ -139,7 +139,7 @@ Shared helpers belong in the package that owns the concern. Do not copy dump-loa
 ./gradlew spotlessApply   # auto-fix Java formatting — run first when Spotless fails
 ./gradlew build           # full check including Go plugin tests
 ./gradlew :plugin:testGo
-cd plugin/npm/webpb-protoc-ts && npm run pack
+./gradlew :plugin:ts:bootJar
 ./gradlew :lib:utilities:test
 ./gradlew :runtime:java:test
 ./gradlew :runtime:processor:test
