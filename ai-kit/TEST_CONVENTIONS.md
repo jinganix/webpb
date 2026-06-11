@@ -151,7 +151,7 @@ After editing tests, run **build** (Spotless + compile + tests). Prefer `spotles
 For TypeScript runtime and sample frontend:
 
 ```bash
-./gradlew :runtime:ts:check
+cd runtime/ts && npm ci && npm run check
 cd sample/frontend && npm ci && npm run check
 ```
 

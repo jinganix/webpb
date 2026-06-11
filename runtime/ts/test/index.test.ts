@@ -13,6 +13,20 @@ describe("assign", () => {
     {
       dest: {},
       excludes: [],
+      expected: {},
+      src: [],
+      when: "src is array",
+    },
+    {
+      dest: { a: 0 },
+      excludes: [],
+      expected: { a: 1, b: null },
+      src: { a: 1, b: null },
+      when: "null values are assigned",
+    },
+    {
+      dest: {},
+      excludes: [],
       expected: { a: 1 },
       src: { a: 1 },
       when: "src has properties and excludes is empty",
@@ -45,6 +59,24 @@ describe("getter", () => {
       when: "path matches nested key",
     },
     { data: { a: 1 }, expected: null, path: "b", when: "path does not exist" },
+    {
+      data: { a: { b: 1 } },
+      expected: { b: 1 },
+      path: "a",
+      when: "path resolves to nested object",
+    },
+    {
+      data: { a: 1 },
+      expected: { a: 1 },
+      path: "",
+      when: "path is empty",
+    },
+    {
+      data: { a: { b: 1 } },
+      expected: 1,
+      path: "a..b",
+      when: "path contains empty segments",
+    },
   ])("should return $expected when $when", ({ data, path, expected }) => {
     expect(getter(data, path)).toStrictEqual(expected);
   });
@@ -127,8 +159,25 @@ describe("query", () => {
       pre: "",
       when: "sort value is empty string",
     },
+    {
+      expected: "sort=a%2C0",
+      params: { sort: { a: 0 } },
+      pre: "",
+      when: "sort value is zero",
+    },
+    {
+      expected: "sort=a%2Cfalse",
+      params: { sort: { a: false } },
+      pre: "",
+      when: "sort value is false",
+    },
   ])("should build query string when $when", ({ pre, params, expected }) => {
     expect(query(pre, params)).toStrictEqual(expected);
+  });
+
+  it("should stringify date params when value is not a plain object", () => {
+    const date = new Date("2020-01-01T00:00:00.000Z");
+    expect(query("", { a: 1, b: date })).toBe(`a=1&b=${encodeURIComponent(String(date))}`);
   });
 });
 
@@ -168,6 +217,29 @@ describe("toAlias", () => {
     expect(toAlias(data, aliases)).toStrictEqual(expected);
   });
 
+  it("should call toWebpbAlias when property implements WebpbMessage", () => {
+    // Given
+    const nested = {
+      toWebpbAlias: () => ({ aliased: true }),
+      webpbMeta: () => ({
+        class: "Nested",
+        context: "",
+        method: "",
+        path: "",
+      }),
+    };
+    const data = { a: 1, nested };
+
+    // When
+    const result = toAlias(data, { a: "a_" });
+
+    // Then
+    expect(result).toStrictEqual({
+      a_: 1,
+      nested: { aliased: true },
+    });
+  });
+
   it("should call toAlias recursively when property has toAlias method", () => {
     // Given
     const b: Record<string, unknown> = { b: 2, c: 3 };
@@ -198,5 +270,12 @@ describe("mapValues", () => {
       a: "1",
       b: "true",
     });
+  });
+
+  it.each([
+    { expected: {}, record: null, when: "record is null" },
+    { expected: {}, record: undefined, when: "record is undefined" },
+  ])("should return empty object when $when", ({ record, expected }) => {
+    expect(mapValues(record, (v) => v)).toStrictEqual(expected);
   });
 });

@@ -80,6 +80,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true
 
+      - name: Check runtime/ts
+        working-directory: runtime/ts
+        run: npm ci && npm run check
+
       - name: Run Go plugin tests
         if: runner.os != 'Windows'
         shell: bash

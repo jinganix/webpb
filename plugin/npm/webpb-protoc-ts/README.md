@@ -27,6 +27,6 @@ Binaries are built from the Go plugin in `plugin/cmd/webpb-ts`.
 
 ```bash
 cd plugin/npm/webpb-protoc-ts
-npm run pack      # host platform vendor binary + tarball
+npm run pack      # host platform vendor binary + dist/*.tgz
 npm run publish   # all platforms + npm publish (requires NODE_AUTH_TOKEN)
 ```

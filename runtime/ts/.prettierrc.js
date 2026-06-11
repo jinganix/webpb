@@ -1,4 +1,5 @@
 const config = {
+  endOfLine: "lf",
   semi: true,
   singleQuote: false,
 };

@@ -61,6 +61,6 @@ The TypeScript protoc plugin is published to npm as `webpb-protoc-ts`:
 
 ```bash
 cd plugin/npm/webpb-protoc-ts
-npm run pack      # local tarball
+npm run pack      # local tarball in dist/
 npm run publish   # release (requires NODE_AUTH_TOKEN)
 ```

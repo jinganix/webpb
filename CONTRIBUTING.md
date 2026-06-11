@@ -8,6 +8,8 @@
 
 The TypeScript protoc plugin is published to npm as [`webpb-protoc-ts`](plugin/npm/webpb-protoc-ts).
 
+The TypeScript runtime library is published to npm as [`webpb`](runtime/ts).
+
 Run the full check from the repository root:
 
 ```bash
