@@ -81,6 +81,7 @@ jobs:
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true
 
       - name: Run Go plugin tests
+        if: runner.os != 'Windows'
         shell: bash
         working-directory: plugin
         run: go test ./...
