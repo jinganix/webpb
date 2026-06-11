@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/jinganix/webpb/plugin/internal/core"
 	"google.golang.org/protobuf/proto"
@@ -56,6 +57,10 @@ func CreateContext(dump string) (*core.RequestContext, error) {
 	return core.NewRequestContext(req)
 }
 
+func normalizeEOL(s string) string {
+	return strings.ReplaceAll(s, "\r\n", "\n")
+}
+
 // ReadExpected reads an expected golden file from plugin testdata.
 func ReadExpected(lang, dump, key string) (string, error) {
 	path := filepath.Join(RepoRoot(), "plugin", "testdata", lang, dump, key)
@@ -63,5 +68,5 @@ func ReadExpected(lang, dump, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(data), nil
+	return normalizeEOL(string(data)), nil
 }
