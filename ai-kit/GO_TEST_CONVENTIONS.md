@@ -57,10 +57,4 @@ Do not commit scratch diff artifacts (`.golden-got.*`, `.golden-want.*`).
 
 Go plugin tests run via `./gradlew :plugin:testGo` as part of `./gradlew build`.
 
-The TypeScript protoc plugin is published to npm as `webpb-protoc-ts`:
-
-```bash
-cd plugin/npm/webpb-protoc-ts
-npm run pack      # local tarball in dist/
-npm run publish   # release (requires NODE_AUTH_TOKEN)
-```
+The TypeScript protoc plugin is published to Maven Central as `webpb-protoc-ts` via `./gradlew :plugin:ts:publish`.
