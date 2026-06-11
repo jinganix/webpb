@@ -1,6 +1,6 @@
 {
   "name": "webpb",
-  "version": "0.0.19",
+  "version": "0.0.26",
   "description": "The webpb runtime library",
   "scripts": {
     "build": "rimraf build/**/* && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.cjs && copyfiles ./README.md ./package.json build",
