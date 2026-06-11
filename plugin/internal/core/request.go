@@ -1,18 +1,24 @@
 package core
 
 import (
+	"strings"
+
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	pluginpb "google.golang.org/protobuf/types/pluginpb"
 )
 
+func normalizeProtoPath(path string) string {
+	return strings.ReplaceAll(path, "\\", "/")
+}
+
 type filesResolver struct {
 	files map[string]protoreflect.FileDescriptor
 }
 
 func (r *filesResolver) FindFileByPath(path string) (protoreflect.FileDescriptor, error) {
-	if fd, ok := r.files[path]; ok {
+	if fd, ok := r.files[normalizeProtoPath(path)]; ok {
 		return fd, nil
 	}
 	return nil, protoregistry.NotFound
@@ -47,17 +53,19 @@ func BuildDescriptors(req *pluginpb.CodeGeneratorRequest) ([]protoreflect.FileDe
 	var all []protoreflect.FileDescriptor
 
 	for _, pb := range req.ProtoFile {
+		name := normalizeProtoPath(pb.GetName())
+		pb.Name = &name
 		fd, err := protodesc.FileOptions{AllowUnresolvable: true}.New(pb, resolver)
 		if err != nil {
 			return nil, nil, err
 		}
-		filesMap[pb.GetName()] = fd
+		filesMap[name] = fd
 		all = append(all, fd)
 	}
 
 	var targets []protoreflect.FileDescriptor
 	for _, name := range req.FileToGenerate {
-		targets = append(targets, filesMap[name])
+		targets = append(targets, filesMap[normalizeProtoPath(name)])
 	}
 	return all, targets, nil
 }
