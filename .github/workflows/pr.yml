@@ -10,7 +10,7 @@ jobs:
   commitlint:
     name: Check Commit Message
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || (github.event.pull_request.title != '' && !startsWith(github.event.pull_request.title, 'chore: release') && !startsWith(github.event.pull_request.title, 'chore: bump version to'))
+    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.title != '' && !startsWith(github.event.pull_request.title, 'chore: release') && !startsWith(github.event.pull_request.title, 'chore: bump version to')) }}
     steps:
       - uses: actions/checkout@v6
         with:
