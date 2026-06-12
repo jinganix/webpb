@@ -116,7 +116,7 @@ describe("downloadProtocFromMaven", () => {
   });
 
   it("should download protoc binary when response is ok", async () => {
-    await downloadProtocFromMaven("4.35.0", "/tmp/protoc");
+    await downloadProtocFromMaven("4.35.0", "/tmp/protoc", "linux");
 
     expect(fetch).toHaveBeenCalled();
     expect(pipeline).toHaveBeenCalled();

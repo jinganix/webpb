@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, normalize } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import {
@@ -85,7 +85,7 @@ describe("downloadReleaseBinary", () => {
   });
 
   it("should download plugin binary when response is ok", async () => {
-    await downloadReleaseBinary("1.0.0", "/tmp/plugin");
+    await downloadReleaseBinary("1.0.0", "/tmp/plugin", "linux");
 
     expect(fetch).toHaveBeenCalled();
     expect(pipeline).toHaveBeenCalled();
@@ -121,11 +121,16 @@ describe("downloadReleaseBinary", () => {
 });
 
 describe("findPluginDir", () => {
+  const repoRoot = join("/repo");
+  const pluginGoMod = join(repoRoot, "plugin", "go.mod");
+  const pluginDir = join(repoRoot, "plugin");
+  const runtimeTs = join(repoRoot, "runtime", "ts");
+
   it("should return plugin directory when plugin/go.mod exists", () => {
     vi.mocked(existsSync).mockImplementation(
-      (path) => String(path) === "/repo/plugin/go.mod",
+      (path) => normalize(String(path)) === normalize(pluginGoMod),
     );
-    expect(findPluginDir("/repo/runtime/ts")).toBe("/repo/plugin");
+    expect(findPluginDir(runtimeTs)).toBe(pluginDir);
   });
 
   it("should return undefined when plugin/go.mod is missing", () => {
@@ -135,6 +140,10 @@ describe("findPluginDir", () => {
 });
 
 describe("buildFromSource", () => {
+  const repoRoot = join("/repo");
+  const pluginGoMod = join(repoRoot, "plugin", "go.mod");
+  const runtimeTs = join(repoRoot, "runtime", "ts");
+
   it("should return without spawning go when plugin dir is missing", () => {
     vi.mocked(existsSync).mockReturnValue(false);
     buildFromSource("/tmp/root", vi.fn() as never);
@@ -143,19 +152,19 @@ describe("buildFromSource", () => {
 
   it("should spawn go build when plugin dir exists", () => {
     vi.mocked(existsSync).mockImplementation(
-      (path) => String(path) === "/repo/plugin/go.mod",
+      (path) => normalize(String(path)) === normalize(pluginGoMod),
     );
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
     } as ReturnType<typeof spawnSync>);
 
-    buildFromSource("/repo/runtime/ts", vi.fn() as never);
+    buildFromSource(runtimeTs, vi.fn() as never);
     expect(spawnSync).toHaveBeenCalled();
   });
 
   it("should call exit when go build fails", () => {
     vi.mocked(existsSync).mockImplementation(
-      (path) => String(path) === "/repo/plugin/go.mod",
+      (path) => normalize(String(path)) === normalize(pluginGoMod),
     );
     vi.mocked(spawnSync).mockReturnValue({
       status: 2,
@@ -164,34 +173,39 @@ describe("buildFromSource", () => {
       throw new Error(`exit:${code}`);
     });
 
-    expect(() => buildFromSource("/repo/runtime/ts", exit as never)).toThrow(
-      "exit:2",
-    );
+    expect(() => buildFromSource(runtimeTs, exit as never)).toThrow("exit:2");
   });
 });
 
 describe("resolvePluginAfterFailedDownload", () => {
+  const repoRoot = join("/repo");
+  const pluginGoMod = join(repoRoot, "plugin", "go.mod");
+  const runtimeTs = join(repoRoot, "runtime", "ts");
+  const localPlugin = join("/local", "plugin");
+
   it("should return rebuilt plugin path when source build succeeds", () => {
-    vi.spyOn(packageRoot, "monorepoPluginPath").mockReturnValue("/local/plugin");
+    vi.spyOn(packageRoot, "monorepoPluginPath").mockReturnValue(localPlugin);
     vi.mocked(existsSync).mockImplementation((path) => {
-      const value = String(path);
-      return value === "/repo/plugin/go.mod" || value === "/local/plugin";
+      const value = normalize(String(path));
+      return (
+        value === normalize(pluginGoMod) || value === normalize(localPlugin)
+      );
     });
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
     } as ReturnType<typeof spawnSync>);
 
     const rebuilt = resolvePluginAfterFailedDownload(
-      "/repo/runtime/ts",
+      runtimeTs,
       vi.fn() as never,
     );
-    expect(rebuilt).toBe("/local/plugin");
+    expect(rebuilt).toBe(localPlugin);
   });
 
   it("should return undefined when plugin directory is missing", () => {
     vi.mocked(existsSync).mockReturnValue(false);
     expect(
-      resolvePluginAfterFailedDownload("/repo/runtime/ts", vi.fn() as never),
+      resolvePluginAfterFailedDownload(runtimeTs, vi.fn() as never),
     ).toBeUndefined();
   });
 });

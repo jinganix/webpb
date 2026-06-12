@@ -2,6 +2,10 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+function asProtocPath(filePath: string): string {
+  return process.platform === "win32" ? filePath.replace(/\\/g, "/") : filePath;
+}
 import {
   afterEach,
   beforeEach,
@@ -87,8 +91,8 @@ describe("runGenerate", () => {
       "/bin/protoc",
       expect.arrayContaining([
         `--plugin=protoc-gen-ts=/bin/plugin`,
-        `--ts_out=${outDir}`,
-        protoFile,
+        `--ts_out=${asProtocPath(outDir)}`,
+        asProtocPath(protoFile),
       ]),
       { stdio: "inherit" },
     );
@@ -119,7 +123,7 @@ describe("runGenerate", () => {
 
     expect(spawnSync).toHaveBeenCalledWith(
       "/bin/protoc",
-      expect.arrayContaining(["-I", protoDir]),
+      expect.arrayContaining(["-I", asProtocPath(protoDir)]),
       { stdio: "inherit" },
     );
   });

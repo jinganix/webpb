@@ -91,7 +91,7 @@ describe("monorepoPluginPath", () => {
     writeFileSync(join(tempDir, "plugin", "go.mod"), "module plugin\n");
 
     const pluginPath = monorepoPluginPath(join(tempDir, "runtime/ts/build"));
-    expect(pluginPath).toMatch(/plugin[/\\]bin[/\\]webpb-protoc-ts$/);
+    expect(pluginPath).toMatch(/plugin[/\\]bin[/\\]webpb-protoc-ts(\.exe)?$/);
   });
 
   it("should return undefined when monorepo is absent", () => {
