@@ -1,4 +1,5 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import java.io.FileInputStream
 import java.math.BigDecimal
 import java.util.*
@@ -53,6 +54,13 @@ tasks.test {
   finalizedBy(tasks.jacocoTestReport)
 }
 
+tasks.withType<Javadoc>().configureEach {
+  (options as StandardJavadocDocletOptions).apply {
+    addBooleanOption("Xdoclint:all", true)
+    addBooleanOption("Werror", true)
+  }
+}
+
 extensions.findByType<SpotlessExtension>()?.java {
   targetExclude("build/**/*")
   googleJavaFormat(versionGoogleJavaFormat)
@@ -60,6 +68,7 @@ extensions.findByType<SpotlessExtension>()?.java {
 
 tasks.named<Task>("check") {
   dependsOn(tasks.named("spotlessCheck"))
+  dependsOn(tasks.named("javadoc"))
   dependsOn(tasks.named("jacocoTestCoverageVerification"))
 }
 
