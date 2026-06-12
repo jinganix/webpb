@@ -7,8 +7,8 @@
     "check": "npm run lint && npm run test",
     "lint": "eslint --quiet src/**/*.ts",
     "lint:fix": "eslint --fix src/**/*.ts",
-    "deploy": "npm run check && npm run build && npm publish ./build --access public",
-    "publish": "npm run sync-version && npm run build && npm publish ./build --access public",
+    "deploy": "npm run check && npm run release",
+    "release": "npm run sync-version && npm run build && npm publish ./build --access public --ignore-scripts",
     "sync-version": "node scripts/sync-version.mjs",
     "test": "vitest --coverage"
   },

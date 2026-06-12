@@ -337,6 +337,9 @@ jobs:
       (github.event.inputs.publish_only == 'true' || needs.release.result == 'success') &&
       (github.event.inputs.targets == 'all' || github.event.inputs.targets == 'npm')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Download release_version
         uses: actions/download-artifact@v8
@@ -361,9 +364,8 @@ jobs:
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       - name: Publish webpb to npm
         working-directory: runtime/ts
-        run: npm ci && npm run publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm install -g npm@latest && npm ci && npm run release
