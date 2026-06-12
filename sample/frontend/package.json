@@ -8,7 +8,7 @@
     "dev": "webpack serve --config webpack/webpack.config.dev.js",
     "lint": "npm run lint:scripts",
     "lint:scripts": "eslint src",
-    "proto": "node scripts/generate-proto.mjs",
+    "proto": "webpb generate -o generated/proto -I ../../sample/proto/src/main/resources ../../sample/proto/src/main/resources/Common.proto ../../sample/proto/src/main/resources/Store.proto",
     "start": "npm run proto && npm run dev",
     "test": "jest --forceExit --coverage --silent --detectOpenHandles"
   },
@@ -73,7 +73,7 @@
     "webpack-cli": "^7.0.3",
     "webpack-dev-server": "^5.2.4",
     "webpack-merge": "^6.0.1",
-    "webpb": "^0.0.25"
+    "webpb": "file:../../runtime/ts/build"
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",

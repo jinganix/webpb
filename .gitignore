@@ -4,6 +4,8 @@
 .idea/
 .kotlin/
 bin/
+!runtime/ts/src/cli/bin/
+!runtime/ts/src/cli/bin/**
 build/
 dist/
 node_modules/

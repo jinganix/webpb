@@ -5,6 +5,10 @@ plugins {
   id("java.application")
 }
 
+application {
+  mainClass.set("io.github.jinganix.webpb.java.Main")
+}
+
 val native =
   configureProtocPluginNative(
     goBuildTaskPath = ":plugin:buildGoJava",

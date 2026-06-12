@@ -1,16 +1,11 @@
-import com.google.protobuf.gradle.id
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.remove
 import utils.Vers.versionJacksonAnnotations
 import utils.Vers.versionLombok
 import utils.Vers.versionNetty
-import utils.Vers.versionProtobufJava
-import utils.Vers.webpb
-import utils.goProtocPluginPath
 import utils.hierarchicalGroup
 
 plugins {
   id("com.google.protobuf")
+  id("io.github.jinganix.webpb.java")
   id("io.spring.dependency-management")
   id("java.common")
   id("org.springframework.boot")
@@ -36,27 +31,6 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.boot:spring-boot-starter-web")
   testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-}
-
-protobuf {
-  protoc {
-    artifact = "com.google.protobuf:protoc:${versionProtobufJava}"
-  }
-  plugins {
-    id("webpb") {
-      path = goProtocPluginPath("java")
-    }
-  }
-  generateProtoTasks {
-    ofSourceSet("main").forEach {
-      it.builtins {
-        remove("java")
-      }
-      it.plugins {
-        id("webpb")
-      }
-    }
-  }
 }
 
 tasks.test {

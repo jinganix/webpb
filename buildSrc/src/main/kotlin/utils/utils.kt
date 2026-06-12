@@ -118,7 +118,7 @@ fun Project.signAndPublish(
   val extension = extensions.getByType<MavenPublishBaseExtension>()
 
   if (System.getenv("GITHUB_ACTIONS")?.toBoolean() == true) {
-    extension.publishToMavenCentral()
+    extension.publishToMavenCentral(automaticRelease = true)
     extension.signAllPublications()
   }
 

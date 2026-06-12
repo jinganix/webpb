@@ -30,6 +30,7 @@ Proto 扩展定义见 [`lib/proto/src/main/resources/webpb/WebpbExtend.proto`](l
 |------|------|
 | [`sample/proto`](sample/proto) | 共享 `.proto` 与 `WebpbOptions.proto`（全局 Java/TS 默认配置） |
 | [`sample/backend`](sample/backend) | Spring Boot 应用；通过 Gradle 从 proto 生成 Java |
+| [`sample/maven`](sample/maven) | 使用 `protobuf-maven-plugin` 的 Maven 最小示例 |
 | [`sample/frontend`](sample/frontend) | Webpack + TypeScript 应用；通过 `protoc` 从 proto 生成 TS |
 
 ### 定义 HTTP 接口
@@ -176,24 +177,19 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `opt` | `value` | 启用 `string_value` 时的字符串表示 |
 | `java` | `annotation` | 每个枚举值的 Java 注解 |
 
-## Protoc 插件
+## 快速开始
 
-webpb 以标准 [protoc](https://grpc.io/docs/protoc-installation/) 插件形式分发：从 stdin 读取 `CodeGeneratorRequest`，将生成文件写入 `--*_out`。无需 Gradle 或其他构建工具。
+已发布产物（Maven Central，group `io.github.jinganix.webpb`）：
 
-### 获取插件二进制
-
-**从 [GitHub Releases](https://github.com/jinganix/webpb/releases) 下载**（推荐）：每个 release 附带原生二进制 `webpb-protoc-java-<platform>` 与 `webpb-protoc-ts-<platform>`（如 `darwin-arm64`、`linux-amd64`、`windows-amd64`）。可按需重命名或创建符号链接为 `webpb-protoc-java` / `webpb-protoc-ts`，赋予可执行权限后，将路径传给 `--plugin`。
-
-**从源码构建**（需要 [Go](https://go.dev/)）：
-
-```shell
-cd plugin
-make build
-```
-
-会在 `plugin/bin/` 下生成 `webpb-protoc-java` 与 `webpb-protoc-ts`（Windows 为 `.exe`）。
-
-### `WebpbExtend.proto` 的 import 路径
+| 构件 | 用途 |
+|------|------|
+| `webpb-gradle-plugin` | Gradle 约定插件 |
+| `webpb-protoc-java` | Java protoc 插件（`:all` fat jar 或平台二进制） |
+| `webpb-protoc-ts` | TypeScript protoc 插件（`:all` fat jar 或平台二进制） |
+| `webpb-proto` | `WebpbExtend.proto` 及 well-known 类型，供 `-I` / `protobuf(...)` 依赖 |
+| `webpb-runtime` | Java 运行时库 |
+| `webpb-processor` | Spring `@WebpbRequestMapping` 注解处理器 |
+| [`webpb` (npm)](https://www.npmjs.com/package/webpb) | TypeScript 运行时与 `webpb generate` CLI |
 
 每个 `.proto` 必须 import webpb 扩展：
 
@@ -201,37 +197,228 @@ make build
 import "webpb/WebpbExtend.proto";
 ```
 
-通过 `-I` 指定包含 `webpb/` 目录的路径。本仓库中为 `lib/proto/src/main/resources`。
+在 Gradle/Maven 中添加 `webpb-proto` 依赖，或通过 `-I` 指定包含 `webpb/` 目录的路径。
 
-### 生成 Java
+### Gradle
 
-插件名为 `webpb`（与 [`sample/backend`](sample/backend/build.gradle.kts) 中 Gradle protobuf 插件 id 一致）：
+配合 [protobuf Gradle 插件](https://github.com/google/protobuf-gradle-plugin) 使用 webpb 约定插件：
+
+**Java**（[`sample/backend`](sample/backend/build.gradle.kts)）：
+
+```kotlin
+plugins {
+  id("com.google.protobuf") version "0.9.6"
+  id("io.github.jinganix.webpb.java") version "0.0.27"
+}
+
+dependencies {
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.27")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.27")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.27")
+  protobuf(project(":your-proto-module"))
+}
+```
+
+**TypeScript**：
+
+```kotlin
+plugins {
+  id("com.google.protobuf") version "0.9.6"
+  id("io.github.jinganix.webpb.ts") version "0.0.27"
+}
+
+dependencies {
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.27")
+}
+```
+
+可选配置：
+
+```kotlin
+webpb {
+  webpbVersion = "0.0.27"      // 默认与 Gradle 插件版本一致
+  protobufVersion = "4.35.0"   // com.google.protobuf:protoc 版本
+  cleanOutput = true           // 生成前删除输出目录
+  localPluginPath = "/path/to/webpb-protoc-java" // 跳过 Maven 解析
+}
+```
+
+约定插件会自动配置 `protoc`、从 Maven 解析 `webpb-protoc-*:all@jar`、移除内置 `java` 生成器并绑定 `generateProto` 任务。在 webpb 源码仓库内开发时，会自动使用 `plugin/bin/` 下的本地二进制。
+
+也可手动配置（不使用约定插件）：
+
+```kotlin
+protobuf {
+  protoc {
+    artifact = "com.google.protobuf:protoc:4.35.0"
+  }
+  plugins {
+    id("ts") {
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.27:all@jar"
+    }
+  }
+  generateProtoTasks {
+    ofSourceSet("main").forEach {
+      it.builtins { remove("java") }
+      it.plugins { id("ts") }
+    }
+  }
+}
+```
+
+### Maven
+
+使用 [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) 配合已发布的 `webpb-protoc-java`（`classifier: all`）。完整示例见 [`sample/maven/pom.xml`](sample/maven/pom.xml)。
+
+```xml
+<properties>
+  <webpb.version>0.0.27</webpb.version>
+  <protobuf.version>4.35.0</protobuf.version>
+</properties>
+
+<dependencies>
+  <dependency>
+    <groupId>io.github.jinganix.webpb</groupId>
+    <artifactId>webpb-proto</artifactId>
+    <version>${webpb.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>io.github.jinganix.webpb</groupId>
+    <artifactId>webpb-runtime</artifactId>
+    <version>${webpb.version}</version>
+  </dependency>
+</dependencies>
+
+<build>
+  <extensions>
+    <extension>
+      <groupId>kr.motd.maven</groupId>
+      <artifactId>os-maven-plugin</artifactId>
+      <version>1.7.1</version>
+    </extension>
+  </extensions>
+  <plugins>
+    <plugin>
+      <groupId>org.xolstice.maven.plugins</groupId>
+      <artifactId>protobuf-maven-plugin</artifactId>
+      <version>0.6.1</version>
+      <configuration>
+        <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+        <protocPlugins>
+          <protocPlugin>
+            <id>webpb</id>
+            <groupId>io.github.jinganix.webpb</groupId>
+            <artifactId>webpb-protoc-java</artifactId>
+            <version>${webpb.version}</version>
+            <classifier>all</classifier>
+            <mainClass>io.github.jinganix.webpb.java.Main</mainClass>
+          </protocPlugin>
+        </protocPlugins>
+      </configuration>
+      <executions>
+        <execution>
+          <goals>
+            <goal>compile-custom</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+```
+
+执行 `mvn generate-sources` 在 `target/generated-sources/protobuf/` 下生成 Java。Spring MVC 需额外添加 `webpb-processor` 注解处理器依赖。
+
+### npm / TypeScript
+
+安装运行时（开发依赖），使用内置 CLI 生成 TypeScript：
+
+```shell
+npm install -D webpb
+```
+
+`webpb` CLI 会自动解析 `protoc` 与 `webpb-protoc-ts`，内置 `webpb/WebpbExtend.proto` include 路径。每个 protobuf 包生成一个 `.ts` 文件（如 `StoreProto.ts`）。
+
+```shell
+npx webpb generate \
+  -o src/generated \
+  -I path/to/your/protos \
+  path/to/your/protos/*.proto
+```
+
+常用参数：
+
+| 参数 | 说明 |
+|------|------|
+| `-o, --out` | 输出目录（`--ts_out`），必填 |
+| `-I, --include` | 额外 proto include 路径（可重复） |
+| `--no-webpb-proto` | 跳过内置 webpb proto include |
+| `--protoc` | `protoc` 路径（默认：`PATH`，否则从 Maven Central 下载） |
+| `--plugin` | `webpb-protoc-ts` 路径（默认：从 GitHub Releases 下载） |
+| `--webpb-version` | 插件 release 版本 |
+| `--protobuf-version` | `protoc` 版本（默认与 Gradle 插件一致） |
+
+环境变量：`PROTOC`、`WEBPB_PROTOC_TS`、`WEBPB_VERSION`、`WEBPB_PROTOBUF_VERSION`。
+
+工具解析顺序：
+
+**`webpb-protoc-ts`：** `WEBPB_PROTOC_TS` → 源码仓库 `plugin/bin/`（开发 webpb 时）→ 缓存的 GitHub release（`~/.cache/webpb/{version}/`）→ 下载。
+
+**`protoc`：** `PROTOC` → `PATH` → 缓存的 Maven Central 下载（`~/.cache/webpb/protoc/{version}/`）。
+
+内置 proto include 随 npm 包发布（`node_modules/webpb/proto`）。若自行提供 `-I` 路径，可使用 `--no-webpb-proto`。
+
+在 `package.json` 中添加：
+
+```json
+{
+  "scripts": {
+    "proto": "webpb generate -o src/generated -I protos protos/*.proto"
+  }
+}
+```
+
+示例前端（使用本地 `runtime/ts/build` 中的 `webpb` 包；从源码开发时需先在 `runtime/ts` 执行 `npm run build`）：
+
+```shell
+cd sample/frontend
+npm install
+npm run proto
+```
+
+如需手动调用 `protoc`，可从 [GitHub Releases](https://github.com/jinganix/webpb/releases) 下载 `webpb-protoc-ts-<platform>` 或设置 `WEBPB_PROTOC_TS`。详见下方 [protoc 命令行](#protoc-命令行任意构建工具)。
+
+### protoc 命令行（任意构建工具）
+
+webpb 插件是标准 [protoc](https://grpc.io/docs/protoc-installation/) 插件：从 stdin 读取 `CodeGeneratorRequest`，写入 `--*_out`。
+
+**获取插件二进制**
+
+- [GitHub Releases](https://github.com/jinganix/webpb/releases) — `webpb-protoc-java-<platform>` / `webpb-protoc-ts-<platform>`
+- Maven Central — `io.github.jinganix.webpb:webpb-protoc-java:VERSION:all`（通过 `java -jar` 运行，或由 Gradle/Maven 自动解析）
+- 源码构建（需要 [Go](https://go.dev/)）：`cd plugin && make build`
+
+**生成 Java**（插件名 `webpb`）：
 
 ```shell
 protoc \
-  -I lib/proto/src/main/resources \
+  -I path/to/webpb-proto-include \
   -I path/to/your/protos \
   --plugin=protoc-gen-webpb=/path/to/webpb-protoc-java \
   --webpb_out=path/to/output \
   path/to/your/protos/*.proto
 ```
 
-生成的 `.java` 按 Java 包结构写入 `--webpb_out`（如 `com/example/Foo.java`）。Spring MVC 接入还需 [`runtime:java`](runtime/java) 库与 [`runtime:processor`](runtime/processor) 注解处理器。
-
-### 生成 TypeScript
-
-插件名为 `ts`：
+**生成 TypeScript**（插件名 `ts`）：
 
 ```shell
 protoc \
-  -I lib/proto/src/main/resources \
+  -I path/to/webpb-proto-include \
   -I path/to/your/protos \
   --plugin=protoc-gen-ts=/path/to/webpb-protoc-ts \
   --ts_out=path/to/output \
   path/to/your/protos/*.proto
 ```
-
-每个 protobuf 包生成一个 `.ts` 文件（如 `StoreProto.ts`）。示例前端在 [`sample/frontend/scripts/generate-proto.mjs`](sample/frontend/scripts/generate-proto.mjs) 中使用相同参数。
 
 ## 运行示例
 
@@ -249,19 +436,20 @@ Windows：
 ./gradlew.bat sample:backend:bootRun
 ```
 
-Gradle 会调用 `webpb` protoc 插件（`plugin/bin/webpb-protoc-java`）及注解处理器，在 `sample/backend/build/generated/` 下生成 Java 源码。
+Gradle 会应用 `io.github.jinganix.webpb.java`、调用 `webpb` protoc 插件及注解处理器，在 `sample/backend/build/generated/` 下生成 Java 源码。
 
 ### 前端（端口 4200）
 
-安装 [Node.js](https://nodejs.org/) 与 [protoc](https://grpc.io/docs/protoc-installation/) 后：
+安装 [Node.js](https://nodejs.org/)，构建本地 `webpb` npm 包后启动前端：
 
 ```shell
+cd runtime/ts && npm ci && npm run build
 cd sample/frontend
 npm install
 npm start
 ```
 
-`npm start` 会执行 `scripts/generate-proto.mjs`：在需要时从 `plugin/` 构建 `webpb-protoc-ts`，并将 TypeScript 写入 `sample/frontend/generated/proto/`。等价的 `protoc` 命令见 [Protoc 插件](#protoc-插件)。
+`npm start` 会执行 `webpb generate`，自动解析 `protoc` 与 `webpb-protoc-ts`，并将 TypeScript 写入 `sample/frontend/generated/proto/`。详见 [npm / TypeScript](#npm--typescript)。
 
 打开 http://localhost:4200。开发服务器将 `/stores` 代理到后端 http://localhost:8181。
 

@@ -1,3 +1,11 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+  }
+  includeBuild("gradle-plugin")
+}
+
 rootProject.name = "webpb"
 include(":lib:commons")
 include(":lib:proto")
