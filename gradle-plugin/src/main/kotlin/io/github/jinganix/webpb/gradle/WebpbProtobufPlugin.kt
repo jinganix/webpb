@@ -50,7 +50,7 @@ abstract class WebpbProtobufPlugin(
               path = localPath
             } else {
               artifact =
-                "io.github.jinganix.webpb:$protocArtifactId:$webpbVersion:all@jar"
+                "io.github.jinganix.webpb:$protocArtifactId:$webpbVersion"
             }
           }
         }

@@ -2,6 +2,35 @@ plugins {
   base
 }
 
+val gradlePluginBuild = gradle.includedBuild("gradle-plugin")
+
+tasks.register("publishToMavenLocal") {
+  group = "publishing"
+  description = "Publishes all Maven artifacts including gradle-plugin to the local Maven repository"
+  dependsOn(gradlePluginBuild.task(":publishToMavenLocal"))
+}
+
+tasks.register("publish") {
+  group = "publishing"
+  description = "Publishes all Maven artifacts including gradle-plugin"
+  dependsOn(gradlePluginBuild.task(":publish"))
+}
+
+subprojects {
+  afterEvaluate {
+    if (tasks.findByName("publishToMavenLocal") != null) {
+      rootProject.tasks.named("publishToMavenLocal") {
+        dependsOn(tasks.named("publishToMavenLocal"))
+      }
+    }
+    if (tasks.findByName("publish") != null) {
+      rootProject.tasks.named("publish") {
+        dependsOn(tasks.named("publish"))
+      }
+    }
+  }
+}
+
 val jacocoProjects =
   listOf(
     ":lib:commons",

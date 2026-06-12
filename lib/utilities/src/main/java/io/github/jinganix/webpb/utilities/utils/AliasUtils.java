@@ -68,7 +68,7 @@ public class AliasUtils {
         maxIndex = Math.max(maxIndex, index);
       }
       int reserve =
-          OptionUtils.getOpts(messageDescriptor, MessageOpts::hasTs).getTs().getAliasReserve();
+          OptionUtils.getOpts(messageDescriptor, MessageOpts::hasOpt).getOpt().getAliasReserve();
       offset = Math.max(maxIndex, reserve);
     }
     return aliases;
@@ -84,7 +84,7 @@ public class AliasUtils {
     messages.add(descriptor);
     for (Descriptor messageDescriptor : messages) {
       int reserve =
-          OptionUtils.getOpts(messageDescriptor, MessageOpts::hasTs).getTs().getAliasReserve();
+          OptionUtils.getOpts(messageDescriptor, MessageOpts::hasOpt).getOpt().getAliasReserve();
       if (reserve == 0) {
         continue;
       }
