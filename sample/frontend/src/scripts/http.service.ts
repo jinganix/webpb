@@ -50,7 +50,7 @@ export class HttpService {
       } else {
         logger.stringify(error);
       }
-      throw new Error(`Failed when request: ${url}`);
+      throw new Error(`Failed when request: ${url}`, { cause: error });
     }
   }
 }
