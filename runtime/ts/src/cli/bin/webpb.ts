@@ -29,6 +29,13 @@ export async function runCli(argv: string[]): Promise<number> {
   return 1;
 }
 
+function normalizeComparablePath(path: string): string {
+  if (process.platform !== "win32") {
+    return path;
+  }
+  return path.replace(/^\\\\\?\\/, "").toLowerCase();
+}
+
 function resolveArgvEntryPath(argv: string[]): string {
   const entry = argv[1];
   if (!entry) {
@@ -53,11 +60,8 @@ export function isMainModule(
   moduleUrl: string | URL,
   argv: string[] = process.argv,
 ): boolean {
-  const modulePath = resolveModulePath(moduleUrl);
-  const entryPath = resolveArgvEntryPath(argv);
-  if (process.platform === "win32") {
-    return entryPath.toLowerCase() === modulePath.toLowerCase();
-  }
+  const modulePath = normalizeComparablePath(resolveModulePath(moduleUrl));
+  const entryPath = normalizeComparablePath(resolveArgvEntryPath(argv));
   return entryPath === modulePath;
 }
 
@@ -81,4 +85,6 @@ export async function bootstrapMain(
   process.exit((await runMainEntrypoint(argv, moduleUrl)) ?? 0);
 }
 
-await bootstrapMain();
+if (process.env.VITEST !== "true") {
+  await bootstrapMain();
+}

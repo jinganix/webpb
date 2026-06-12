@@ -70,6 +70,10 @@ describe("isMainModule", () => {
   });
 
   it("should return true when argv is a symlink to the module path", () => {
+    if (process.platform === "win32") {
+      // Windows symlink semantics and realpath prefixes differ from Unix.
+      return;
+    }
     const modulePath = fileURLToPath(
       new URL("../../src/cli/bin/webpb.ts", import.meta.url),
     );

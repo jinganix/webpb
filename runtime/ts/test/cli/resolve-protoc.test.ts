@@ -94,6 +94,22 @@ describe("resolveOnPath", () => {
 
     expect(resolveOnPath("protoc")).toBeUndefined();
   });
+
+  it("should use where on windows when lookup succeeds", () => {
+    const platformSpy = vi
+      .spyOn(process, "platform", "get")
+      .mockReturnValue("win32");
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: "C:\\tools\\protoc.exe\r\n",
+    } as ReturnType<typeof spawnSync>);
+
+    expect(resolveOnPath("protoc")).toBe("C:\\tools\\protoc.exe");
+    expect(spawnSync).toHaveBeenCalledWith("where", ["protoc"], {
+      encoding: "utf8",
+    });
+    platformSpy.mockRestore();
+  });
 });
 
 describe("downloadProtocFromMaven", () => {

@@ -317,6 +317,39 @@ describe("resolveProtocPlugin", () => {
     await expect(resolveProtocPlugin(tempRoot)).resolves.toBe("/local/plugin");
   });
 
+  it("should return rebuilt plugin when download fails and source build succeeds", async () => {
+    const repoRoot = join(tempRoot, "repo");
+    const runtimeTs = join(repoRoot, "runtime", "ts");
+    const pluginGoMod = join(repoRoot, "plugin", "go.mod");
+    const rebuiltPlugin = join(repoRoot, "plugin", "bin", "webpb-protoc-ts");
+    mkdirSync(runtimeTs, { recursive: true });
+    writeFileSync(
+      join(runtimeTs, "package.json"),
+      JSON.stringify({ version: "2.0.0" }),
+    );
+    mkdirSync(dirname(pluginGoMod), { recursive: true });
+    writeFileSync(pluginGoMod, "module plugin\n");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      }),
+    );
+    vi.spyOn(packageRoot, "monorepoPluginPath").mockReturnValue(rebuiltPlugin);
+    vi.mocked(existsSync).mockImplementation((path) => {
+      const value = normalize(String(path));
+      return (
+        value === normalize(pluginGoMod) || value === normalize(rebuiltPlugin)
+      );
+    });
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+    } as ReturnType<typeof spawnSync>);
+
+    await expect(resolveProtocPlugin(runtimeTs)).resolves.toBe(rebuiltPlugin);
+  });
+
   it("should use webpbVersion option when resolving download version", async () => {
     process.env.WEBPB_VERSION = "9.8.7";
     const cached = cachePluginPath("9.8.7");
