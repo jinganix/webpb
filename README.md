@@ -252,7 +252,7 @@ Manual setup (without the convention plugin) is also supported:
 ```kotlin
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:4.35.0"
+    artifact = "com.google.protobuf:protoc:0.0.27"
   }
   plugins {
     id("ts") {
@@ -275,7 +275,7 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
 ```xml
 <properties>
   <webpb.version>0.0.27</webpb.version>
-  <protobuf.version>4.35.0</protobuf.version>
+  <protobuf.version>0.0.27</protobuf.version>
 </properties>
 
 <dependencies>
@@ -296,14 +296,14 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
     <extension>
       <groupId>kr.motd.maven</groupId>
       <artifactId>os-maven-plugin</artifactId>
-      <version>1.7.1</version>
+      <version>0.0.27</version>
     </extension>
   </extensions>
   <plugins>
     <plugin>
       <groupId>org.xolstice.maven.plugins</groupId>
       <artifactId>protobuf-maven-plugin</artifactId>
-      <version>0.6.1</version>
+      <version>0.0.27</version>
       <configuration>
         <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
         <protocPlugins>
