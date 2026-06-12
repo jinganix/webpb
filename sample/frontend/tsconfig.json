@@ -7,7 +7,7 @@
     "experimentalDecorators": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "lib": ["DOM", "ES2015"],
+    "lib": ["DOM", "ES2015", "ES2022.Error"],
     "module": "commonjs",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,

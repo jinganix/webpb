@@ -1,9 +1,8 @@
-import { fixupPluginRules } from "@eslint/compat";
 import eslint from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
-import eslintPluginImport from "eslint-plugin-import";
+import importX from "eslint-plugin-import-x";
+import perfectionist from "eslint-plugin-perfectionist";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import sortKeysFix from "eslint-plugin-sort-keys-fix";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -19,8 +18,8 @@ export default [
       parser: tsParser,
     },
     plugins: {
-      import: fixupPluginRules(eslintPluginImport),
-      "sort-keys-fix": sortKeysFix,
+      "import-x": importX,
+      perfectionist,
     },
     rules: {
       "@typescript-eslint/no-empty-object-type": ["off"],
@@ -36,8 +35,8 @@ export default [
           varsIgnorePattern: "^_",
         },
       ],
-      "import/newline-after-import": "error",
-      "import/order": [
+      "import-x/newline-after-import": "error",
+      "import-x/order": [
         "error",
         {
           alphabetize: {
@@ -55,23 +54,15 @@ export default [
           ignoreUrls: true,
         },
       ],
-      semi: "off",
-      "sort-keys": [
+      "perfectionist/sort-objects": [
         "error",
-        "asc",
         {
-          caseSensitive: false,
-          natural: true,
+          ignoreCase: true,
+          order: "asc",
+          type: "natural",
         },
       ],
-      "sort-keys-fix/sort-keys-fix": [
-        "warn",
-        "asc",
-        {
-          caseSensitive: false,
-          natural: true,
-        },
-      ],
+      semi: "off",
     },
   },
   {

@@ -25,6 +25,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Application {
 
+  /** Instantiates the Spring Boot application. */
+  public Application() {}
+
   /**
    * The main method.
    *

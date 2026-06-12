@@ -26,16 +26,23 @@ import io.github.jinganix.webpb.sample.proto.store.StoreListResponse;
 import io.github.jinganix.webpb.sample.proto.store.StoreVisitRequest;
 import io.github.jinganix.webpb.sample.proto.store.StoreVisitResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Store controller. */
 @RestController
-@RequiredArgsConstructor
 public class StoreController {
 
   private final StoreService storeService;
+
+  /**
+   * Creates the store controller.
+   *
+   * @param storeService store service
+   */
+  public StoreController(StoreService storeService) {
+    this.storeService = storeService;
+  }
 
   /**
    * Request a store data.

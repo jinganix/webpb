@@ -72,10 +72,9 @@ jobs:
         with:
           node-version: 24
 
-      - uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          version: '27.3'
+      - name: Setup protoc
+        shell: bash
+        run: bash .github/scripts/setup-protoc.sh 27.3
 
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true

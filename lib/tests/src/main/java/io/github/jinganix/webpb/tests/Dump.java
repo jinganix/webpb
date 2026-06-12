@@ -22,21 +22,37 @@ import java.io.InputStream;
 
 /** Utilities to handle test dump files. */
 public enum Dump {
+  /** Proto2 alias skip fixture. */
   proto2_alias_skip,
+  /** Proto2 auto alias fixture. */
   proto2_auto_alias,
+  /** Proto2 core codegen fixture. */
   proto2_core_codegen,
+  /** Proto2 enumeration fixture. */
   proto2_enumeration,
+  /** Proto2 errors fixture. */
   proto2_errors,
+  /** Proto2 generator options fixture. */
   proto2_generator_options,
+  /** Proto2 message extends fixture. */
   proto2_message_extends,
+  /** Proto2 imports fixture. */
   proto2_imports,
+  /** Proto3 alias skip fixture. */
   proto3_alias_skip,
+  /** Proto3 auto alias fixture. */
   proto3_auto_alias,
+  /** Proto3 core codegen fixture. */
   proto3_core_codegen,
+  /** Proto3 enumeration fixture. */
   proto3_enumeration,
+  /** Proto3 errors fixture. */
   proto3_errors,
+  /** Proto3 generator options fixture. */
   proto3_generator_options,
+  /** Proto3 message extends fixture. */
   proto3_message_extends,
+  /** Proto3 imports fixture. */
   proto3_imports;
 
   private final String dumpName;
