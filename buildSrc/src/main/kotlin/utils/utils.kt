@@ -25,8 +25,11 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.the
@@ -106,7 +109,12 @@ fun Project.hierarchicalGroup(): String {
   return project.group.toString() + suffix
 }
 
-fun Project.signAndPublish(artifactId: String, desc: String) {
+fun Project.signAndPublish(
+  artifactId: String,
+  desc: String,
+  platformExecutables: Map<String, Provider<RegularFile>> = emptyMap(),
+  platformExecutablesBuiltBy: TaskProvider<*>? = null,
+) {
   val extension = extensions.getByType<MavenPublishBaseExtension>()
 
   if (System.getenv("GITHUB_ACTIONS")?.toBoolean() == true) {
@@ -152,6 +160,14 @@ fun Project.signAndPublish(artifactId: String, desc: String) {
   if (bootJarTask is org.gradle.api.tasks.bundling.Jar) {
     publication.artifact(bootJarTask) {
       classifier = "all"
+    }
+  }
+
+  platformExecutables.forEach { (classifier, executable) ->
+    publication.artifact(executable) {
+      this.classifier = classifier
+      this.extension = "exe"
+      platformExecutablesBuiltBy?.let { builtBy(it) }
     }
   }
 }

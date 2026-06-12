@@ -62,15 +62,30 @@ final class NativeBinary {
     String arch = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
     if (os.contains("mac") || os.contains("darwin")) {
       if (arch.equals("aarch64") || arch.equals("arm64")) {
-        return "darwin-arm64";
+        return "osx-aarch_64";
       }
-      return "darwin-amd64";
+      return "osx-x86_64";
     }
     if (os.contains("linux")) {
-      return "linux-amd64";
+      if (arch.equals("aarch64") || arch.equals("arm64")) {
+        return "linux-aarch_64";
+      }
+      if (arch.equals("ppc64le")) {
+        return "linux-ppcle_64";
+      }
+      if (arch.equals("s390x")) {
+        return "linux-s390_64";
+      }
+      if (arch.equals("x86") || arch.equals("i386") || arch.equals("i686") || arch.equals("386")) {
+        return "linux-x86_32";
+      }
+      return "linux-x86_64";
     }
     if (os.contains("win")) {
-      return "windows-amd64";
+      if (arch.equals("x86") || arch.equals("i386") || arch.equals("i686") || arch.equals("386")) {
+        return "windows-x86_32";
+      }
+      return "windows-x86_64";
     }
     throw new IOException("Unsupported platform: " + os + " " + arch);
   }

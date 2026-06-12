@@ -261,7 +261,7 @@ jobs:
 
   publish:
     name: Publish
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY }}
       ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
@@ -282,6 +282,22 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 25
+
+      - name: Setup Go
+        if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: plugin/go.mod
+          cache-dependency-path: plugin/go.mod
+
+      - name: Configure Go for Gradle
+        if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          GO_BIN="$(command -v go)"
+          echo "WEBPB_GO=${GO_BIN}" >> "${GITHUB_ENV}"
+          "${GO_BIN}" version
 
       - name: Publish to Nexus
         if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
