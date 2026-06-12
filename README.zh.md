@@ -140,7 +140,7 @@ option (m_opts).ts = {auto_alias: true};
 | `java` | `annotation` | 类级 Java 注解 |
 | `java` | `field_annotation` | 该消息所有字段的默认字段注解 |
 | `ts` | `auto_alias` | 覆盖文件级 `auto_alias` |
-| `ts` | `alias_reserve` | 为子消息预留的 alias 编号上限，必须大于本消息最大 field id；子消息字段 alias 序号为 `max(祖先已用最大序号, alias_reserve) + field id` |
+| `ts` | `alias_reserve` | 为子消息预留的 alias 编号上限，必须大于本消息最大 field id；子消息字段 alias 序号为 `max(祖先已用最大序号, alias_reserve) + field id - 1` |
 
 ### 字段 — `(opts)`
 
@@ -239,7 +239,7 @@ dependencies {
 webpb {
   webpbVersion = "0.0.27"      // 默认与 Gradle 插件版本一致
   protobufVersion = "4.35.0"   // com.google.protobuf:protoc 版本
-  cleanOutput = true           // 生成前删除输出目录
+  cleanOutput = false          // 默认 true：生成前删除输出目录
   localPluginPath = "/path/to/webpb-protoc-java" // 跳过 Maven 解析
 }
 ```

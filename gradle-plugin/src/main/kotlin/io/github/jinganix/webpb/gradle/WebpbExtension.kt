@@ -27,7 +27,7 @@ open class WebpbExtension {
   var protobufVersion: String = "4.35.0"
 
   /** Delete the protobuf output directory before each generation task runs. */
-  var cleanOutput: Boolean = false
+  var cleanOutput: Boolean = true
 
   /**
    * Absolute path to a local protoc plugin binary. When set, Maven artifacts are not resolved.

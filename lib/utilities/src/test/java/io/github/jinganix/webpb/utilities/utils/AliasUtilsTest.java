@@ -40,7 +40,7 @@ class AliasUtilsTest {
     var aliases = AliasUtils.getAutoAliases(descriptor);
 
     // Then
-    assertThat(aliases).containsEntry("foo_1", "b").containsEntry("foo_2", "g");
+    assertThat(aliases).containsEntry("foo_1", "a").containsEntry("foo_2", "f");
   }
 
   @Test

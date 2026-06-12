@@ -26,7 +26,7 @@ public class Level1 implements WebpbMessage {
     return WEBPB_META;
   }
 
-  @JsonProperty("b")
+  @JsonProperty("a")
   private Integer test1;
 
   private Level2 test2;
@@ -35,7 +35,7 @@ public class Level1 implements WebpbMessage {
 
   private Level3 test4;
 
-  @JsonProperty("f")
+  @JsonProperty("e")
   private Map<Integer, Level3> test5;
 
   private Map<String, Level3> test6;

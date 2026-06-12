@@ -156,13 +156,18 @@ fun Project.configureProtocPluginNative(
     }
 
   val platformExecutables = linkedMapOf<String, Provider<RegularFile>>()
-  ProtocPlatforms.all.forEach { platform ->
-    val jarBinaryName = ProtocPlatforms.jarBinaryName(binaryName, platform)
-    platformExecutables[platform.classifier] =
-      nativeDir.map { it.file("${platform.classifier}/$jarBinaryName") }
-  }
-  if (OperatingSystem.current().isMacOsX) {
-    platformExecutables[ProtocPlatforms.UNIVERSAL_CLASSIFIER] = universalOutput
+  if (shouldBuildAllPlatforms()) {
+    ProtocPlatforms.all.forEach { platform ->
+      val jarBinaryName = ProtocPlatforms.jarBinaryName(binaryName, platform)
+      platformExecutables[platform.classifier] =
+        nativeDir.map { it.file("${platform.classifier}/$jarBinaryName") }
+    }
+    if (OperatingSystem.current().isMacOsX) {
+      platformExecutables[ProtocPlatforms.UNIVERSAL_CLASSIFIER] = universalOutput
+    }
+  } else {
+    platformExecutables[hostPlatform.classifier] =
+      nativeDir.map { it.file("${hostPlatform.classifier}/$hostJarBinaryName") }
   }
 
   return ProtocPluginNativeBuild(

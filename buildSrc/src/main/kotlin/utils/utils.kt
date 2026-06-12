@@ -35,7 +35,6 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
 import java.io.File
-import java.util.*
 
 import org.gradle.internal.os.OperatingSystem
 
@@ -122,52 +121,50 @@ fun Project.signAndPublish(
     extension.signAllPublications()
   }
 
-  val publicationName = "[_-]+[a-zA-Z]".toRegex().replace(artifactId) { it ->
-    it.value.replace("_", "").replace("-", "")
-      .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-  }
-
   extension.coordinates(group.toString(), artifactId, version.toString())
 
-  val publishing = project.the<PublishingExtension>()
-  val publication = publishing.publications.create(publicationName, MavenPublication::class.java)
-  publication.artifactId = artifactId
-  publication.pom {
-    name.set(publicationName)
-    url.set("https://github.com/jinganix/webpb")
-    description.set(desc)
-    licenses {
-      license {
-        name.set("The Apache License, Version 2.0")
-        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-      }
-    }
-    developers {
-      developer {
-        id.set("gan.jin")
-        name.set("JinGan")
-        email.set("jinganix@gmail.com")
-      }
-    }
-    scm {
-      connection.set("scm:git:git://github.com/jinganix/webpb.git")
-      developerConnection.set("scm:git:ssh://github.com/jinganix/webpb.git")
-      url.set("https://github.com/jinganix/webpb")
-    }
-  }
-
   val bootJarTask = tasks.findByName("bootJar")
-  if (bootJarTask is org.gradle.api.tasks.bundling.Jar) {
-    publication.artifact(bootJarTask) {
-      classifier = "all"
-    }
-  }
+  afterEvaluate {
+    val publishing = project.the<PublishingExtension>()
+    val publication = publishing.publications.named("maven", MavenPublication::class.java)
+    publication.configure {
+      pom {
+        name.set(artifactId)
+        url.set("https://github.com/jinganix/webpb")
+        description.set(desc)
+        licenses {
+          license {
+            name.set("The Apache License, Version 2.0")
+            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+          }
+        }
+        developers {
+          developer {
+            id.set("gan.jin")
+            name.set("JinGan")
+            email.set("jinganix@gmail.com")
+          }
+        }
+        scm {
+          connection.set("scm:git:git://github.com/jinganix/webpb.git")
+          developerConnection.set("scm:git:ssh://github.com/jinganix/webpb.git")
+          url.set("https://github.com/jinganix/webpb")
+        }
+      }
 
-  platformExecutables.forEach { (classifier, executable) ->
-    publication.artifact(executable) {
-      this.classifier = classifier
-      this.extension = "exe"
-      platformExecutablesBuiltBy?.let { builtBy(it) }
+      if (bootJarTask is org.gradle.api.tasks.bundling.Jar) {
+        artifact(bootJarTask) {
+          classifier = "all"
+        }
+      }
+
+      platformExecutables.forEach { (classifier, executable) ->
+        artifact(executable) {
+          this.classifier = classifier
+          this.extension = "exe"
+          platformExecutablesBuiltBy?.let { builtBy(it) }
+        }
+      }
     }
   }
 }

@@ -57,7 +57,7 @@ public class AliasUtils {
       List<FieldDescriptor> fields = messageDescriptor.getFields();
       int maxIndex = offset;
       for (FieldDescriptor fieldDescriptor : fields) {
-        int index = offset + fieldDescriptor.getNumber();
+        int index = offset + fieldDescriptor.getNumber() - 1;
         String alias = Utils.toBase52(index);
         while (names.contains(alias) || usedAliases.contains(alias)) {
           index++;

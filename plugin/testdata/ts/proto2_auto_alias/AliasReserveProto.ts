@@ -37,14 +37,14 @@ export class AliasReserveParent
 
   static fromAlias(data?: unknown): AliasReserveParent {
     const p = Webpb.toAlias(data, {
-      b: "foo_1",
+      a: "foo_1",
     }) as Record<string, unknown>;
     return Object.assign(new AliasReserveParent(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      foo_1: "b",
+      foo_1: "a",
     });
   }
 }
@@ -84,16 +84,16 @@ export class AliasReserveChild
 
   static fromAlias(data?: unknown): AliasReserveChild {
     const p = Webpb.toAlias(data, {
-      b: "foo_1",
-      g: "foo_2",
+      a: "foo_1",
+      f: "foo_2",
     }) as Record<string, unknown>;
     return Object.assign(new AliasReserveChild(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      foo_1: "b",
-      foo_2: "g",
+      foo_1: "a",
+      foo_2: "f",
     });
   }
 }

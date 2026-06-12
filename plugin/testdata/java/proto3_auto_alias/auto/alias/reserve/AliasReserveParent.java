@@ -24,7 +24,7 @@ public class AliasReserveParent implements WebpbMessage {
     return WEBPB_META;
   }
 
-  @JsonProperty("b")
+  @JsonProperty("a")
   private Integer foo_1;
 
   public AliasReserveParent() {}
