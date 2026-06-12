@@ -320,7 +320,7 @@ jobs:
           java-version: 21
 
       - name: Publish to Maven
-        run: ./gradlew publish -Dorg.gradle.parallel=false --info
+        run: ./gradlew publish gradle-plugin:publish -Dorg.gradle.parallel=false --info
         env:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}

@@ -60,6 +60,9 @@ func (g *MessageGenerator) Generate(descriptor protoreflect.MessageDescriptor) (
 		if err := core.CheckDuplicatedFields(descriptor); err != nil {
 			return nil, err
 		}
+		if err := core.CheckAliasReserve(descriptor); err != nil {
+			return nil, err
+		}
 		data, err := g.getMessageData(descriptor, 0)
 		if err != nil {
 			return nil, err

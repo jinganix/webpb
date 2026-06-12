@@ -98,9 +98,25 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true
 
-      - name: Check runtime/ts
+      - name: Install runtime/ts dependencies
+        shell: bash
         working-directory: runtime/ts
-        run: npm ci && npm run check
+        run: npm ci
+
+      - name: Check runtime/ts
+        shell: bash
+        working-directory: runtime/ts
+        run: npm run check
+
+      - name: Build runtime/ts
+        shell: bash
+        working-directory: runtime/ts
+        run: npm run build
+
+      - name: Verify runtime/ts CLI
+        shell: bash
+        working-directory: runtime/ts
+        run: node build/cli/bin/webpb.js generate --help
 
       - name: Run Go plugin tests
         if: runner.os != 'Windows'
@@ -170,7 +186,7 @@ jobs:
 
       - name: Check runtime/ts
         working-directory: runtime/ts
-        run: npm ci && npm run test
+        run: npm ci && npm run test && npm run build
 
       - name: Generate coverage reports
         run: ./gradlew coverageReport --no-daemon -PskipGoTest=false
@@ -261,7 +277,7 @@ jobs:
 
   publish:
     name: Publish
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY }}
       ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
@@ -283,6 +299,22 @@ jobs:
           distribution: 'zulu'
           java-version: 25
 
+      - name: Setup Go
+        if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: plugin/go.mod
+          cache-dependency-path: plugin/go.mod
+
+      - name: Configure Go for Gradle
+        if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          GO_BIN="$(command -v go)"
+          echo "WEBPB_GO=${GO_BIN}" >> "${GITHUB_ENV}"
+          "${GO_BIN}" version
+
       - name: Publish to Nexus
         if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
-        run: ./gradlew publish -Dorg.gradle.parallel=false --info
+        run: ./gradlew publish gradle-plugin:publish -Dorg.gradle.parallel=false --info

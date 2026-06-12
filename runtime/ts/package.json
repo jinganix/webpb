@@ -1,12 +1,12 @@
 {
   "name": "webpb",
-  "version": "0.0.26",
-  "description": "The webpb runtime library",
+  "version": "0.0.27",
+  "description": "webpb TypeScript runtime and protoc code generation CLI",
   "scripts": {
-    "build": "rimraf build/**/* && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.cjs && copyfiles ./README.md ./package.json build",
+    "build": "rimraf build && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.cjs && tsc -p tsconfig.cli.json && node scripts/prepare-build.mjs && copyfiles ./README.md build",
     "check": "npm run lint && npm run test",
-    "lint": "eslint --quiet src/**/*.ts",
-    "lint:fix": "eslint --fix src/**/*.ts",
+    "lint": "eslint --quiet src",
+    "lint:fix": "eslint --fix src",
     "deploy": "npm run check && npm run release",
     "release": "npm run sync-version && npm run build && npm publish ./build --access public --ignore-scripts",
     "sync-version": "node scripts/sync-version.mjs",
@@ -14,8 +14,20 @@
   },
   "author": "jinganix@gmail.com",
   "license": "Apache-2.0",
+  "bin": {
+    "webpb": "./cli/bin/webpb.js"
+  },
+  "files": [
+    "cli",
+    "dist",
+    "proto",
+    "webpb-version.properties",
+    "README.md"
+  ],
   "keywords": [
     "webpb",
+    "protobuf",
+    "protoc",
     "runtime"
   ],
   "repository": {
@@ -32,7 +44,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./proto": "./proto"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

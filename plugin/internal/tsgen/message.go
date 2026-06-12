@@ -54,6 +54,9 @@ func (g *MessageGenerator) Generate(descriptor protoreflect.MessageDescriptor) (
 	if err := core.CheckDuplicatedFields(descriptor); err != nil {
 		return "", err
 	}
+	if err := core.CheckAliasReserve(descriptor); err != nil {
+		return "", err
+	}
 	engine, err := sharedTSEngine()
 	if err != nil {
 		return "", err

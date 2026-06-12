@@ -30,6 +30,7 @@ Proto extensions are defined in [`lib/proto/src/main/resources/webpb/WebpbExtend
 |--------|------|
 | [`sample/proto`](sample/proto) | Shared `.proto` files and `WebpbOptions.proto` (global Java/TS defaults) |
 | [`sample/backend`](sample/backend) | Spring Boot app; generates Java from proto via Gradle |
+| [`sample/maven`](sample/maven) | Minimal Maven example with `protobuf-maven-plugin` |
 | [`sample/frontend`](sample/frontend) | Webpack + TypeScript app; generates TS from proto via `protoc` |
 
 ### Define an HTTP endpoint
@@ -139,6 +140,7 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `java` | `annotation` | Class-level Java annotations |
 | `java` | `field_annotation` | Default field annotations for all fields in the message |
 | `ts` | `auto_alias` | Override file-level `auto_alias` for this message |
+| `ts` | `alias_reserve` | Reserved alias index for child messages; must be greater than this message's max field id. Child alias index is `max(ancestor max index, alias_reserve) + field id` |
 
 ### Field — `(opts)`
 
@@ -176,62 +178,251 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `opt` | `value` | String representation when `string_value` is enabled |
 | `java` | `annotation` | Per-value Java annotations |
 
-## Protoc plugins
+## Getting started
 
-webpb ships as standard [protoc](https://grpc.io/docs/protoc-installation/) plugins. They read `CodeGeneratorRequest` from stdin and write generated files to `--*_out`. No Gradle (or other build tool) is required.
+Published artifacts (Maven Central, group `io.github.jinganix.webpb`):
 
-### Get a plugin binary
+| Artifact | Purpose |
+|----------|---------|
+| `webpb-gradle-plugin` | Gradle convention plugins |
+| `webpb-protoc-java` | Java protoc plugin (`:all` fat jar or platform binary) |
+| `webpb-protoc-ts` | TypeScript protoc plugin (`:all` fat jar or platform binary) |
+| `webpb-proto` | `WebpbExtend.proto` and well-known types for `-I` / `protobuf(...)` deps |
+| `webpb-runtime` | Java runtime library |
+| `webpb-processor` | Spring `@WebpbRequestMapping` annotation processor |
+| [`webpb` (npm)](https://www.npmjs.com/package/webpb) | TypeScript runtime and `webpb generate` CLI |
 
-**Download from [GitHub Releases](https://github.com/jinganix/webpb/releases)** (recommended): each release ships native binaries named `webpb-protoc-java-<platform>` and `webpb-protoc-ts-<platform>` (for example `darwin-arm64`, `linux-amd64`, `windows-amd64`). Rename or symlink to `webpb-protoc-java` / `webpb-protoc-ts` if you like, mark the file executable, and pass its path to `--plugin`.
-
-**Build from source** (requires [Go](https://go.dev/)):
-
-```shell
-cd plugin
-make build
-```
-
-This writes `plugin/bin/webpb-protoc-java` and `plugin/bin/webpb-protoc-ts` (`.exe` on Windows).
-
-### Import path for `WebpbExtend.proto`
-
-Every `.proto` file must import the webpb extensions:
+Every `.proto` file must import webpb extensions:
 
 ```protobuf
 import "webpb/WebpbExtend.proto";
 ```
 
-Add `-I` to a directory that contains the `webpb/` folder. In this repository that is `lib/proto/src/main/resources`.
+Add `webpb-proto` as a dependency (Gradle/Maven) or pass `-I` to a directory that contains the `webpb/` folder.
 
-### Generate Java
+### Gradle
 
-Use plugin name `webpb` (matches the Gradle protobuf plugin id in [`sample/backend`](sample/backend/build.gradle.kts)):
+Apply the [protobuf Gradle plugin](https://github.com/google/protobuf-gradle-plugin) together with a webpb convention plugin:
+
+**Java** ([`sample/backend`](sample/backend/build.gradle.kts)):
+
+```kotlin
+plugins {
+  id("com.google.protobuf") version "0.9.6"
+  id("io.github.jinganix.webpb.java") version "0.0.27"
+}
+
+dependencies {
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.27")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.27")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.27")
+  // your .proto module or files
+  protobuf(project(":your-proto-module"))
+}
+```
+
+**TypeScript**:
+
+```kotlin
+plugins {
+  id("com.google.protobuf") version "0.9.6"
+  id("io.github.jinganix.webpb.ts") version "0.0.27"
+}
+
+dependencies {
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.27")
+}
+```
+
+Optional configuration:
+
+```kotlin
+webpb {
+  webpbVersion = "0.0.27"      // defaults to the Gradle plugin version
+  protobufVersion = "4.35.0"   // com.google.protobuf:protoc version
+  cleanOutput = true           // delete output dir before generation
+  localPluginPath = "/path/to/webpb-protoc-java" // skip Maven resolution
+}
+```
+
+The convention plugin configures `protoc`, registers the `webpb` or `ts` plugin from Maven (`webpb-protoc-*:all@jar`), removes the built-in `java` generator, and wires `generateProto` tasks. When developing webpb from source, a binary under `plugin/bin/` is picked up automatically.
+
+Manual setup (without the convention plugin) is also supported:
+
+```kotlin
+protobuf {
+  protoc {
+    artifact = "com.google.protobuf:protoc:4.35.0"
+  }
+  plugins {
+    id("ts") {
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.27:all@jar"
+    }
+  }
+  generateProtoTasks {
+    ofSourceSet("main").forEach {
+      it.builtins { remove("java") }
+      it.plugins { id("ts") }
+    }
+  }
+}
+```
+
+### Maven
+
+Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) with the published `webpb-protoc-java` launcher JAR (`classifier: all`). See [`sample/maven/pom.xml`](sample/maven/pom.xml).
+
+```xml
+<properties>
+  <webpb.version>0.0.27</webpb.version>
+  <protobuf.version>4.35.0</protobuf.version>
+</properties>
+
+<dependencies>
+  <dependency>
+    <groupId>io.github.jinganix.webpb</groupId>
+    <artifactId>webpb-proto</artifactId>
+    <version>${webpb.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>io.github.jinganix.webpb</groupId>
+    <artifactId>webpb-runtime</artifactId>
+    <version>${webpb.version}</version>
+  </dependency>
+</dependencies>
+
+<build>
+  <extensions>
+    <extension>
+      <groupId>kr.motd.maven</groupId>
+      <artifactId>os-maven-plugin</artifactId>
+      <version>1.7.1</version>
+    </extension>
+  </extensions>
+  <plugins>
+    <plugin>
+      <groupId>org.xolstice.maven.plugins</groupId>
+      <artifactId>protobuf-maven-plugin</artifactId>
+      <version>0.6.1</version>
+      <configuration>
+        <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+        <protocPlugins>
+          <protocPlugin>
+            <id>webpb</id>
+            <groupId>io.github.jinganix.webpb</groupId>
+            <artifactId>webpb-protoc-java</artifactId>
+            <version>${webpb.version}</version>
+            <classifier>all</classifier>
+            <mainClass>io.github.jinganix.webpb.java.Main</mainClass>
+          </protocPlugin>
+        </protocPlugins>
+      </configuration>
+      <executions>
+        <execution>
+          <goals>
+            <goal>compile-custom</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+```
+
+Run `mvn generate-sources` to generate Java under `target/generated-sources/protobuf/`.
+
+For Spring MVC, add `webpb-processor` as an annotation processor dependency.
+
+### npm / TypeScript
+
+Install the runtime (dev dependency) and generate TypeScript with the bundled CLI:
+
+```shell
+npm install -D webpb
+```
+
+The `webpb` CLI resolves `protoc` and `webpb-protoc-ts` automatically, includes bundled `webpb/WebpbExtend.proto`, and writes one `.ts` file per protobuf package (for example `StoreProto.ts`).
+
+```shell
+npx webpb generate \
+  -o src/generated \
+  -I path/to/your/protos \
+  path/to/your/protos/*.proto
+```
+
+Common options:
+
+| Option | Description |
+|--------|-------------|
+| `-o, --out` | Output directory (`--ts_out`), required |
+| `-I, --include` | Additional proto include path (repeatable) |
+| `--no-webpb-proto` | Skip bundled webpb proto includes |
+| `--protoc` | Path to `protoc` (default: `PATH`, then Maven Central download) |
+| `--plugin` | Path to `webpb-protoc-ts` (default: GitHub Releases download) |
+| `--webpb-version` | webpb release version for plugin download |
+| `--protobuf-version` | `protoc` version for auto-download (default: bundled, aligned with Gradle) |
+
+Environment variables: `PROTOC`, `WEBPB_PROTOC_TS`, `WEBPB_VERSION`, `WEBPB_PROTOBUF_VERSION`.
+
+Resolution order for tools:
+
+**`webpb-protoc-ts`:** `WEBPB_PROTOC_TS` → monorepo `plugin/bin/` (when developing webpb) → cached GitHub release (`~/.cache/webpb/{version}/`) → download.
+
+**`protoc`:** `PROTOC` → `PATH` → cached Maven Central download (`~/.cache/webpb/protoc/{version}/`).
+
+Bundled proto includes ship in the npm package (`node_modules/webpb/proto`). Override with `--no-webpb-proto` when supplying your own `-I` paths.
+
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "proto": "webpb generate -o src/generated -I protos protos/*.proto"
+  }
+}
+```
+
+Sample frontend (uses the local `webpb` package from `runtime/ts/build`; run `npm run build` in `runtime/ts` first when developing from source):
+
+```shell
+cd sample/frontend
+npm install
+npm run proto
+```
+
+For manual `protoc` invocation, download a release binary from [GitHub Releases](https://github.com/jinganix/webpb/releases) (`webpb-protoc-ts-<platform>`) or set `WEBPB_PROTOC_TS`. See [protoc CLI](#protoc-cli-any-build-tool) below.
+
+### protoc CLI (any build tool)
+
+webpb plugins are standard [protoc](https://grpc.io/docs/protoc-installation/) plugins. They read `CodeGeneratorRequest` from stdin and write generated files to `--*_out`.
+
+**Get a plugin binary**
+
+- [GitHub Releases](https://github.com/jinganix/webpb/releases) — `webpb-protoc-java-<platform>` / `webpb-protoc-ts-<platform>`
+- Maven Central — `io.github.jinganix.webpb:webpb-protoc-java:VERSION:all` (run via `java -jar` or let Gradle/Maven resolve it)
+- Build from source (requires [Go](https://go.dev/)): `cd plugin && make build`
+
+**Generate Java** (plugin name `webpb`):
 
 ```shell
 protoc \
-  -I lib/proto/src/main/resources \
+  -I path/to/webpb-proto-include \
   -I path/to/your/protos \
   --plugin=protoc-gen-webpb=/path/to/webpb-protoc-java \
   --webpb_out=path/to/output \
   path/to/your/protos/*.proto
 ```
 
-Generated `.java` files are written under `--webpb_out` using the Java package layout (`com/example/Foo.java`). For Spring MVC wiring you still need the [`runtime:java`](runtime/java) library and [`runtime:processor`](runtime/processor) annotation processor.
-
-### Generate TypeScript
-
-Use plugin name `ts`:
+**Generate TypeScript** (plugin name `ts`):
 
 ```shell
 protoc \
-  -I lib/proto/src/main/resources \
+  -I path/to/webpb-proto-include \
   -I path/to/your/protos \
   --plugin=protoc-gen-ts=/path/to/webpb-protoc-ts \
   --ts_out=path/to/output \
   path/to/your/protos/*.proto
 ```
-
-One `.ts` file is emitted per protobuf package (for example `StoreProto.ts`). The sample frontend uses the same flags in [`sample/frontend/scripts/generate-proto.mjs`](sample/frontend/scripts/generate-proto.mjs).
 
 ## Run the sample
 
@@ -249,19 +440,20 @@ On Windows:
 ./gradlew.bat sample:backend:bootRun
 ```
 
-Gradle runs the `webpb` protoc plugin (`plugin/bin/webpb-protoc-java`) and the annotation processor to generate Java sources under `sample/backend/build/generated/`.
+Gradle applies `io.github.jinganix.webpb.java`, runs the `webpb` protoc plugin, and uses the annotation processor to generate Java sources under `sample/backend/build/generated/`.
 
 ### Frontend (port 4200)
 
-Install [Node.js](https://nodejs.org/) and [protoc](https://grpc.io/docs/protoc-installation/), then:
+Install [Node.js](https://nodejs.org/), build the local `webpb` npm package, then start the frontend:
 
 ```shell
+cd runtime/ts && npm ci && npm run build
 cd sample/frontend
 npm install
 npm start
 ```
 
-`npm start` runs `scripts/generate-proto.mjs`, which builds `webpb-protoc-ts` from `plugin/` if needed and writes TypeScript to `sample/frontend/generated/proto/`. See [Protoc plugins](#protoc-plugins) for the equivalent `protoc` command.
+`npm start` runs `webpb generate`, which resolves `protoc` and `webpb-protoc-ts` and writes TypeScript to `sample/frontend/generated/proto/`. See [npm / TypeScript](#npm--typescript) for details.
 
 Open http://localhost:4200. The dev server proxies `/stores` to the backend at http://localhost:8181.
 

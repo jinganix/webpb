@@ -27,7 +27,7 @@ public class Level3 implements WebpbMessage {
     return WEBPB_META;
   }
 
-  @JsonProperty("a")
+  @JsonProperty("b")
   @JsonAlias("test1")
   private Integer test1;
 

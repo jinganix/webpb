@@ -26,7 +26,7 @@ public class Level2 extends Level3 implements WebpbMessage {
   }
 
   @JsonAlias("foo_2")
-  @JsonProperty("b")
+  @JsonProperty("c")
   private Integer foo_2;
 
   public Level2() {}

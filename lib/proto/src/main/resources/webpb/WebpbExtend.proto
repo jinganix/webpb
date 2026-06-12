@@ -63,6 +63,7 @@ message JavaMessageOpts {
 
 message TsMessageOpts {
   optional bool auto_alias = 1000;
+  optional int32 alias_reserve = 1001;
 }
 
 // enum options

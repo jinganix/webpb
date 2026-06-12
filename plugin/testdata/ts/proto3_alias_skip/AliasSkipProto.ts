@@ -5,13 +5,13 @@
 import * as Webpb from "webpb";
 
 export interface IAliasSkip {
-  a?: number | null;
   b?: number | null;
+  a?: number | null;
 }
 
 export class AliasSkip implements IAliasSkip, Webpb.WebpbMessage {
-  a?: number | null;
   b?: number | null;
+  a?: number | null;
   webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "AliasSkip";

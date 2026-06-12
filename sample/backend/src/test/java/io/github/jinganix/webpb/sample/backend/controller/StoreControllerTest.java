@@ -81,10 +81,10 @@ class StoreControllerTest {
             request(new StoreVisitRequest((long) storeId, customer))
                 .content("{\"customer\": \"" + customer + "\"}"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.a.a", is(storeId)))
-        .andExpect(jsonPath("$.a.b", is("store-" + storeId)))
-        .andExpect(jsonPath("$.a.c", is("Chengdu")))
-        .andExpect(jsonPath("$.b", is("Welcome, " + customer)));
+        .andExpect(jsonPath("$.b.b", is(storeId)))
+        .andExpect(jsonPath("$.b.c", is("store-" + storeId)))
+        .andExpect(jsonPath("$.b.d", is("Chengdu")))
+        .andExpect(jsonPath("$.c", is("Welcome, " + customer)));
   }
 
   @Test

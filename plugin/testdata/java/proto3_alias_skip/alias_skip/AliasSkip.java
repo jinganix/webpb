@@ -23,24 +23,15 @@ public class AliasSkip implements WebpbMessage {
     return WEBPB_META;
   }
 
-  private Integer a;
-
   private Integer b;
+
+  private Integer a;
 
   public AliasSkip() {}
 
-  public AliasSkip(Integer a, Integer b) {
-    this.a = a;
+  public AliasSkip(Integer b, Integer a) {
     this.b = b;
-  }
-
-  public Integer getA() {
-    return this.a;
-  }
-
-  public AliasSkip setA(Integer a) {
     this.a = a;
-    return this;
   }
 
   public Integer getB() {
@@ -49,6 +40,15 @@ public class AliasSkip implements WebpbMessage {
 
   public AliasSkip setB(Integer b) {
     this.b = b;
+    return this;
+  }
+
+  public Integer getA() {
+    return this.a;
+  }
+
+  public AliasSkip setA(Integer a) {
+    this.a = a;
     return this;
   }
 }
