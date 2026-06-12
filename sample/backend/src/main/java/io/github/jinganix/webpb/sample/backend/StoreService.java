@@ -13,15 +13,22 @@ import io.github.jinganix.webpb.sample.proto.store.StoreVisitResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** Store service. */
 @Service
-@RequiredArgsConstructor
 public class StoreService {
 
   private final WebpbClient webpbClient;
+
+  /**
+   * Creates the store service.
+   *
+   * @param webpbClient webpb client
+   */
+  public StoreService(WebpbClient webpbClient) {
+    this.webpbClient = webpbClient;
+  }
 
   /**
    * Request a store data.

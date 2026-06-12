@@ -55,6 +55,12 @@ tasks.test {
 }
 
 tasks.withType<Javadoc>().configureEach {
+  setSource(
+    source.files.filter { file ->
+      val path = file.invariantSeparatorsPath
+      !path.contains("/build/generated/")
+    },
+  )
   (options as StandardJavadocDocletOptions).apply {
     addBooleanOption("Xdoclint:all", true)
     addBooleanOption("Werror", true)

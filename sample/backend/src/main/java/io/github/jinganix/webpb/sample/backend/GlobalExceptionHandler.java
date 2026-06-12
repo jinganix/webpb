@@ -34,6 +34,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  /** Instantiates the global exception handler. */
+  public GlobalExceptionHandler() {}
+
   /**
    * Format validation exception error message.
    *
