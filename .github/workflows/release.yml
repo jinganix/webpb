@@ -7,9 +7,17 @@ on:
         description: 'Release version (x.y.z). Required when republishing only.'
         required: false
       publish_only:
-        description: 'Republish to Maven/npm only (tag must already exist)'
+        description: 'Republish only (tag must already exist)'
         type: boolean
         default: false
+      targets:
+        description: 'Publish targets; use with publish_only to retry a single failed target'
+        type: choice
+        options:
+          - all
+          - maven
+          - npm
+        default: all
 
 jobs:
   prepare:
@@ -29,7 +37,8 @@ jobs:
           current_version=$(grep -m1 'version =' gradle.properties | grep -oE '([0-9]+\.[0-9]+\.[0-9]+)')
           input_version=${{ github.event.inputs.version }}
           publish_only=${{ github.event.inputs.publish_only }}
-          echo "Current version: ${current_version}, Input version: ${input_version}, Publish only: ${publish_only}"
+          targets=${{ github.event.inputs.targets }}
+          echo "Current version: ${current_version}, Input version: ${input_version}, Publish only: ${publish_only}, Targets: ${targets}"
           if [[ "${publish_only}" == "true" ]]; then
             if ! [[ "${input_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "ERROR: publish_only requires a valid version number (x.y.z)"
@@ -275,13 +284,15 @@ jobs:
           body: ${{ steps.tag_version.outputs.changelog }}
           artifacts: dist/*
 
-  publish:
-    name: Publish
+  publish-maven:
+    name: Publish Maven
     needs: [prepare, release]
     if: |
+      always() &&
       !cancelled() &&
       needs.prepare.result == 'success' &&
-      (github.event.inputs.publish_only == 'true' || needs.release.result == 'success')
+      (github.event.inputs.publish_only == 'true' || needs.release.result == 'success') &&
+      (github.event.inputs.targets == 'all' || github.event.inputs.targets == 'maven')
     runs-on: ubuntu-latest
     steps:
       - name: Download release_version
@@ -308,17 +319,6 @@ jobs:
           distribution: 'zulu'
           java-version: 21
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: plugin/go.mod
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: 'https://registry.npmjs.org'
-
       - name: Publish to Maven
         run: ./gradlew publish -Dorg.gradle.parallel=false --info
         env:
@@ -326,6 +326,41 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_REPO_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_REPO_PASSWORD }}
+
+  publish-npm:
+    name: Publish npm
+    needs: [prepare, release]
+    if: |
+      always() &&
+      !cancelled() &&
+      needs.prepare.result == 'success' &&
+      (github.event.inputs.publish_only == 'true' || needs.release.result == 'success') &&
+      (github.event.inputs.targets == 'all' || github.event.inputs.targets == 'npm')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release_version
+        uses: actions/download-artifact@v8
+        with:
+          name: ${GITHUB_SHA}
+          path: /tmp
+
+      - name: Read release version
+        run: |
+          release_version=$(cat /tmp/release_version)
+          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
+          echo "Release version: ${release_version}"
+
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+          ref: refs/tags/v${{ env.release_version }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Publish webpb to npm
         working-directory: runtime/ts
