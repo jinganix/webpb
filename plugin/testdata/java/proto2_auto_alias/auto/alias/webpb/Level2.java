@@ -28,15 +28,15 @@ public class Level2 implements WebpbMessage {
     return WEBPB_META;
   }
 
-  @JsonProperty("a")
+  @JsonProperty("b")
   @JsonAlias("test1")
   private Integer test1;
 
-  @JsonProperty("b")
+  @JsonProperty("c")
   @JsonAlias("test2")
   private Level3 test2;
 
-  @JsonProperty("c")
+  @JsonProperty("d")
   @JsonAlias("test3")
   private List<Level3> test3;
 

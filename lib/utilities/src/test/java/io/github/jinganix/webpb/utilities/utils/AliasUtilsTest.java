@@ -24,6 +24,6 @@ class AliasUtilsTest {
     var aliases = AliasUtils.getAutoAliases(descriptor);
 
     // Then
-    assertThat(aliases).hasSize(2).containsEntry("a", "c").containsEntry("b", "d");
+    assertThat(aliases).hasSize(2).containsEntry("b", "c").containsEntry("a", "d");
   }
 }

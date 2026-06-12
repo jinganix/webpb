@@ -5,6 +5,6 @@ package AliasSkipProto;
 option java_package = "alias_skip";
 
 message AliasSkip {
-  int32 a = 1;
-  int32 b = 2;
+  int32 b = 1;
+  int32 a = 2;
 }

@@ -20,11 +20,13 @@ package io.github.jinganix.webpb.utilities.utils;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /** Utilities to handle field alias. */
 public class AliasUtils {
@@ -38,17 +40,64 @@ public class AliasUtils {
    * @return alias mapping
    */
   public static Map<String, String> getAutoAliases(Descriptor descriptor) {
-    List<FieldDescriptor> fields = OptionUtils.getAllFields(descriptor);
-    Set<String> names = fields.stream().map(FieldDescriptor::getName).collect(Collectors.toSet());
-    Map<String, String> aliases = new TreeMap<>();
-    int index = 0;
-    for (FieldDescriptor fieldDescriptor : fields) {
-      String alias = Utils.toBase52(index++);
-      while (names.contains(alias)) {
-        alias = Utils.toBase52(index++);
+    List<Descriptor> messages = new ArrayList<>(OptionUtils.getExtendedMessages(descriptor));
+    messages.add(descriptor);
+
+    Set<String> names = new HashSet<>();
+    for (Descriptor messageDescriptor : messages) {
+      for (FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
+        names.add(fieldDescriptor.getName());
       }
-      aliases.put(fieldDescriptor.getName(), alias);
+    }
+
+    Map<String, String> aliases = new TreeMap<>();
+    Set<String> usedAliases = new HashSet<>();
+    int offset = 0;
+    for (Descriptor messageDescriptor : messages) {
+      List<FieldDescriptor> fields = messageDescriptor.getFields();
+      int maxIndex = offset;
+      for (FieldDescriptor fieldDescriptor : fields) {
+        int index = offset + fieldDescriptor.getNumber();
+        String alias = Utils.toBase52(index);
+        while (names.contains(alias) || usedAliases.contains(alias)) {
+          index++;
+          alias = Utils.toBase52(index);
+        }
+        aliases.put(fieldDescriptor.getName(), alias);
+        usedAliases.add(alias);
+        maxIndex = Math.max(maxIndex, index);
+      }
+      int reserve =
+          OptionUtils.getOpts(messageDescriptor, MessageOpts::hasTs).getTs().getAliasReserve();
+      offset = Math.max(maxIndex, reserve);
     }
     return aliases;
+  }
+
+  /**
+   * Throw an exception when alias_reserve is not greater than the max field number.
+   *
+   * @param descriptor {@link Descriptor}
+   */
+  public static void checkAliasReserve(Descriptor descriptor) {
+    List<Descriptor> messages = new ArrayList<>(OptionUtils.getExtendedMessages(descriptor));
+    messages.add(descriptor);
+    for (Descriptor messageDescriptor : messages) {
+      int reserve =
+          OptionUtils.getOpts(messageDescriptor, MessageOpts::hasTs).getTs().getAliasReserve();
+      if (reserve == 0) {
+        continue;
+      }
+      int maxNumber = 0;
+      for (FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
+        maxNumber = Math.max(maxNumber, fieldDescriptor.getNumber());
+      }
+      if (reserve <= maxNumber) {
+        throw new RuntimeException(
+            String.format(
+                "`alias_reserve` must be greater than max field number %d in message `%s`",
+                maxNumber, messageDescriptor.getFullName()));
+      }
+    }
   }
 }

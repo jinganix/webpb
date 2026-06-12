@@ -140,6 +140,7 @@ option (m_opts).ts = {auto_alias: true};
 | `java` | `annotation` | 类级 Java 注解 |
 | `java` | `field_annotation` | 该消息所有字段的默认字段注解 |
 | `ts` | `auto_alias` | 覆盖文件级 `auto_alias` |
+| `ts` | `alias_reserve` | 为子消息预留的 alias 编号上限，必须大于本消息最大 field id；子消息字段 alias 序号为 `max(祖先已用最大序号, alias_reserve) + field id` |
 
 ### 字段 — `(opts)`
 

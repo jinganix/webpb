@@ -27,7 +27,7 @@ public class Level2 implements WebpbMessage {
 
   private Integer test1;
 
-  @JsonProperty("b")
+  @JsonProperty("c")
   private Level3 test2;
 
   private List<Level3> test3;

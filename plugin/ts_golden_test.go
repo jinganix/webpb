@@ -16,8 +16,8 @@ var tsDumps = append(
 )
 
 var tsErrorFiles = map[string][]string{
-	"proto2_errors": {"DuplicatedExtendsFields.proto"},
-	"proto3_errors": {"DuplicatedExtendsFields.proto"},
+	"proto2_errors": {"DuplicatedExtendsFields.proto", "InvalidAliasReserve.proto"},
+	"proto3_errors": {"DuplicatedExtendsFields.proto", "InvalidAliasReserve.proto"},
 }
 
 func TestTSGolden(t *testing.T) {

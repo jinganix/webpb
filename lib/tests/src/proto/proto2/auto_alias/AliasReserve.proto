@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package AliasReserveProto;
+
+option java_package = "auto.alias.reserve";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {auto_alias: true};
+option (f_opts).java = {
+  field_annotation: '@JsonProperty("{{_ALIAS_}}")'
+  import: 'com.fasterxml.jackson.annotation.JsonProperty'
+};
+
+message AliasReserveParent {
+  option (m_opts).ts = {alias_reserve: 5};
+
+  required int32 foo_1 = 1;
+}
+
+message AliasReserveChild {
+  option (m_opts).opt = {extends: "AliasReserveParent"};
+
+  required int32 foo_2 = 1;
+}

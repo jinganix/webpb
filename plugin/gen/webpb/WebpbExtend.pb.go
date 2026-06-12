@@ -483,6 +483,7 @@ func (x *JavaMessageOpts) GetFieldAnnotation() []string {
 type TsMessageOpts struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AutoAlias     *bool                  `protobuf:"varint,1000,opt,name=auto_alias,json=autoAlias" json:"auto_alias,omitempty"`
+	AliasReserve  *int32                 `protobuf:"varint,1001,opt,name=alias_reserve,json=aliasReserve" json:"alias_reserve,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -522,6 +523,13 @@ func (x *TsMessageOpts) GetAutoAlias() bool {
 		return *x.AutoAlias
 	}
 	return false
+}
+
+func (x *TsMessageOpts) GetAliasReserve() int32 {
+	if x != nil && x.AliasReserve != nil {
+		return *x.AliasReserve
+	}
+	return 0
 }
 
 type EnumOpts struct {
@@ -1260,10 +1268,11 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\n" +
 	"annotation\x18\xe8\a \x03(\tR\n" +
 	"annotation\x12*\n" +
-	"\x10field_annotation\x18\xe9\a \x03(\tR\x0ffieldAnnotation\"/\n" +
+	"\x10field_annotation\x18\xe9\a \x03(\tR\x0ffieldAnnotation\"U\n" +
 	"\rTsMessageOpts\x12\x1e\n" +
 	"\n" +
-	"auto_alias\x18\xe8\a \x01(\bR\tautoAlias\"m\n" +
+	"auto_alias\x18\xe8\a \x01(\bR\tautoAlias\x12$\n" +
+	"\ralias_reserve\x18\xe9\a \x01(\x05R\faliasReserve\"m\n" +
 	"\bEnumOpts\x12\x1f\n" +
 	"\x03opt\x18\xe8\a \x01(\v2\f.OptEnumOptsR\x03opt\x12\"\n" +
 	"\x04java\x18\xe9\a \x01(\v2\r.JavaEnumOptsR\x04java\x12\x1c\n" +
