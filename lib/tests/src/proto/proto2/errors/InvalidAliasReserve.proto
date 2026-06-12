@@ -7,7 +7,7 @@ option java_package = "test";
 import "webpb/WebpbExtend.proto";
 
 message InvalidAliasReserve {
-  option (m_opts).ts = {alias_reserve: 1};
+  option (m_opts).opt = {alias_reserve: 1};
 
   required int32 foo = 1;
 }

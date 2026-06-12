@@ -13,7 +13,7 @@ option (f_opts).java = {
 };
 
 message AliasReserveParent {
-  option (m_opts).ts = {alias_reserve: 5};
+  option (m_opts).opt = {alias_reserve: 5};
 
   required int32 foo_1 = 1;
 }

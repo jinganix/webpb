@@ -46,7 +46,7 @@ func GetAutoAliases(msg protoreflect.MessageDescriptor) map[string]string {
 				maxIndex = index
 			}
 		}
-		reserve := int(GetMessageOpts(messageDesc, HasMessageTs).GetTs().GetAliasReserve())
+		reserve := int(GetMessageOpts(messageDesc, HasMessageOpt).GetOpt().GetAliasReserve())
 		offset = max(maxIndex, reserve)
 	}
 	return aliases
@@ -56,7 +56,7 @@ func GetAutoAliases(msg protoreflect.MessageDescriptor) map[string]string {
 func CheckAliasReserve(msg protoreflect.MessageDescriptor) error {
 	messages := append(GetExtendedMessages(msg), msg)
 	for _, messageDesc := range messages {
-		reserve := GetMessageOpts(messageDesc, HasMessageTs).GetTs().GetAliasReserve()
+		reserve := GetMessageOpts(messageDesc, HasMessageOpt).GetOpt().GetAliasReserve()
 		if reserve == 0 {
 			continue
 		}

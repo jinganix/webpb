@@ -345,6 +345,7 @@ type OptMessageOpts struct {
 	Implements    []string               `protobuf:"bytes,1005,rep,name=implements" json:"implements,omitempty"`
 	SubType       *string                `protobuf:"bytes,1006,opt,name=sub_type,json=subType" json:"sub_type,omitempty"`
 	SubValues     []string               `protobuf:"bytes,1007,rep,name=sub_values,json=subValues" json:"sub_values,omitempty"`
+	AliasReserve  *int32                 `protobuf:"varint,1008,opt,name=alias_reserve,json=aliasReserve" json:"alias_reserve,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -428,6 +429,13 @@ func (x *OptMessageOpts) GetSubValues() []string {
 	return nil
 }
 
+func (x *OptMessageOpts) GetAliasReserve() int32 {
+	if x != nil && x.AliasReserve != nil {
+		return *x.AliasReserve
+	}
+	return 0
+}
+
 type JavaMessageOpts struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Annotation      []string               `protobuf:"bytes,1000,rep,name=annotation" json:"annotation,omitempty"`
@@ -483,7 +491,6 @@ func (x *JavaMessageOpts) GetFieldAnnotation() []string {
 type TsMessageOpts struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AutoAlias     *bool                  `protobuf:"varint,1000,opt,name=auto_alias,json=autoAlias" json:"auto_alias,omitempty"`
-	AliasReserve  *int32                 `protobuf:"varint,1001,opt,name=alias_reserve,json=aliasReserve" json:"alias_reserve,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -523,13 +530,6 @@ func (x *TsMessageOpts) GetAutoAlias() bool {
 		return *x.AutoAlias
 	}
 	return false
-}
-
-func (x *TsMessageOpts) GetAliasReserve() int32 {
-	if x != nil && x.AliasReserve != nil {
-		return *x.AliasReserve
-	}
-	return 0
 }
 
 type EnumOpts struct {
@@ -1252,7 +1252,7 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\vMessageOpts\x12\"\n" +
 	"\x03opt\x18\xe8\a \x01(\v2\x0f.OptMessageOptsR\x03opt\x12%\n" +
 	"\x04java\x18\xe9\a \x01(\v2\x10.JavaMessageOptsR\x04java\x12\x1f\n" +
-	"\x02ts\x18\xea\a \x01(\v2\x0e.TsMessageOptsR\x02ts\"\xd1\x01\n" +
+	"\x02ts\x18\xea\a \x01(\v2\x0e.TsMessageOptsR\x02ts\"\xf7\x01\n" +
 	"\x0eOptMessageOpts\x12\x17\n" +
 	"\x06method\x18\xe9\a \x01(\tR\x06method\x12\x13\n" +
 	"\x04path\x18\xea\a \x01(\tR\x04path\x12\x19\n" +
@@ -1263,16 +1263,16 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"implements\x12\x1a\n" +
 	"\bsub_type\x18\xee\a \x01(\tR\asubType\x12\x1e\n" +
 	"\n" +
-	"sub_values\x18\xef\a \x03(\tR\tsubValues\"^\n" +
+	"sub_values\x18\xef\a \x03(\tR\tsubValues\x12$\n" +
+	"\ralias_reserve\x18\xf0\a \x01(\x05R\faliasReserve\"^\n" +
 	"\x0fJavaMessageOpts\x12\x1f\n" +
 	"\n" +
 	"annotation\x18\xe8\a \x03(\tR\n" +
 	"annotation\x12*\n" +
-	"\x10field_annotation\x18\xe9\a \x03(\tR\x0ffieldAnnotation\"U\n" +
+	"\x10field_annotation\x18\xe9\a \x03(\tR\x0ffieldAnnotation\"/\n" +
 	"\rTsMessageOpts\x12\x1e\n" +
 	"\n" +
-	"auto_alias\x18\xe8\a \x01(\bR\tautoAlias\x12$\n" +
-	"\ralias_reserve\x18\xe9\a \x01(\x05R\faliasReserve\"m\n" +
+	"auto_alias\x18\xe8\a \x01(\bR\tautoAlias\"m\n" +
 	"\bEnumOpts\x12\x1f\n" +
 	"\x03opt\x18\xe8\a \x01(\v2\f.OptEnumOptsR\x03opt\x12\"\n" +
 	"\x04java\x18\xe9\a \x01(\v2\r.JavaEnumOptsR\x04java\x12\x1c\n" +
