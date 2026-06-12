@@ -182,7 +182,7 @@ jobs:
         run: npm ci && npm run check
 
       - name: Upload lib-commons coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: lib/commons/build/reports/jacoco/test/jacocoTestReport.xml
@@ -192,7 +192,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload lib-utilities coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: lib/utilities/build/reports/jacoco/test/jacocoTestReport.xml
@@ -202,7 +202,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload plugin coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: plugin/build/reports/coverage/coverage.out
@@ -212,7 +212,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload runtime-java coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: runtime/java/build/reports/jacoco/test/jacocoTestReport.xml
@@ -222,7 +222,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload runtime-processor coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: runtime/processor/build/reports/jacoco/test/jacocoTestReport.xml
@@ -232,7 +232,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload sample-backend coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: sample/backend/build/reports/jacoco/test/jacocoTestReport.xml
@@ -242,7 +242,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload frontend coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: sample/frontend/coverage/lcov.info
@@ -252,7 +252,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload runtime-ts coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: runtime/ts/coverage/lcov.info
