@@ -33,4 +33,4 @@ mkdir -p "${install_dir}"
 curl -fsSL "${url}" -o "${archive_path}"
 unzip -qo "${archive_path}" -d "${install_dir}"
 echo "${install_dir}/bin" >> "${GITHUB_PATH}"
-protoc --version
+"${install_dir}/bin/protoc" --version
