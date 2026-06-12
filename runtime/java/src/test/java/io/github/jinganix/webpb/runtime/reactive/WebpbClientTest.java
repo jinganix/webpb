@@ -46,6 +46,29 @@ class WebpbClientTest {
       WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
   @Test
+  @DisplayName("should return response when async request succeeds")
+  void shouldReturnResponseWhenAsyncRequestSucceeds() {
+    // Given
+    WebClient webClient =
+        WebClient.builder()
+            .exchangeFunction(
+                clientRequest ->
+                    Mono.just(
+                        ClientResponse.create(HttpStatus.OK).body("{\"id\": \"456\"}").build()))
+            .build();
+    WebpbUtils.clearContextCache();
+    WebpbClient client = new WebpbClient(webClient, attributes -> attributes.put("key", "value"));
+    client.setHeaders(headers -> headers.add("X-Test", "1"));
+    client.setTransportMapper(new JsonTransportMapper());
+
+    // When
+    FooResponse response = client.requestAsync(new FooRequest(), FooResponse.class).block();
+
+    // Then
+    assertThat(response.getId()).isEqualTo(456);
+  }
+
+  @Test
   @DisplayName("should return response when request succeeds")
   void shouldReturnResponseWhenRequestSucceeds() {
     // Given

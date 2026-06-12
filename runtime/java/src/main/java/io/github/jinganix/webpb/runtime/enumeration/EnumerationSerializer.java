@@ -22,7 +22,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
-/** EnumerationSerializer. */
+/** Jackson serializer for {@link Enumeration} values. */
 public class EnumerationSerializer extends StdSerializer<Enumeration<?>> {
 
   /** Constructor. */
@@ -48,13 +48,17 @@ public class EnumerationSerializer extends StdSerializer<Enumeration<?>> {
    *     contains, if any.
    */
   @Override
-  public void serialize(Enumeration value, JsonGenerator gen, SerializationContext context) {
-    if (value.getValue() instanceof Integer) {
-      gen.writeNumber((Integer) value.getValue());
-    } else if (value.getValue() instanceof String) {
-      gen.writeString((String) value.getValue());
+  public void serialize(Enumeration<?> value, JsonGenerator gen, SerializationContext context) {
+    Object enumValue = value.getValue();
+    if (enumValue instanceof Integer integer) {
+      gen.writeNumber(integer);
+    } else if (enumValue instanceof Long longValue) {
+      gen.writeNumber(longValue);
+    } else if (enumValue instanceof String string) {
+      gen.writeString(string);
     } else {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(
+          "Unsupported enumeration value type: " + enumValue.getClass().getName());
     }
   }
 }

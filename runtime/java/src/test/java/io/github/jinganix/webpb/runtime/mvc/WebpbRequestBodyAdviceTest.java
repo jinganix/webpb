@@ -40,7 +40,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
-import tools.jackson.databind.json.JsonMapper;
 
 @DisplayName("WebpbRequestBodyAdvice")
 class WebpbRequestBodyAdviceTest {
@@ -51,20 +50,6 @@ class WebpbRequestBodyAdviceTest {
     assertThat(method).isNotNull();
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(advice, method);
     return handlerMethod.getMethodParameters()[0];
-  }
-
-  @Test
-  @DisplayName("should support webpb message parameters when constructed with object mapper")
-  void shouldSupportWebpbMessageParametersWhenConstructedWithObjectMapper() {
-    // Given
-    WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice(JsonMapper.builder().build());
-    MethodParameter methodParameter = getMethodParameter(advice);
-
-    // When / Then
-    assertThat(
-            advice.supports(
-                methodParameter, mock(Type.class), ObjectToStringHttpMessageConverter.class))
-        .isTrue();
   }
 
   @Test

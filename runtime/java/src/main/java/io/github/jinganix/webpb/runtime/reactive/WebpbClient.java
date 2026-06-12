@@ -20,11 +20,11 @@ package io.github.jinganix.webpb.runtime.reactive;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbUtils;
+import io.github.jinganix.webpb.runtime.common.JacksonConfig;
 import io.github.jinganix.webpb.runtime.common.MessageContext;
 import java.net.URL;
 import java.util.Map;
 import java.util.function.Consumer;
-import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,24 +33,22 @@ import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
 /** Webpb http client to send a {@link WebpbMessage} and receive a response. */
-@Setter
 public class WebpbClient {
 
   private final WebClient webClient;
 
-  private final ObjectMapper urlObjectMapper = WebpbUtils.createUrlObjectMapper();
+  private final ObjectMapper urlObjectMapper = JacksonConfig.createUrlObjectMapper();
 
-  private Consumer<Map<String, Object>> attributes;
+  private final Consumer<Map<String, Object>> attributes;
 
   private Consumer<HttpHeaders> headers;
 
-  /** {@link TransportMapper}. */
-  protected TransportMapper transportMapper = new JsonTransportMapper();
+  private TransportMapper transportMapper = new JsonTransportMapper();
 
   /**
    * WebpbClient constructor.
    *
-   * @param webClient {@link WebpbClient}
+   * @param webClient {@link WebClient}
    */
   public WebpbClient(WebClient webClient) {
     this(webClient, map -> {});
@@ -59,12 +57,30 @@ public class WebpbClient {
   /**
    * WebpbClient constructor.
    *
-   * @param webClient {@link WebpbClient}
+   * @param webClient {@link WebClient}
    * @param attributes attributes for the client
    */
   public WebpbClient(WebClient webClient, Consumer<Map<String, Object>> attributes) {
     this.webClient = webClient;
     this.attributes = attributes;
+  }
+
+  /**
+   * Set request headers customizer.
+   *
+   * @param headers headers customizer
+   */
+  public void setHeaders(Consumer<HttpHeaders> headers) {
+    this.headers = headers;
+  }
+
+  /**
+   * Set transport mapper.
+   *
+   * @param transportMapper {@link TransportMapper}
+   */
+  public void setTransportMapper(TransportMapper transportMapper) {
+    this.transportMapper = transportMapper;
   }
 
   /**
@@ -99,9 +115,7 @@ public class WebpbClient {
               if (headers != null) {
                 spec.headers(headers);
               }
-              if (attributes != null) {
-                spec.attributes(attributes);
-              }
+              spec.attributes(attributes);
               return spec.retrieve()
                   .onStatus(status -> status.isError(), this::createException)
                   .bodyToMono(byte[].class)

@@ -27,32 +27,13 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
-/** Autowire request body properties from url path an query. */
+/** Autowire request body properties from url path and query. */
 @RestControllerAdvice
 public class WebpbRequestBodyAdvice extends RequestBodyAdviceAdapter {
 
-  private final ObjectMapper objectMapper;
-
-  /** Construct an instance of {@link WebpbRequestBodyAdvice}. */
-  public WebpbRequestBodyAdvice() {
-    this.objectMapper =
-        JsonMapper.builder()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .build();
-  }
-
-  /**
-   * Construct an instance of {@link WebpbRequestBodyAdvice}.
-   *
-   * @param objectMapper {@link ObjectMapper}
-   */
-  public WebpbRequestBodyAdvice(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
+  /** Construct a {@link WebpbRequestBodyAdvice}. */
+  public WebpbRequestBodyAdvice() {}
 
   @Override
   public boolean supports(
@@ -72,7 +53,7 @@ public class WebpbRequestBodyAdvice extends RequestBodyAdviceAdapter {
     Object object = super.afterBodyRead(body, inputMessage, parameter, targetType, converterType);
 
     Map<String, String> variableMap = VariablesResolver.getVariableMap();
-    if (variableMap == null) {
+    if (variableMap.isEmpty()) {
       return object;
     }
     return WebpbUtils.updateMessage((WebpbMessage) object, variableMap);

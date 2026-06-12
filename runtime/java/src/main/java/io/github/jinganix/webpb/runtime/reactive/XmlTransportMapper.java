@@ -18,20 +18,11 @@
 
 package io.github.jinganix.webpb.runtime.reactive;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.github.jinganix.webpb.runtime.common.InQuery;
-import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.introspect.AnnotatedMember;
-import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import io.github.jinganix.webpb.runtime.common.JacksonConfig;
 import tools.jackson.dataformat.xml.XmlMapper;
 
-/** XmlTransportMapper. */
-public class XmlTransportMapper implements TransportMapper {
-
-  private final ObjectMapper objectMapper;
+/** XML {@link TransportMapper} implementation. */
+public class XmlTransportMapper extends AbstractObjectMapperTransportMapper {
 
   /** Constructor. */
   public XmlTransportMapper() {
@@ -44,43 +35,6 @@ public class XmlTransportMapper implements TransportMapper {
    * @param builder {@link XmlMapper.Builder}
    */
   public XmlTransportMapper(XmlMapper.Builder builder) {
-    this.objectMapper =
-        builder
-            .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .changeDefaultPropertyInclusion(
-                incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
-            .annotationIntrospector(
-                new JacksonAnnotationIntrospector() {
-                  @Override
-                  public boolean hasIgnoreMarker(MapperConfig<?> config, AnnotatedMember m) {
-                    return super.hasIgnoreMarker(config, m) || m.hasAnnotation(InQuery.class);
-                  }
-                })
-            .build();
-  }
-
-  /**
-   * Write value as string.
-   *
-   * @param value {@link Object}
-   * @return string
-   */
-  @Override
-  public String writeValue(Object value) {
-    return objectMapper.writeValueAsString(value);
-  }
-
-  /**
-   * Read value as object.
-   *
-   * @param src byte array
-   * @param valueType {@link Class}
-   * @param <T> type of T
-   * @return {@link T}
-   */
-  @Override
-  public <T> T readValue(byte[] src, Class<T> valueType) {
-    return objectMapper.readValue(src, valueType);
+    super(JacksonConfig.configureTransport(builder).build());
   }
 }

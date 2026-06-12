@@ -22,7 +22,7 @@ import static org.springframework.util.StringUtils.hasLength;
 
 import io.github.jinganix.webpb.commons.SegmentGroup;
 import io.github.jinganix.webpb.commons.UrlSegment;
-import io.github.jinganix.webpb.runtime.common.InQuery;
+import io.github.jinganix.webpb.runtime.common.JacksonConfig;
 import io.github.jinganix.webpb.runtime.common.MessageContext;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -34,13 +34,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.introspect.AnnotatedMember;
-import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /** Utilities for webpb java runtime. */
@@ -48,9 +42,9 @@ public class WebpbUtils {
 
   private static final Map<Class<?>, MessageContext> contextCache = new ConcurrentHashMap<>();
 
-  private static final ObjectMapper urlObjectMapper = createUrlObjectMapper();
+  private static final ObjectMapper urlObjectMapper = JacksonConfig.createUrlObjectMapper();
 
-  private static final ObjectMapper transportMapper = createTransportMapper();
+  private static final ObjectMapper transportMapper = JacksonConfig.createTransportObjectMapper();
 
   private WebpbUtils() {}
 
@@ -60,26 +54,16 @@ public class WebpbUtils {
    * @return {@link ObjectMapper}
    */
   public static ObjectMapper createUrlObjectMapper() {
-    return JsonMapper.builder().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).build();
+    return JacksonConfig.createUrlObjectMapper();
   }
 
   /**
-   * Create an {@link ObjectMapper}.
+   * Create an {@link ObjectMapper} for transport serialization.
    *
    * @return {@link ObjectMapper}
    */
   public static ObjectMapper createTransportMapper() {
-    return JsonMapper.builder()
-        .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-        .annotationIntrospector(
-            new JacksonAnnotationIntrospector() {
-              @Override
-              public boolean hasIgnoreMarker(MapperConfig<?> config, AnnotatedMember m) {
-                return super.hasIgnoreMarker(config, m) || m.hasAnnotation(InQuery.class);
-              }
-            })
-        .build();
+    return JacksonConfig.createTransportObjectMapper();
   }
 
   /**
