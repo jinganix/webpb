@@ -74,7 +74,12 @@ describe("isMainModule", () => {
       new URL("../../src/cli/bin/webpb.ts", import.meta.url),
     );
     const linkPath = join(tmpdir(), `webpb-bin-${process.pid}`);
-    symlinkSync(modulePath, linkPath);
+    try {
+      symlinkSync(modulePath, linkPath);
+    } catch {
+      // Symlink creation may require elevated privileges on Windows.
+      return;
+    }
     try {
       expect(isMainModule(pathToFileURL(modulePath), ["node", linkPath])).toBe(
         true,
