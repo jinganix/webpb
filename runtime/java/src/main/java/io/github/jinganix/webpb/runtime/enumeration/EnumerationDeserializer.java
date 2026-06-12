@@ -18,7 +18,6 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
-import java.util.HashMap;
 import java.util.Map;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -28,16 +27,27 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 
 /**
- * EnumerationSerializer.
+ * Jackson deserializer for {@link Enumeration} values.
  *
  * @param <E> enum type
  */
 public class EnumerationDeserializer<E extends Enumeration<?>> extends ValueDeserializer<E> {
 
-  private Map<Object, E> valueMap = new HashMap<>();
+  private final Map<Object, E> valueMap;
 
   /** Constructor. */
-  public EnumerationDeserializer() {}
+  public EnumerationDeserializer() {
+    this(null);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param valueMap lookup from wire values to enum constants
+   */
+  public EnumerationDeserializer(Map<Object, E> valueMap) {
+    this.valueMap = valueMap;
+  }
 
   /**
    * Deserialize an {@link Enumeration} value.
@@ -53,22 +63,30 @@ public class EnumerationDeserializer<E extends Enumeration<?>> extends ValueDese
       return valueMap.get(p.getString());
     }
     if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-      return valueMap.get(p.getIntValue());
+      E result = valueMap.get(p.getIntValue());
+      if (result == null) {
+        result = valueMap.get(p.getLongValue());
+      }
+      if (result == null) {
+        result = valueMap.get(p.getText());
+      }
+      return result;
     }
     return null;
   }
 
   /**
-   * createContextual.
+   * Create a contextual deserializer using the enum value map for the target type.
    *
    * @param ctx {@link DeserializationContext}
    * @param property {@link BeanProperty}
+   * @return contextual deserializer
    */
   @Override
   @SuppressWarnings("unchecked")
   public ValueDeserializer<?> createContextual(DeserializationContext ctx, BeanProperty property) {
     Class<E> clazz = (Class<E>) ctx.getContextualType().getRawClass();
-    this.valueMap = (Map<Object, E>) EnumValuesMap.getValueMap(clazz);
-    return this;
+    Map<Object, E> map = (Map<Object, E>) EnumValuesMap.getValueMap(clazz);
+    return new EnumerationDeserializer<>(map);
   }
 }

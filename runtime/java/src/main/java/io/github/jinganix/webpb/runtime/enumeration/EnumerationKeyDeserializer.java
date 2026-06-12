@@ -24,14 +24,20 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.deser.ContextualKeyDeserializer;
 
-/** EnumerationKeyDeserializer. */
+/** Jackson key deserializer for {@link Enumeration} map keys. */
 public class EnumerationKeyDeserializer extends KeyDeserializer
     implements ContextualKeyDeserializer {
 
-  private Map<Object, Enumeration<?>> valueMap;
+  private final Map<Object, Enumeration<?>> valueMap;
 
   /** Constructor. */
-  public EnumerationKeyDeserializer() {}
+  public EnumerationKeyDeserializer() {
+    this(null);
+  }
+
+  private EnumerationKeyDeserializer(Map<Object, Enumeration<?>> valueMap) {
+    this.valueMap = valueMap;
+  }
 
   /**
    * Deserialize an {@link Enumeration} Key.
@@ -42,20 +48,19 @@ public class EnumerationKeyDeserializer extends KeyDeserializer
    */
   @Override
   public Object deserializeKey(String key, DeserializationContext ctx) {
-    return this.valueMap.get(key);
+    return valueMap.get(key);
   }
 
   /**
-   * createContextual.
+   * Create a contextual key deserializer using the enum value map for the target type.
    *
    * @param ctx {@link DeserializationContext}
    * @param property {@link BeanProperty}
-   * @return {@link KeyDeserializer}
+   * @return contextual key deserializer
    */
   @Override
   public KeyDeserializer createContextual(DeserializationContext ctx, BeanProperty property) {
     Class<?> clazz = ctx.getContextualType().getKeyType().getRawClass();
-    this.valueMap = EnumValuesMap.getValueMap(clazz);
-    return this;
+    return new EnumerationKeyDeserializer(EnumValuesMap.getValueMap(clazz));
   }
 }

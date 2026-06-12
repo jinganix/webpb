@@ -18,46 +18,73 @@
 
 package io.github.jinganix.webpb.runtime.enumeration;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 @DisplayName("EnumerationSerializer")
 class EnumerationSerializerTest {
 
-  @Test
-  @DisplayName("should serialize integer enum values when enum constants are known")
-  void shouldSerializeIntegerEnumValuesWhenEnumConstantsAreKnown() {
-    // Given
-    ObjectMapper objectMapper = new ObjectMapper();
+  private EnumerationSerializer serializer;
 
-    // When / Then
-    assertThat(objectMapper.writeValueAsString(IntegerEnum.A)).isEqualTo("1");
-    assertThat(objectMapper.writeValueAsString(IntegerEnum.B)).isEqualTo("2");
+  private JsonGenerator jsonGenerator;
+
+  private SerializationContext serializationContext;
+
+  @BeforeEach
+  void setup() {
+    serializer = new EnumerationSerializer();
+    jsonGenerator = mock(JsonGenerator.class);
+    serializationContext = mock(SerializationContext.class);
   }
 
   @Test
-  @DisplayName("should serialize string enum values when enum constants are known")
-  void shouldSerializeStringEnumValuesWhenEnumConstantsAreKnown() {
-    // Given
-    ObjectMapper objectMapper = new ObjectMapper();
+  @DisplayName("should write number when integer enumeration")
+  void shouldWriteNumberWhenIntegerEnumeration() throws Exception {
+    // When
+    serializer.serialize(IntegerEnum.A, jsonGenerator, serializationContext);
 
-    // When / Then
-    assertThat(objectMapper.writeValueAsString(StringEnum.A)).isEqualTo("\"val_a\"");
-    assertThat(objectMapper.writeValueAsString(StringEnum.B)).isEqualTo("\"val_b\"");
+    // Then
+    verify(jsonGenerator).writeNumber(1);
   }
 
   @Test
-  @DisplayName("should throw when serializing unhandled enum type")
-  void shouldThrowWhenSerializingUnhandledEnumType() {
+  @DisplayName("should write string when string enumeration")
+  void shouldWriteStringWhenStringEnumeration() throws Exception {
+    // When
+    serializer.serialize(StringEnum.A, jsonGenerator, serializationContext);
+
+    // Then
+    verify(jsonGenerator).writeString("val_a");
+  }
+
+  @Test
+  @DisplayName("should write number when long enumeration")
+  void shouldWriteNumberWhenLongEnumeration() throws Exception {
+    // When
+    serializer.serialize(LongEnum.A, jsonGenerator, serializationContext);
+
+    // Then
+    verify(jsonGenerator).writeNumber(1L);
+  }
+
+  @Test
+  @DisplayName("should throw illegal argument when unsupported value type")
+  void shouldThrowIllegalArgumentWhenUnsupportedValueType() {
     // Given
-    ObjectMapper objectMapper = new ObjectMapper();
+    @SuppressWarnings("unchecked")
+    Enumeration<Double> unsupported = mock(Enumeration.class);
+    when(unsupported.getValue()).thenReturn(1.0);
 
     // When / Then
-    assertThatThrownBy(() -> objectMapper.writeValueAsString(LongEnum.A))
+    assertThatThrownBy(() -> serializer.serialize(unsupported, jsonGenerator, serializationContext))
         .isInstanceOf(IllegalArgumentException.class);
   }
 }

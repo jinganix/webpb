@@ -19,35 +19,171 @@
 package io.github.jinganix.webpb.runtime.enumeration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 @DisplayName("EnumerationDeserializer")
 class EnumerationDeserializerTest {
 
-  @Test
-  @DisplayName("should deserialize integer enum values when json contains known numbers")
-  void shouldDeserializeIntegerEnumValuesWhenJsonContainsKnownNumbers() {
-    // Given
-    ObjectMapper objectMapper = new ObjectMapper();
+  private JsonMapper jsonMapper;
 
-    // When / Then
-    assertThat(objectMapper.readValue("1", IntegerEnum.class)).isEqualTo(IntegerEnum.A);
-    assertThat(objectMapper.readValue("2", IntegerEnum.class)).isEqualTo(IntegerEnum.B);
-    assertThat(objectMapper.readValue("3", IntegerEnum.class)).isNull();
+  private JavaType integerEnumType;
+
+  @BeforeEach
+  void setup() {
+    jsonMapper = new JsonMapper();
+    integerEnumType = jsonMapper.getTypeFactory().constructType(IntegerEnum.class);
   }
 
-  @Test
-  @DisplayName("should deserialize string enum values when json contains known strings")
-  void shouldDeserializeStringEnumValuesWhenJsonContainsKnownStrings() {
-    // Given
-    ObjectMapper objectMapper = new ObjectMapper();
+  @Nested
+  @DisplayName("deserialize")
+  class Deserialize {
 
-    // When / Then
-    assertThat(objectMapper.readValue("\"val_a\"", StringEnum.class)).isEqualTo(StringEnum.A);
-    assertThat(objectMapper.readValue("\"val_b\"", StringEnum.class)).isEqualTo(StringEnum.B);
-    assertThat(objectMapper.readValue("\"val_c\"", StringEnum.class)).isNull();
+    @Test
+    @DisplayName("should resolve enumeration when string value")
+    void shouldResolveEnumerationWhenStringValue() throws Exception {
+      // Given
+      EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
+
+      // When
+      IntegerEnum result = deserialize(deserializer, "\"1\"");
+
+      // Then
+      assertThat(result).isEqualTo(IntegerEnum.A);
+    }
+
+    @Test
+    @DisplayName("should resolve enumeration when integer value")
+    void shouldResolveEnumerationWhenIntegerValue() throws Exception {
+      // Given
+      EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
+
+      // When
+      IntegerEnum result = deserialize(deserializer, "2");
+
+      // Then
+      assertThat(result).isEqualTo(IntegerEnum.B);
+    }
+
+    @Test
+    @DisplayName("should resolve enumeration when long value")
+    void shouldResolveEnumerationWhenLongValue() throws Exception {
+      // Given
+      EnumerationDeserializer<LongEnum> deserializer =
+          new EnumerationDeserializer<>(longValueMap());
+
+      // When
+      LongEnum result = deserializeLong(deserializer, "2");
+
+      // Then
+      assertThat(result).isEqualTo(LongEnum.B);
+    }
+
+    @Test
+    @DisplayName("should return null when unknown value")
+    void shouldReturnNullWhenUnknownValue() throws Exception {
+      // Given
+      EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
+
+      // When
+      IntegerEnum result = deserialize(deserializer, "\"unknown\"");
+
+      // Then
+      assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("should return null when unsupported token")
+    void shouldReturnNullWhenUnsupportedToken() throws Exception {
+      // Given
+      EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
+
+      // When
+      IntegerEnum result = deserialize(deserializer, "true");
+
+      // Then
+      assertThat(result).isNull();
+    }
+  }
+
+  @Nested
+  @DisplayName("createContextual")
+  class CreateContextual {
+
+    @Test
+    @DisplayName("should resolve enumeration from enum map when contextual type")
+    void shouldResolveEnumerationFromEnumMapWhenContextualType() throws Exception {
+      // Given
+      EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>();
+      DeserializationContext context = mock(DeserializationContext.class);
+      JavaType contextualType = mock(JavaType.class);
+      when(context.getContextualType()).thenReturn(contextualType);
+      when(contextualType.getRawClass()).thenAnswer(invocation -> IntegerEnum.class);
+
+      // When
+      ValueDeserializer<?> contextual =
+          deserializer.createContextual(context, mock(BeanProperty.class));
+      IntegerEnum result = deserialize(contextual, "1");
+
+      // Then
+      assertThat(result).isEqualTo(IntegerEnum.A);
+    }
+  }
+
+  private IntegerEnum deserialize(ValueDeserializer<?> deserializer, String json) throws Exception {
+    ObjectReader reader = jsonMapper.readerFor(integerEnumType);
+    try (JsonParser parser = reader.createParser(json)) {
+      parser.nextToken();
+      DeserializationContext context = mock(DeserializationContext.class);
+      @SuppressWarnings("unchecked")
+      IntegerEnum result =
+          ((ValueDeserializer<IntegerEnum>) deserializer).deserialize(parser, context);
+      return result;
+    }
+  }
+
+  private LongEnum deserializeLong(ValueDeserializer<?> deserializer, String json)
+      throws Exception {
+    JavaType longEnumType = jsonMapper.getTypeFactory().constructType(LongEnum.class);
+    ObjectReader reader = jsonMapper.readerFor(longEnumType);
+    try (JsonParser parser = reader.createParser(json)) {
+      parser.nextToken();
+      DeserializationContext context = mock(DeserializationContext.class);
+      @SuppressWarnings("unchecked")
+      LongEnum result = ((ValueDeserializer<LongEnum>) deserializer).deserialize(parser, context);
+      return result;
+    }
+  }
+
+  private static Map<Object, IntegerEnum> valueMap() {
+    Map<Object, IntegerEnum> valueMap = new HashMap<>();
+    for (IntegerEnum value : IntegerEnum.values()) {
+      valueMap.put(value.getValue(), value);
+      valueMap.put(String.valueOf(value.getValue()), value);
+    }
+    return valueMap;
+  }
+
+  private static Map<Object, LongEnum> longValueMap() {
+    Map<Object, LongEnum> valueMap = new HashMap<>();
+    for (LongEnum value : LongEnum.values()) {
+      valueMap.put(value.getValue(), value);
+      valueMap.put(String.valueOf(value.getValue()), value);
+    }
+    return valueMap;
   }
 }

@@ -21,20 +21,23 @@ package io.github.jinganix.webpb.runtime.enumeration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("EnumValuesMap")
 class EnumValuesMapTest {
 
   @Test
-  @DisplayName("should return value map when class is enumeration")
-  void shouldReturnValueMapWhenClassIsEnumeration() {
+  @DisplayName("should map value and string forms when class is enumeration")
+  void shouldMapValueAndStringFormsWhenClassIsEnumeration() {
     // When
     var valueMap = EnumValuesMap.getValueMap(IntegerEnum.class);
 
     // Then
-    assertThat(valueMap).containsKey(1).containsKey("1");
-    assertThat(valueMap.get(1)).isEqualTo(IntegerEnum.A);
+    assertThat(valueMap)
+        .containsEntry(1, IntegerEnum.A)
+        .containsEntry("1", IntegerEnum.A)
+        .containsEntry("A", IntegerEnum.A);
   }
 
   @Test
@@ -42,5 +45,22 @@ class EnumValuesMapTest {
   void shouldReturnNullWhenClassIsNotEnumeration() {
     // When / Then
     assertThat(EnumValuesMap.getValueMap(String.class)).isNull();
+  }
+
+  @Nested
+  @DisplayName("getValueMap")
+  class GetValueMap {
+
+    @Test
+    @DisplayName("should return cached value map when called twice")
+    void shouldReturnCachedValueMapWhenCalledTwice() {
+      // When
+      var first = EnumValuesMap.getValueMap(StringEnum.class);
+      var second = EnumValuesMap.getValueMap(StringEnum.class);
+
+      // Then
+      assertThat(first).isSameAs(second);
+      assertThat(first.get("val_a")).isEqualTo(StringEnum.A);
+    }
   }
 }

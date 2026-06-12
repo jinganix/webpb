@@ -34,17 +34,14 @@ public class VariablesResolver {
   private VariablesResolver() {}
 
   /**
-   * getVariableMap.
+   * Return path and query variables from the current servlet request.
    *
-   * @return map of variables.
+   * @return map of variables
    */
   public static Map<String, String> getVariableMap() {
     RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
     if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
       HttpServletRequest request = servletRequestAttributes.getRequest();
-      if (request == null) {
-        return Collections.emptyMap();
-      }
       @SuppressWarnings("unchecked")
       Map<String, String> attributes =
           (Map<String, String>)

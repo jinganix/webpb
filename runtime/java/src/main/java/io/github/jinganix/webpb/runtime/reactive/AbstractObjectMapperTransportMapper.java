@@ -18,23 +18,29 @@
 
 package io.github.jinganix.webpb.runtime.reactive;
 
-import io.github.jinganix.webpb.runtime.common.JacksonConfig;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
 
-/** JSON {@link TransportMapper} implementation. */
-public class JsonTransportMapper extends AbstractObjectMapperTransportMapper {
+/** Transport mapper backed by a Jackson {@link ObjectMapper}. */
+abstract class AbstractObjectMapperTransportMapper implements TransportMapper {
 
-  /** Constructor. */
-  public JsonTransportMapper() {
-    this(JsonMapper.builder());
-  }
+  private final ObjectMapper objectMapper;
 
   /**
    * Constructor.
    *
-   * @param builder {@link JsonMapper.Builder}
+   * @param objectMapper Jackson mapper for transport serialization
    */
-  public JsonTransportMapper(JsonMapper.Builder builder) {
-    super(JacksonConfig.configureTransport(builder).build());
+  protected AbstractObjectMapperTransportMapper(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
+
+  @Override
+  public String writeValue(Object value) {
+    return objectMapper.writeValueAsString(value);
+  }
+
+  @Override
+  public <T> T readValue(byte[] src, Class<T> valueType) {
+    return objectMapper.readValue(src, valueType);
   }
 }
