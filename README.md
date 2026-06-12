@@ -240,7 +240,7 @@ Optional configuration:
 webpb {
   webpbVersion = "0.0.27"      // defaults to the Gradle plugin version
   protobufVersion = "4.35.0"   // com.google.protobuf:protoc version
-  cleanOutput = true           // delete output dir before generation
+  cleanOutput = false          // default true: delete output dir before generation
   localPluginPath = "/path/to/webpb-protoc-java" // skip Maven resolution
 }
 ```

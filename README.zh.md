@@ -239,7 +239,7 @@ dependencies {
 webpb {
   webpbVersion = "0.0.27"      // 默认与 Gradle 插件版本一致
   protobufVersion = "4.35.0"   // com.google.protobuf:protoc 版本
-  cleanOutput = true           // 生成前删除输出目录
+  cleanOutput = false          // 默认 true：生成前删除输出目录
   localPluginPath = "/path/to/webpb-protoc-java" // 跳过 Maven 解析
 }
 ```
