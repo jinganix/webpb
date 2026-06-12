@@ -24,7 +24,7 @@ public class AliasReserveChild extends AliasReserveParent implements WebpbMessag
     return WEBPB_META;
   }
 
-  @JsonProperty("g")
+  @JsonProperty("f")
   private Integer foo_2;
 
   public AliasReserveChild() {}

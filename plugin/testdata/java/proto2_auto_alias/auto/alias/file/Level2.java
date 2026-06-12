@@ -26,11 +26,11 @@ public class Level2 implements WebpbMessage {
     return WEBPB_META;
   }
 
-  @JsonProperty("b")
+  @JsonProperty("a")
   private Integer test1;
 
   @ToString
-  @JsonProperty("c")
+  @JsonProperty("b")
   private Level3 test2;
 
   @JsonProperty("other")

@@ -25,7 +25,7 @@ func GetAutoAliases(msg protoreflect.MessageDescriptor) map[string]string {
 		maxIndex := offset
 		for i := 0; i < fields.Len(); i++ {
 			field := fields.Get(i)
-			index := offset + int(field.Number())
+			index := offset + int(field.Number()) - 1
 			alias := ToBase52(index)
 			for {
 				if _, nameConflict := names[alias]; nameConflict {

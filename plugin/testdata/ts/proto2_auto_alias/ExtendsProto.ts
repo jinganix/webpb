@@ -35,14 +35,14 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
 
   static fromAlias(data?: unknown): Level3 {
     const p = Webpb.toAlias(data, {
-      b: "foo_1",
+      a: "foo_1",
     }) as Record<string, unknown>;
     return Object.assign(new Level3(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      foo_1: "b",
+      foo_1: "a",
     });
   }
 }
@@ -81,16 +81,16 @@ export class Level2
 
   static fromAlias(data?: unknown): Level2 {
     const p = Webpb.toAlias(data, {
-      b: "foo_1",
-      c: "foo_2",
+      a: "foo_1",
+      b: "foo_2",
     }) as Record<string, unknown>;
     return Object.assign(new Level2(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      foo_1: "b",
-      foo_2: "c",
+      foo_1: "a",
+      foo_2: "b",
     });
   }
 }
@@ -131,20 +131,20 @@ export class Level1
 
   static fromAlias(data?: unknown): Level1 {
     const p = Webpb.toAlias(data, {
-      b: "foo_1",
-      c: "foo_2",
-      d: "foo_3",
-      e: "foo_4",
+      a: "foo_1",
+      b: "foo_2",
+      c: "foo_3",
+      d: "foo_4",
     }) as Record<string, unknown>;
     return Object.assign(new Level1(), p);
   }
 
   toWebpbAlias(): unknown {
     return Webpb.toAlias(this, {
-      foo_1: "b",
-      foo_2: "c",
-      foo_3: "d",
-      foo_4: "e",
+      foo_1: "a",
+      foo_2: "b",
+      foo_3: "c",
+      foo_4: "d",
     });
   }
 }
