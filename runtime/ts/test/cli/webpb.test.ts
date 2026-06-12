@@ -1,3 +1,6 @@
+import { symlinkSync, unlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import * as generate from "../../src/cli/generate";
@@ -64,6 +67,42 @@ describe("isMainModule", () => {
     expect(isMainModule(pathToFileURL(modulePath), ["node", "/other/path"])).toBe(
       false,
     );
+  });
+
+  it("should return true when argv is a symlink to the module path", () => {
+    const modulePath = fileURLToPath(
+      new URL("../../src/cli/bin/webpb.ts", import.meta.url),
+    );
+    const linkPath = join(tmpdir(), `webpb-bin-${process.pid}`);
+    symlinkSync(modulePath, linkPath);
+    try {
+      expect(isMainModule(pathToFileURL(modulePath), ["node", linkPath])).toBe(
+        true,
+      );
+    } finally {
+      unlinkSync(linkPath);
+    }
+  });
+
+  it("should compare paths case-insensitively on windows", () => {
+    const modulePath = fileURLToPath(
+      new URL("../../src/cli/bin/webpb.ts", import.meta.url),
+    );
+    const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
+    expect(
+      isMainModule(pathToFileURL(modulePath), [
+        "node",
+        modulePath.toUpperCase(),
+      ]),
+    ).toBe(true);
+    platformSpy.mockRestore();
+  });
+
+  it("should return false when argv entry is missing", () => {
+    const modulePath = fileURLToPath(
+      new URL("../../src/cli/bin/webpb.ts", import.meta.url),
+    );
+    expect(isMainModule(pathToFileURL(modulePath), ["node"])).toBe(false);
   });
 });
 

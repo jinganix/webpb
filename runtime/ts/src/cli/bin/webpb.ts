@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { runGenerate } from "../generate.js";
 
@@ -28,11 +29,36 @@ export async function runCli(argv: string[]): Promise<number> {
   return 1;
 }
 
+function resolveArgvEntryPath(argv: string[]): string {
+  const entry = argv[1];
+  if (!entry) {
+    return "";
+  }
+  try {
+    return realpathSync(entry);
+  } catch {
+    return entry;
+  }
+}
+
+function resolveModulePath(moduleUrl: string | URL): string {
+  try {
+    return realpathSync(fileURLToPath(moduleUrl));
+  } catch {
+    return fileURLToPath(moduleUrl);
+  }
+}
+
 export function isMainModule(
   moduleUrl: string | URL,
   argv: string[] = process.argv,
 ): boolean {
-  return argv[1] === fileURLToPath(moduleUrl);
+  const modulePath = resolveModulePath(moduleUrl);
+  const entryPath = resolveArgvEntryPath(argv);
+  if (process.platform === "win32") {
+    return entryPath.toLowerCase() === modulePath.toLowerCase();
+  }
+  return entryPath === modulePath;
 }
 
 export async function runMainEntrypoint(

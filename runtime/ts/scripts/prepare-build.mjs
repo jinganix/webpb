@@ -20,7 +20,9 @@ cpSync(
 );
 
 const cliBin = join(buildDir, "cli/bin/webpb.js");
-chmodSync(cliBin, 0o755);
+if (process.platform !== "win32") {
+  chmodSync(cliBin, 0o755);
+}
 
 const pkg = JSON.parse(readFileSync(join(packageDir, "package.json"), "utf8"));
 const publishPkg = {
