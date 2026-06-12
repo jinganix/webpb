@@ -98,10 +98,25 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true
 
+      - name: Install runtime/ts dependencies
+        shell: bash
+        working-directory: runtime/ts
+        run: npm ci
+
       - name: Check runtime/ts
         shell: bash
         working-directory: runtime/ts
-        run: npm ci && npm run check && npm run build && node build/cli/bin/webpb.js generate --help
+        run: npm run check
+
+      - name: Build runtime/ts
+        shell: bash
+        working-directory: runtime/ts
+        run: npm run build
+
+      - name: Verify runtime/ts CLI
+        shell: bash
+        working-directory: runtime/ts
+        run: node build/cli/bin/webpb.js generate --help
 
       - name: Run Go plugin tests
         if: runner.os != 'Windows'
