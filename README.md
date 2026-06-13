@@ -209,9 +209,9 @@ plugins {
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.28")
-  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.28")
-  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.28")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.29")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.29")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.29")
   // your .proto module or files
   protobuf(project(":your-proto-module"))
 }
@@ -226,7 +226,7 @@ plugins {
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.28")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.29")
 }
 ```
 
@@ -248,11 +248,11 @@ Manual setup (without the convention plugin) is also supported:
 ```kotlin
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:0.0.28"
+    artifact = "com.google.protobuf:protoc:0.0.29"
   }
   plugins {
     id("ts") {
-      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.28:all@jar"
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.29:all@jar"
     }
   }
   generateProtoTasks {
@@ -270,8 +270,8 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
 
 ```xml
 <properties>
-  <webpb.version>0.0.28</webpb.version>
-  <protobuf.version>0.0.28</protobuf.version>
+  <webpb.version>0.0.29</webpb.version>
+  <protobuf.version>0.0.29</protobuf.version>
 </properties>
 
 <dependencies>
@@ -292,14 +292,14 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
     <extension>
       <groupId>kr.motd.maven</groupId>
       <artifactId>os-maven-plugin</artifactId>
-      <version>0.0.28</version>
+      <version>0.0.29</version>
     </extension>
   </extensions>
   <plugins>
     <plugin>
       <groupId>org.xolstice.maven.plugins</groupId>
       <artifactId>protobuf-maven-plugin</artifactId>
-      <version>0.0.28</version>
+      <version>0.0.29</version>
       <configuration>
         <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
         <protocPlugins>
