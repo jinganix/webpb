@@ -18,7 +18,6 @@ export class Main1
 {
   foo_2!: number;
   bar_2!: string;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Main1";
   static CONTEXT = "";
@@ -28,13 +27,15 @@ export class Main1
   protected constructor(p?: IMain1) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Main1",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Main1.CLASS,
+      context: Main1.CONTEXT,
+      method: Main1.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IMain1): Main1 {
@@ -61,7 +62,6 @@ export class Main2
 {
   foo_2!: number;
   bar_2!: string;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Main2";
   static CONTEXT = "";
@@ -71,13 +71,15 @@ export class Main2
   protected constructor(p?: IMain2) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Main2",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Main2.CLASS,
+      context: Main2.CONTEXT,
+      method: Main2.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IMain2): Main2 {
@@ -104,7 +106,6 @@ export class Main3
 {
   foo_2!: number;
   bar_2!: string;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Main3";
   static CONTEXT = "";
@@ -114,13 +115,15 @@ export class Main3
   protected constructor(p?: IMain3) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Main3",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Main3.CLASS,
+      context: Main3.CONTEXT,
+      method: Main3.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IMain3): Main3 {
@@ -144,7 +147,6 @@ export interface IMain4 extends ICustom {
 export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
   foo_2!: number;
   bar_2!: string;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Main4";
   static CONTEXT = "";
@@ -154,13 +156,15 @@ export class Main4 extends Custom implements IMain4, Webpb.WebpbMessage {
   protected constructor(p?: IMain4) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Main4",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Main4.CLASS,
+      context: Main4.CONTEXT,
+      method: Main4.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IMain4): Main4 {

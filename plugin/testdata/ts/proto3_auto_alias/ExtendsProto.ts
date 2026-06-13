@@ -11,7 +11,6 @@ export interface ILevel3 {
 
 export class Level3 implements ILevel3, Webpb.WebpbMessage {
   foo_1?: number | null;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Level3";
   static CONTEXT = "";
@@ -20,13 +19,15 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel3) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Level3",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Level3.CLASS,
+      context: Level3.CONTEXT,
+      method: Level3.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: ILevel3): Level3 {
@@ -56,7 +57,6 @@ export class Level2
   implements ILevel2, Webpb.WebpbMessage
 {
   foo_2?: number | null;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Level2";
   static CONTEXT = "";
@@ -66,13 +66,15 @@ export class Level2
   protected constructor(p?: ILevel2) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Level2",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Level2.CLASS,
+      context: Level2.CONTEXT,
+      method: Level2.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: ILevel2): Level2 {
@@ -106,7 +108,6 @@ export class Level1
 {
   foo_3?: number | null;
   foo_4?: number | null;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Level1";
   static CONTEXT = "";
@@ -116,13 +117,15 @@ export class Level1
   protected constructor(p?: ILevel1) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Level1",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Level1.CLASS,
+      context: Level1.CONTEXT,
+      method: Level1.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: ILevel1): Level1 {

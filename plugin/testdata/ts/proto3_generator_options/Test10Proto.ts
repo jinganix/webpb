@@ -10,7 +10,6 @@ export interface ITest10 {
 
 export class Test10 implements ITest10, Webpb.WebpbMessage {
   test1?: number | null;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Test10";
   static CONTEXT = "";
@@ -19,13 +18,15 @@ export class Test10 implements ITest10, Webpb.WebpbMessage {
 
   protected constructor(p?: ITest10) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Test10",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Test10.CLASS,
+      context: Test10.CONTEXT,
+      method: Test10.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: ITest10): Test10 {

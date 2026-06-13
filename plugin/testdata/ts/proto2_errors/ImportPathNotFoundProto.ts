@@ -13,7 +13,6 @@ export interface IImportPathNotFound extends BadImport.IExtends {
 export class ImportPathNotFound extends BadImport.Extends implements IImportPathNotFound, Webpb.WebpbMessage {
   foo_2!: number;
   bar_2!: string;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "ImportPathNotFound";
   static CONTEXT = "";
@@ -23,13 +22,15 @@ export class ImportPathNotFound extends BadImport.Extends implements IImportPath
   protected constructor(p?: IImportPathNotFound) {
     super();
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "ImportPathNotFound",
-        context: "",
-        method: "",
-        path: "",
-      } as Webpb.WebpbMeta);
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: ImportPathNotFound.CLASS,
+      context: ImportPathNotFound.CONTEXT,
+      method: ImportPathNotFound.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IImportPathNotFound): ImportPathNotFound {

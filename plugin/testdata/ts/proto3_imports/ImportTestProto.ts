@@ -18,7 +18,6 @@ export class ImportTest
   foo_2?: number | null;
   bar_2?: string | null;
   no_package?: NoPackageProto.INoPackage | null;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "ImportTest";
   static CONTEXT = "";
@@ -30,13 +29,15 @@ export class ImportTest
     Webpb.assign(p, this, []);
     p?.no_package &&
       (this.no_package = NoPackageProto.NoPackage.create(p.no_package));
-    this.webpbMeta = () =>
-      ({
-        class: "ImportTest",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: ImportTest.CLASS,
+      context: ImportTest.CONTEXT,
+      method: ImportTest.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IImportTest): ImportTest {
