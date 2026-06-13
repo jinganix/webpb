@@ -42,6 +42,107 @@ describe("assign", () => {
     assign(src, dest, excludes);
     expect(dest).toStrictEqual(expected);
   });
+
+  it("should assign from plain object", () => {
+    // Given
+    const dest: Record<string, unknown> = {};
+
+    // When
+    assign({ code: 5, errors: {} }, dest);
+
+    // Then
+    expect(dest).toStrictEqual({ code: 5, errors: {} });
+  });
+
+  it("should assign from class instance with data fields", () => {
+    // Given
+    class ErrorMessage {
+      code?: number;
+      errors?: Record<string, unknown>;
+      webpbMeta = () => ({});
+    }
+    const src = Object.assign(new ErrorMessage(), { code: 5, errors: {} });
+    const dest: Record<string, unknown> = {};
+
+    // When
+    assign(src, dest);
+
+    // Then
+    expect(dest.code).toBe(5);
+    expect(dest.errors).toEqual({});
+    expect(dest.webpbMeta).toBeUndefined();
+  });
+
+  it("should assign from instance to instance via create pattern", () => {
+    // Given
+    class Msg {
+      code?: number;
+      errors?: Record<string, string>;
+      constructor(p?: Partial<Msg>) {
+        assign(p, this);
+      }
+    }
+    const src = new Msg({ code: 5, errors: {} });
+
+    // When
+    const dest = new Msg(src);
+
+    // Then
+    expect(dest.code).toBe(5);
+    expect(dest.errors).toEqual({});
+  });
+
+  it("should use toWebpbAlias when it returns plain object", () => {
+    // Given
+    class Msg {
+      code = 1;
+      toWebpbAlias() {
+        return { code: 5, errors: {} };
+      }
+      webpbMeta = () => ({});
+    }
+    const src = new Msg();
+    const dest: Record<string, unknown> = {};
+
+    // When
+    assign(src, dest);
+
+    // Then
+    expect(dest).toStrictEqual({ code: 5, errors: {} });
+  });
+
+  it("should unwrap instance when toWebpbAlias returns this", () => {
+    // Given
+    class Msg {
+      code = 5;
+      errors = {};
+      toWebpbAlias() {
+        return this;
+      }
+      webpbMeta = () => ({});
+    }
+    const src = new Msg();
+    const dest: Record<string, unknown> = {};
+
+    // When
+    assign(src, dest);
+
+    // Then
+    expect(dest.code).toBe(5);
+    expect(dest.errors).toEqual({});
+    expect(dest.webpbMeta).toBeUndefined();
+  });
+
+  it("should not assign from non-object", () => {
+    // Given
+    const dest: Record<string, unknown> = {};
+
+    // When
+    assign("x", dest);
+
+    // Then
+    expect(Object.keys(dest)).toHaveLength(0);
+  });
 });
 
 describe("getter", () => {
