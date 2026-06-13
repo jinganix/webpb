@@ -7,6 +7,7 @@ option java_package = "test";
 import "Include.proto";
 import "Include2.proto";
 
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
 import "imports/WebpbOptions.proto";
 import "webpb/WebpbExtend.proto";
 

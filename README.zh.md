@@ -24,30 +24,26 @@ Proto 扩展定义见 [`lib/proto/src/main/resources/webpb/WebpbExtend.proto`](l
 
 ## 示例项目
 
-[`sample/`](sample/) 是一个端到端的商店 API 演示。
+[`sample/`](sample/) 是一个端到端的 webpb option 演示。
 
 | 模块 | 说明 |
 |------|------|
 | [`sample/proto`](sample/proto) | 共享 `.proto` 与 `WebpbOptions.proto`（全局 Java/TS 默认配置） |
-| [`sample/backend`](sample/backend) | Spring Boot 应用；通过 Gradle 从 proto 生成 Java |
-| [`sample/maven`](sample/maven) | 使用 `protobuf-maven-plugin` 的 Maven 最小示例 |
-| [`sample/frontend`](sample/frontend) | Webpack + TypeScript 应用；通过 `protoc` 从 proto 生成 TS |
+| [`sample/backend`](sample/backend) | Spring Boot 应用；支持 Gradle 或 Maven；从 proto 生成 Java |
+| [`sample/frontend`](sample/frontend) | Vite + React + TypeScript 应用；通过 `webpb generate` 从 proto 生成 TS |
 
 ### 定义 HTTP 接口
 
 请求消息在 `(m_opts).opt` 中携带路由元数据。路径段使用 `{field}` 或 `{nested.field}` 占位；查询参数字段用 `(opts).opt = {in_query: true}` 标记。
 
 ```protobuf
-message StoreListRequest {
+message QueryParamRequest {
   option (m_opts).opt = {
     method: "GET"
-    path: "/stores?page={pageable.page}&size={pageable.size}"
+    path: "/options/query?tag={tag}"
   };
 
-  required CommonProto.PageablePb pageable = 1 [
-    (opts).opt = {in_query: true},
-    (opts).java = {annotation: '@Valid'}
-  ];
+  required string tag = 1 [(opts).opt = {in_query: true}];
 }
 ```
 
@@ -57,15 +53,15 @@ message StoreListRequest {
 
 ```java
 @RestController
-public class StoreController {
+public class OptionsController {
 
   @WebpbRequestMapping
-  public StoreListResponse getStores(@Valid StoreListRequest request) {
+  public QueryParamResponse queryParam(@Valid QueryParamRequest request) {
     // ...
   }
 
   @WebpbRequestMapping
-  public StoreVisitResponse getStore(@Valid @RequestBody StoreVisitRequest request) {
+  public HttpRouteResponse httpRoute(@Valid @RequestBody HttpRouteRequest request) {
     // ...
   }
 }
@@ -75,12 +71,12 @@ public class StoreController {
 
 ### TypeScript 客户端
 
-生成的类通过 `webpbMeta()` 暴露 `method` 与 `path`。示例 [`HttpService`](sample/frontend/src/scripts/http.service.ts) 据此发送 JSON 请求：
+生成的类通过 `webpbMeta()` 暴露 `method` 与 `path`。示例 [`HttpService`](sample/frontend/src/services/http.service.ts) 据此发送 JSON 请求：
 
 ```typescript
 this.httpService.request(
-  StoreListRequest.create({ pageable: { page: 1, size: 3 } }),
-  StoreListResponse,
+  QueryParamRequest.create({ tag: "demo" }),
+  QueryParamResponse,
 );
 ```
 
@@ -204,7 +200,7 @@ import "webpb/WebpbExtend.proto";
 
 配合 [protobuf Gradle 插件](https://github.com/google/protobuf-gradle-plugin) 使用 webpb 约定插件：
 
-**Java**（[`sample/backend`](sample/backend/build.gradle.kts)）：
+**Java**（[`sample/backend`](sample/backend/build.gradle.kts) / [`pom.xml`](sample/backend/pom.xml)）：
 
 ```kotlin
 plugins {
@@ -269,7 +265,7 @@ protobuf {
 
 ### Maven
 
-使用 [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) 配合已发布的 `webpb-protoc-java`（`classifier: all`）。完整示例见 [`sample/maven/pom.xml`](sample/maven/pom.xml)。
+使用 [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) 配合已发布的 `webpb-protoc-java`（`classifier: all`）。完整示例见 [`sample/backend/pom.xml`](sample/backend/pom.xml)。
 
 ```xml
 <properties>
@@ -338,7 +334,7 @@ protobuf {
 npm install -D webpb
 ```
 
-`webpb` CLI 会自动解析 `protoc` 与 `webpb-protoc-ts`，内置 `webpb/WebpbExtend.proto` include 路径。每个 protobuf 包生成一个 `.ts` 文件（如 `StoreProto.ts`）。
+`webpb` CLI 会自动解析 `protoc` 与 `webpb-protoc-ts`，内置 `webpb/WebpbExtend.proto` include 路径。每个 protobuf 包生成一个 `.ts` 文件（如 `OptionsProto.ts`）。
 
 ```shell
 npx webpb generate \
@@ -427,6 +423,8 @@ protoc \
 
 ### 后端（端口 8181）
 
+**Gradle：**
+
 ```shell
 ./gradlew sample:backend:bootRun
 ```
@@ -438,6 +436,15 @@ Windows：
 ```
 
 Gradle 会应用 `io.github.jinganix.webpb.java`、调用 `webpb` protoc 插件及注解处理器，在 `sample/backend/build/generated/` 下生成 Java 源码。
+
+**Maven：**
+
+```shell
+cd sample/backend
+mvn spring-boot:run
+```
+
+Maven 通过 `protobuf-maven-plugin` 调用 `webpb` protoc 插件，并以 `webpb-processor` 作为注解处理器；生成代码位于 `sample/backend/target/generated-sources/protobuf/`。
 
 ### 前端（端口 4200）
 

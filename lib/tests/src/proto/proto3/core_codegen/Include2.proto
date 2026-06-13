@@ -4,6 +4,7 @@ package Include2Proto;
 
 option java_package = "include2";
 
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
 import "imports/WebpbOptions.proto";
 import "webpb/WebpbExtend.proto";
 

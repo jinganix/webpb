@@ -39,4 +39,18 @@ class PagingPbTest {
     assertThat(pb.getTotalCount()).isEqualTo(33);
     assertThat(pb.getTotalPage()).isEqualTo(44);
   }
+
+  @Test
+  @DisplayName("should return constructor values when constructed with all arguments")
+  void shouldReturnConstructorValuesWhenConstructedWithAllArguments() {
+    // Given / When
+    PagingPb pb = new PagingPb(11, 22, 33, 44);
+
+    // Then
+    assertThat(pb.webpbMeta()).isNotNull();
+    assertThat(pb.getPage()).isEqualTo(11);
+    assertThat(pb.getSize()).isEqualTo(22);
+    assertThat(pb.getTotalCount()).isEqualTo(33);
+    assertThat(pb.getTotalPage()).isEqualTo(44);
+  }
 }

@@ -44,5 +44,5 @@ protobuf {
 }
 
 tasks.withType<GenerateProtoTask> {
-  dependsOn(":plugin:build")
+  dependsOn(":plugin:buildGoTs")
 }

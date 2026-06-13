@@ -5,6 +5,7 @@ package CommonProto;
 option java_package = "io.github.jinganix.webpb.sample.proto.common";
 
 import "webpb/WebpbExtend.proto";
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
 import "WebpbOptions.proto";
 
 // It should be ignored by jacoco, as it is marked with @Generated

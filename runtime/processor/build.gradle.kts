@@ -28,10 +28,8 @@ val javacInternalsOpens =
     "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
   )
 
-if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
-  tasks.withType<JavaCompile> {
-    options.compilerArgs.addAll(javacInternalsExports)
-  }
+tasks.withType<JavaCompile> {
+  options.compilerArgs.addAll(javacInternalsExports)
 }
 
 tasks.test {

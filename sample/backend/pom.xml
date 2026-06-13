@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.0.6</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>io.github.jinganix.webpb.sample</groupId>
+  <artifactId>webpb-sample-backend</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>webpb sample backend</name>
+  <description>Spring Boot sample backend with webpb Java code generation (Maven)</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>21</java.version>
+    <webpb.version>0.0.27</webpb.version>
+    <protobuf.version>4.35.0</protobuf.version>
+    <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
+    <os.maven.plugin.version>1.7.1</os.maven.plugin.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.jinganix.webpb</groupId>
+      <artifactId>webpb-proto</artifactId>
+      <version>${webpb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.jinganix.webpb</groupId>
+      <artifactId>webpb-runtime</artifactId>
+      <version>${webpb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>${os.maven.plugin.version}</version>
+      </extension>
+    </extensions>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>io.github.jinganix.webpb</groupId>
+              <artifactId>webpb-processor</artifactId>
+              <version>${webpb.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>${protobuf.maven.plugin.version}</version>
+        <configuration>
+          <protocArtifact>
+            com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+          </protocArtifact>
+          <protoSourceRoot>${project.basedir}/../proto/src/main/resources</protoSourceRoot>
+          <includes>
+            <include>Common.proto</include>
+            <include>Options.proto</include>
+            <include>Store.proto</include>
+          </includes>
+          <protocPlugins>
+            <protocPlugin>
+              <id>webpb</id>
+              <groupId>io.github.jinganix.webpb</groupId>
+              <artifactId>webpb-protoc-java</artifactId>
+              <version>${webpb.version}</version>
+              <classifier>all</classifier>
+              <mainClass>io.github.jinganix.webpb.java.Main</mainClass>
+            </protocPlugin>
+          </protocPlugins>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

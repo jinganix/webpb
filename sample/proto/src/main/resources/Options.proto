@@ -1,0 +1,147 @@
+syntax = "proto2";
+
+package OptionsProto;
+
+option java_package = "io.github.jinganix.webpb.sample.proto.options";
+
+import "webpb/WebpbExtend.proto";
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
+import "WebpbOptions.proto";
+
+option (f_opts).java = {
+  annotation: '@Generated'
+  import: 'com.fasterxml.jackson.annotation.JsonProperty'
+};
+
+// Demonstrates (m_opts).opt method + path.
+message HttpRouteRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    path: "/options/http-route"
+  };
+
+  required string name = 1;
+}
+
+message HttpRouteResponse {
+  required string echo = 1;
+}
+
+// Demonstrates (m_opts).opt.context path prefix.
+message ContextPathRequest {
+  option (m_opts).opt = {
+    method: "GET"
+    context: "api"
+    path: "/options/context"
+  };
+}
+
+message ContextPathResponse {
+  required string clientPath = 1;
+  required string serverPath = 2;
+}
+
+// Demonstrates (opts).opt.in_query.
+message QueryParamRequest {
+  option (m_opts).opt = {
+    method: "GET"
+    path: "/options/query?tag={tag}"
+  };
+
+  required string tag = 1 [(opts).opt = {in_query: true}];
+}
+
+message QueryParamResponse {
+  required string tag = 1;
+}
+
+// Demonstrates (opts).java.annotation validation.
+message ValidationRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    path: "/options/validation"
+  };
+
+  required string code = 1 [(opts).java = {annotation: '@NotBlank'}];
+}
+
+message ValidationResponse {
+  required bool ok = 1;
+}
+
+message ValidationErrorsResponse {
+  map<string, string> errors = 1;
+}
+
+// Demonstrates (opts).ts.as_string.
+message Int64StringRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    path: "/options/int64-string"
+  };
+
+  required int64 id = 1 [(opts).ts = {as_string: true}];
+}
+
+message Int64StringResponse {
+  required int64 id = 1 [(opts).ts = {as_string: true}];
+}
+
+message AliasPayloadPb {
+  option (m_opts).ts = {auto_alias: true};
+  option (m_opts).java = {field_annotation: '@JsonProperty("{{_ALIAS_}}")'};
+
+  required string message = 1;
+}
+
+// Demonstrates (m_opts).ts.auto_alias.
+message AutoAliasRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    path: "/options/auto-alias"
+  };
+
+  required string text = 1;
+}
+
+message AutoAliasResponse {
+  option (m_opts).ts = {auto_alias: true};
+  option (m_opts).java = {field_annotation: '@JsonProperty("{{_ALIAS_}}")'};
+
+  required AliasPayloadPb payload = 1;
+}
+
+// Demonstrates (opts).ts.alias.
+message FieldAliasRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    path: "/options/field-alias"
+  };
+
+  required string title = 1 [(opts).ts = {alias: 't'}];
+}
+
+message FieldAliasResponse {
+  required string title = 1 [(opts).ts = {alias: 't'}];
+}
+
+enum StatusPb {
+  option (e_opts).opt = {string_value: true};
+
+  UNKNOWN = 0 [(v_opts).opt = {value: "unknown"}];
+  ACTIVE = 1 [(v_opts).opt = {value: "active"}];
+}
+
+// Demonstrates (e_opts).opt.string_value and (v_opts).opt.value.
+message EnumStringRequest {
+  option (m_opts).opt = {
+    method: "POST"
+    path: "/options/enum-string"
+  };
+
+  required StatusPb status = 1;
+}
+
+message EnumStringResponse {
+  required StatusPb status = 1;
+}

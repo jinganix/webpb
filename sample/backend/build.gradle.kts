@@ -42,7 +42,7 @@ tasks.bootJar {
 }
 
 tasks.generateProto {
-  dependsOn(":plugin:build")
+  dependsOn(":plugin:buildGoJava")
 }
 
 val generatedMain = layout.buildDirectory.dir("generated/sources/src/main").get()

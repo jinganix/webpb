@@ -24,30 +24,26 @@ Proto extensions are defined in [`lib/proto/src/main/resources/webpb/WebpbExtend
 
 ## Sample project
 
-[`sample/`](sample/) is an end-to-end store API demo.
+[`sample/`](sample/) is an end-to-end webpb options demo.
 
 | Module | Role |
 |--------|------|
 | [`sample/proto`](sample/proto) | Shared `.proto` files and `WebpbOptions.proto` (global Java/TS defaults) |
-| [`sample/backend`](sample/backend) | Spring Boot app; generates Java from proto via Gradle |
-| [`sample/maven`](sample/maven) | Minimal Maven example with `protobuf-maven-plugin` |
-| [`sample/frontend`](sample/frontend) | Webpack + TypeScript app; generates TS from proto via `protoc` |
+| [`sample/backend`](sample/backend) | Spring Boot app; Gradle or Maven; generates Java from proto |
+| [`sample/frontend`](sample/frontend) | Vite + React + TypeScript app; generates TS from proto via `webpb generate` |
 
 ### Define an HTTP endpoint
 
 Request messages carry routing metadata in `(m_opts).opt`. Path segments use `{field}` or `{nested.field}` placeholders; mark query fields with `(opts).opt = {in_query: true}`.
 
 ```protobuf
-message StoreListRequest {
+message QueryParamRequest {
   option (m_opts).opt = {
     method: "GET"
-    path: "/stores?page={pageable.page}&size={pageable.size}"
+    path: "/options/query?tag={tag}"
   };
 
-  required CommonProto.PageablePb pageable = 1 [
-    (opts).opt = {in_query: true},
-    (opts).java = {annotation: '@Valid'}
-  ];
+  required string tag = 1 [(opts).opt = {in_query: true}];
 }
 ```
 
@@ -57,15 +53,15 @@ Generated types implement `WebpbMessage`. Add `@WebpbRequestMapping` on controll
 
 ```java
 @RestController
-public class StoreController {
+public class OptionsController {
 
   @WebpbRequestMapping
-  public StoreListResponse getStores(@Valid StoreListRequest request) {
+  public QueryParamResponse queryParam(@Valid QueryParamRequest request) {
     // ...
   }
 
   @WebpbRequestMapping
-  public StoreVisitResponse getStore(@Valid @RequestBody StoreVisitRequest request) {
+  public HttpRouteResponse httpRoute(@Valid @RequestBody HttpRouteRequest request) {
     // ...
   }
 }
@@ -75,12 +71,12 @@ Register `WebpbHandlerMethodArgumentResolver` and `WebpbRequestBodyAdvice` in Sp
 
 ### TypeScript client
 
-Generated classes expose `webpbMeta()` with `method` and `path`. The sample [`HttpService`](sample/frontend/src/scripts/http.service.ts) sends JSON requests using that metadata:
+Generated classes expose `webpbMeta()` with `method` and `path`. The sample [`HttpService`](sample/frontend/src/services/http.service.ts) sends JSON requests using that metadata:
 
 ```typescript
 this.httpService.request(
-  StoreListRequest.create({ pageable: { page: 1, size: 3 } }),
-  StoreListResponse,
+  QueryParamRequest.create({ tag: "demo" }),
+  QueryParamResponse,
 );
 ```
 
@@ -204,7 +200,7 @@ Add `webpb-proto` as a dependency (Gradle/Maven) or pass `-I` to a directory tha
 
 Apply the [protobuf Gradle plugin](https://github.com/google/protobuf-gradle-plugin) together with a webpb convention plugin:
 
-**Java** ([`sample/backend`](sample/backend/build.gradle.kts)):
+**Java** ([`sample/backend`](sample/backend/build.gradle.kts) / [`pom.xml`](sample/backend/pom.xml)):
 
 ```kotlin
 plugins {
@@ -270,7 +266,7 @@ protobuf {
 
 ### Maven
 
-Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) with the published `webpb-protoc-java` launcher JAR (`classifier: all`). See [`sample/maven/pom.xml`](sample/maven/pom.xml).
+Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) with the published `webpb-protoc-java` launcher JAR (`classifier: all`). See [`sample/backend/pom.xml`](sample/backend/pom.xml).
 
 ```xml
 <properties>
@@ -341,7 +337,7 @@ Install the runtime (dev dependency) and generate TypeScript with the bundled CL
 npm install -D webpb
 ```
 
-The `webpb` CLI resolves `protoc` and `webpb-protoc-ts` automatically, includes bundled `webpb/WebpbExtend.proto`, and writes one `.ts` file per protobuf package (for example `StoreProto.ts`).
+The `webpb` CLI resolves `protoc` and `webpb-protoc-ts` automatically, includes bundled `webpb/WebpbExtend.proto`, and writes one `.ts` file per protobuf package (for example `OptionsProto.ts`).
 
 ```shell
 npx webpb generate \
@@ -430,6 +426,8 @@ Clone the repository, then start backend and frontend in separate terminals.
 
 ### Backend (port 8181)
 
+**Gradle:**
+
 ```shell
 ./gradlew sample:backend:bootRun
 ```
@@ -441,6 +439,15 @@ On Windows:
 ```
 
 Gradle applies `io.github.jinganix.webpb.java`, runs the `webpb` protoc plugin, and uses the annotation processor to generate Java sources under `sample/backend/build/generated/`.
+
+**Maven:**
+
+```shell
+cd sample/backend
+mvn spring-boot:run
+```
+
+Maven uses `protobuf-maven-plugin` with the `webpb` protoc plugin and `webpb-processor` as an annotation processor. Generated sources are written under `sample/backend/target/generated-sources/protobuf/`.
 
 ### Frontend (port 4200)
 

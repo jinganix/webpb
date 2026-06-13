@@ -18,7 +18,7 @@
 
 package io.github.jinganix.webpb.sample.backend;
 
-import io.github.jinganix.webpb.sample.proto.store.ValidationResponse;
+import io.github.jinganix.webpb.sample.proto.options.ValidationErrorsResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
    */
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  ValidationResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
+  ValidationErrorsResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
     Map<String, String> errors = new HashMap<>();
     ex.getBindingResult()
         .getAllErrors()
@@ -55,6 +55,6 @@ public class GlobalExceptionHandler {
               String errorMessage = error.getDefaultMessage();
               errors.put(fieldName, errorMessage);
             });
-    return new ValidationResponse(errors);
+    return new ValidationErrorsResponse(errors);
   }
 }
