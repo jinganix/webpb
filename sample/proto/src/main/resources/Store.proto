@@ -5,6 +5,7 @@ package StoreProto;
 option java_package = "io.github.jinganix.webpb.sample.proto.store";
 
 import "webpb/WebpbExtend.proto";
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
 import "WebpbOptions.proto";
 
 import "Common.proto";

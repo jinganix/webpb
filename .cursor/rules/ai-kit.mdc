@@ -17,4 +17,4 @@ Key rules:
 - Tests are behavior-first: `should ... when ...`; at most one `@Nested` level.
 - Codegen golden tests live in `plugin` (Go) only — do not add duplicate JUnit golden suites.
 
-After Java changes: `./gradlew spotlessApply && ./gradlew build`.
+After Java changes: `./gradlew spotlessApply && ./gradlew build -PskipGoTest=true`.

@@ -130,6 +130,8 @@ jobs:
         run: |
           npm ci
           npm run check
+          npm run test:e2e:install:ci
+          npm run test:e2e
 
   codecov:
     name: Codecov
@@ -193,7 +195,11 @@ jobs:
 
       - name: Check sample frontend
         working-directory: sample/frontend
-        run: npm ci && npm run check
+        run: |
+          npm ci
+          npm run check
+          npm run test:e2e:install:ci
+          npm run test:e2e
 
       - name: Upload lib-commons coverage to Codecov
         uses: codecov/codecov-action@v7

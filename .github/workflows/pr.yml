@@ -111,3 +111,5 @@ jobs:
         run: |
           npm ci
           npm run check
+          npm run test:e2e:install:ci
+          npm run test:e2e

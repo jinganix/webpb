@@ -5,6 +5,7 @@ package WebpbOptsProto;
 option java_package = "auto.alias.webpb";
 
 import "webpb/WebpbExtend.proto";
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
 import "imports/WebpbOptions.proto";
 
 message Level3 {

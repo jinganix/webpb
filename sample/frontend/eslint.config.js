@@ -3,6 +3,7 @@ import tsParser from "@typescript-eslint/parser";
 import importX from "eslint-plugin-import-x";
 import perfectionist from "eslint-plugin-perfectionist";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -12,7 +13,7 @@ export default [
   {
     languageOptions: {
       globals: {
-        ...globals.jest,
+        ...globals.browser,
         ...globals.node,
       },
       parser: tsParser,
@@ -20,6 +21,7 @@ export default [
     plugins: {
       "import-x": importX,
       perfectionist,
+      "react-hooks": reactHooks,
     },
     rules: {
       "@typescript-eslint/no-empty-object-type": ["off"],
@@ -43,7 +45,11 @@ export default [
             caseInsensitive: true,
             order: "asc",
           },
-          groups: [["builtin", "external"], "internal", ["index", "parent", "sibling"]],
+          groups: [
+            ["builtin", "external"],
+            "internal",
+            ["index", "parent", "sibling"],
+          ],
         },
       ],
       "max-len": [
@@ -62,6 +68,8 @@ export default [
           type: "natural",
         },
       ],
+      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "error",
       semi: "off",
     },
   },
