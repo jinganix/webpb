@@ -26,7 +26,6 @@ export interface IRepeatedEnum {
 export class RepeatedEnum implements IRepeatedEnum, Webpb.WebpbMessage {
   status!: Status[];
   status_by_code!: Record<number, Status>;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "RepeatedEnum";
   static CONTEXT = "";
@@ -35,13 +34,15 @@ export class RepeatedEnum implements IRepeatedEnum, Webpb.WebpbMessage {
 
   protected constructor(p?: IRepeatedEnum) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "RepeatedEnum",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: RepeatedEnum.CLASS,
+      context: RepeatedEnum.CONTEXT,
+      method: RepeatedEnum.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IRepeatedEnum): RepeatedEnum {
@@ -68,7 +69,6 @@ export namespace RepeatedEnum {
   {
     key?: number | null;
     value?: Status | null;
-    webpbMeta: () => Webpb.WebpbMeta;
 
     static CLASS = "StatusByCodeEntry";
     static CONTEXT = "";
@@ -77,13 +77,15 @@ export namespace RepeatedEnum {
 
     protected constructor(p?: IStatusByCodeEntry) {
       Webpb.assign(p, this, []);
-      this.webpbMeta = () =>
-        ({
-          class: "StatusByCodeEntry",
-          context: "",
-          method: "",
-          path: "",
-        }) as Webpb.WebpbMeta;
+    }
+
+    webpbMeta(): Webpb.WebpbMeta {
+      return {
+        class: StatusByCodeEntry.CLASS,
+        context: StatusByCodeEntry.CONTEXT,
+        method: StatusByCodeEntry.METHOD,
+        path: "",
+      };
     }
 
     static create(p?: IStatusByCodeEntry): StatusByCodeEntry {

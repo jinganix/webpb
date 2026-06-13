@@ -24,7 +24,6 @@ export interface IMapValueTestPb {
 
 export class MapValueTestPb implements IMapValueTestPb, Webpb.WebpbMessage {
   sort!: Record<string, Direction>;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "MapValueTestPb";
   static CONTEXT = "";
@@ -33,13 +32,15 @@ export class MapValueTestPb implements IMapValueTestPb, Webpb.WebpbMessage {
 
   protected constructor(p?: IMapValueTestPb) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "MapValueTestPb",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: MapValueTestPb.CLASS,
+      context: MapValueTestPb.CONTEXT,
+      method: MapValueTestPb.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IMapValueTestPb): MapValueTestPb {

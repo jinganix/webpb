@@ -10,7 +10,6 @@ export interface IIgnoreTest {
 
 export class IgnoreTest implements IIgnoreTest, Webpb.WebpbMessage {
   test1!: number;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "IgnoreTest";
   static CONTEXT = "";
@@ -19,13 +18,15 @@ export class IgnoreTest implements IIgnoreTest, Webpb.WebpbMessage {
 
   protected constructor(p?: IIgnoreTest) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "IgnoreTest",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: IgnoreTest.CLASS,
+      context: IgnoreTest.CONTEXT,
+      method: IgnoreTest.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IIgnoreTest): IgnoreTest {
