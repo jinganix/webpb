@@ -113,6 +113,12 @@ jobs:
           fetch-depth: 0
           ref: master
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
       - name: Commit release version
         run: |
           release_version=${{ env.release_version }}
@@ -120,7 +126,8 @@ jobs:
           git config --global user.name "github-actions"
           if [[ $(grep -m1 'version =' gradle.properties) == *-SNAPSHOT ]]; then
             sed -i "s/version = .*/version = ${release_version}/" gradle.properties
-            git add gradle.properties
+            node scripts/sync-versions.mjs --all
+            git add gradle.properties README.md README.zh.md runtime/ts/package.json runtime/ts/package-lock.json runtime/ts/webpb-version.properties sample/backend/pom.xml
             git commit -m "chore: release ${release_version}" --quiet
           fi
 
@@ -183,6 +190,12 @@ jobs:
           fi
           echo "release_commit=${release_commit}" >> "${GITHUB_ENV}"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
       - name: Bump snapshot version
         run: |
           release_version=${{ env.release_version }}
@@ -196,8 +209,8 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
           sed -i "s/version = .*/version = ${snapshot_version}-SNAPSHOT/" gradle.properties
-          sed -i -E "s/\b([:>])[0-9]+\.[0-9]+\.[0-9]+\b/\1${release_version}/g" README.md
-          git add gradle.properties
+          node scripts/sync-versions.mjs --consumer-version "${release_version}"
+          git add gradle.properties README.md README.zh.md runtime/ts/package.json runtime/ts/package-lock.json runtime/ts/webpb-version.properties sample/backend/pom.xml
           git commit -m "chore: bump version to ${snapshot_version}-SNAPSHOT"
 
       - name: Create pull request

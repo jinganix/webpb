@@ -205,7 +205,7 @@ Apply the [protobuf Gradle plugin](https://github.com/google/protobuf-gradle-plu
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.java") version "0.0.27"
+  id("io.github.jinganix.webpb.java") version "0.0.29"
 }
 
 dependencies {
@@ -222,7 +222,7 @@ dependencies {
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.ts") version "0.0.27"
+  id("io.github.jinganix.webpb.ts") version "0.0.29"
 }
 
 dependencies {
@@ -234,8 +234,8 @@ Optional configuration:
 
 ```kotlin
 webpb {
-  webpbVersion = "0.0.27"      // defaults to the Gradle plugin version
-  protobufVersion = "4.35.0"   // com.google.protobuf:protoc version
+  webpbVersion = "0.0.29"      // defaults to the Gradle plugin version
+  protobufVersion = "4.35.1"   // com.google.protobuf:protoc version
   cleanOutput = false          // default true: delete output dir before generation
   localPluginPath = "/path/to/webpb-protoc-java" // skip Maven resolution
 }
@@ -248,7 +248,7 @@ Manual setup (without the convention plugin) is also supported:
 ```kotlin
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:0.0.29"
+    artifact = "com.google.protobuf:protoc:4.35.1"
   }
   plugins {
     id("ts") {
@@ -271,7 +271,7 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
 ```xml
 <properties>
   <webpb.version>0.0.29</webpb.version>
-  <protobuf.version>0.0.29</protobuf.version>
+  <protobuf.version>4.35.1</protobuf.version>
 </properties>
 
 <dependencies>
@@ -292,14 +292,14 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
     <extension>
       <groupId>kr.motd.maven</groupId>
       <artifactId>os-maven-plugin</artifactId>
-      <version>0.0.29</version>
+      <version>1.7.1</version>
     </extension>
   </extensions>
   <plugins>
     <plugin>
       <groupId>org.xolstice.maven.plugins</groupId>
       <artifactId>protobuf-maven-plugin</artifactId>
-      <version>0.0.29</version>
+      <version>0.6.1</version>
       <configuration>
         <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
         <protocPlugins>

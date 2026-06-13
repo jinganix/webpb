@@ -18,6 +18,7 @@
 
 package io.github.jinganix.webpb.gradle
 
+import com.google.protobuf.gradle.GenerateProtoTask
 import com.google.protobuf.gradle.ProtobufExtension
 import com.google.protobuf.gradle.id
 import com.google.protobuf.gradle.remove
@@ -45,6 +46,7 @@ abstract class WebpbProtobufPlugin(
           artifact = "com.google.protobuf:protoc:${extension.protobufVersion}"
         }
         plugins {
+          clearGrpcPluginLocator(this)
           id(protocPluginId) {
             if (localPath != null) {
               path = localPath
@@ -66,6 +68,7 @@ abstract class WebpbProtobufPlugin(
                 remove("java")
               }
               task.plugins {
+                clearGrpcTaskPlugin(this)
                 id(protocPluginId)
               }
             }
@@ -73,6 +76,19 @@ abstract class WebpbProtobufPlugin(
         }
       }
     }
+  }
+
+  /** Spring Boot 4.1+ auto-configures a gRPC protoc plugin when both plugins are present. */
+  private fun clearGrpcPluginLocator(
+    plugins: org.gradle.api.NamedDomainObjectContainer<com.google.protobuf.gradle.ExecutableLocator>,
+  ) {
+    plugins.findByName("grpc")?.let(plugins::remove)
+  }
+
+  private fun clearGrpcTaskPlugin(
+    plugins: org.gradle.api.NamedDomainObjectContainer<GenerateProtoTask.PluginOptions>,
+  ) {
+    plugins.findByName("grpc")?.let(plugins::remove)
   }
 
   private fun detectLocalPluginPath(project: Project, protocArtifactId: String): String? {

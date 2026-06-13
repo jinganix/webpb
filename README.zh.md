@@ -205,13 +205,13 @@ import "webpb/WebpbExtend.proto";
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.java") version "0.0.27"
+  id("io.github.jinganix.webpb.java") version "0.0.29"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.27")
-  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.27")
-  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.27")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.29")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.29")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.29")
   protobuf(project(":your-proto-module"))
 }
 ```
@@ -221,11 +221,11 @@ dependencies {
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.ts") version "0.0.27"
+  id("io.github.jinganix.webpb.ts") version "0.0.29"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.27")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.29")
 }
 ```
 
@@ -233,8 +233,8 @@ dependencies {
 
 ```kotlin
 webpb {
-  webpbVersion = "0.0.27"      // 默认与 Gradle 插件版本一致
-  protobufVersion = "4.35.0"   // com.google.protobuf:protoc 版本
+  webpbVersion = "0.0.29"      // 默认与 Gradle 插件版本一致
+  protobufVersion = "4.35.1"   // com.google.protobuf:protoc 版本
   cleanOutput = false          // 默认 true：生成前删除输出目录
   localPluginPath = "/path/to/webpb-protoc-java" // 跳过 Maven 解析
 }
@@ -247,11 +247,11 @@ webpb {
 ```kotlin
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:4.35.0"
+    artifact = "com.google.protobuf:protoc:4.35.1"
   }
   plugins {
     id("ts") {
-      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.27:all@jar"
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.29:all@jar"
     }
   }
   generateProtoTasks {
@@ -269,8 +269,8 @@ protobuf {
 
 ```xml
 <properties>
-  <webpb.version>0.0.27</webpb.version>
-  <protobuf.version>4.35.0</protobuf.version>
+  <webpb.version>0.0.29</webpb.version>
+  <protobuf.version>4.35.1</protobuf.version>
 </properties>
 
 <dependencies>
