@@ -7,8 +7,6 @@ import * as Webpb from "webpb";
 export interface ITest {}
 
 export class Test implements ITest, Webpb.WebpbMessage {
-  webpbMeta: () => Webpb.WebpbMeta;
-
   static CLASS = "Test";
   static CONTEXT = "";
   static METHOD = "";
@@ -16,13 +14,15 @@ export class Test implements ITest, Webpb.WebpbMessage {
 
   protected constructor(p?: ITest) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "Test",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: Test.CLASS,
+      context: Test.CONTEXT,
+      method: Test.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: ITest): Test {

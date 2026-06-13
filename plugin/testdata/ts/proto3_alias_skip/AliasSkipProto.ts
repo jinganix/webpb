@@ -12,7 +12,6 @@ export interface IAliasSkip {
 export class AliasSkip implements IAliasSkip, Webpb.WebpbMessage {
   b?: number | null;
   a?: number | null;
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "AliasSkip";
   static CONTEXT = "";
@@ -21,13 +20,15 @@ export class AliasSkip implements IAliasSkip, Webpb.WebpbMessage {
 
   protected constructor(p?: IAliasSkip) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "AliasSkip",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: AliasSkip.CLASS,
+      context: AliasSkip.CONTEXT,
+      method: AliasSkip.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IAliasSkip): AliasSkip {

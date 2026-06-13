@@ -16,7 +16,6 @@ export class RepeatedFieldTypes
   as_list!: string[];
   as_set!: string[];
   as_collection!: string[];
-  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "RepeatedFieldTypes";
   static CONTEXT = "";
@@ -25,13 +24,15 @@ export class RepeatedFieldTypes
 
   protected constructor(p?: IRepeatedFieldTypes) {
     Webpb.assign(p, this, []);
-    this.webpbMeta = () =>
-      ({
-        class: "RepeatedFieldTypes",
-        context: "",
-        method: "",
-        path: "",
-      }) as Webpb.WebpbMeta;
+  }
+
+  webpbMeta(): Webpb.WebpbMeta {
+    return {
+      class: RepeatedFieldTypes.CLASS,
+      context: RepeatedFieldTypes.CONTEXT,
+      method: RepeatedFieldTypes.METHOD,
+      path: "",
+    };
   }
 
   static create(p?: IRepeatedFieldTypes): RepeatedFieldTypes {
