@@ -56,16 +56,47 @@ function toAliasedValue(value: unknown): unknown {
   return convert ? convert() : value;
 }
 
+function unwrapMessage(src: object): Record<string, unknown> {
+  const plain: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(src)) {
+    if (typeof value !== "function") {
+      plain[key] = value;
+    }
+  }
+  return plain;
+}
+
+function normalizeAssignSource(src: unknown): Record<string, unknown> | null {
+  if (src === null || src === undefined) {
+    return null;
+  }
+  if (isPlainObject(src)) {
+    return src;
+  }
+  if (typeof src !== "object" || Array.isArray(src)) {
+    return null;
+  }
+  const record = src as Record<string, unknown>;
+  if (typeof record.toWebpbAlias === "function") {
+    const aliased = record.toWebpbAlias.call(src);
+    if (isPlainObject(aliased)) {
+      return aliased;
+    }
+  }
+  return unwrapMessage(src);
+}
+
 export function assign(
   src: unknown,
   dest: unknown,
   excludes: readonly string[] = [],
 ): void {
-  if (!isPlainObject(src) || !isObject(dest)) {
+  const normalized = normalizeAssignSource(src);
+  if (!normalized || !isObject(dest)) {
     return;
   }
   const skip = new Set(excludes);
-  for (const [key, value] of Object.entries(src)) {
+  for (const [key, value] of Object.entries(normalized)) {
     if (value !== undefined && !skip.has(key)) {
       dest[key] = value;
     }
