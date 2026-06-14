@@ -274,9 +274,9 @@ func (g *MessageGenerator) getQueries(group commons.SegmentGroup) []map[string]s
 
 func (g *MessageGenerator) getter(value string) string {
 	if strings.Contains(value, ".") {
-		return `Webpb.getter(this, "` + value + `")`
+		return `Webpb.getter(p, "` + value + `")`
 	}
-	return "this." + value
+	return "p?." + value
 }
 
 func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) []map[string]any {

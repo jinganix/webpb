@@ -40,6 +40,7 @@ export class SubTypeSubValueStringSuper
   implements ISubTypeSubValueStringSuper, Webpb.WebpbMessage
 {
   type?: string | null;
+  webpbMeta: () => Webpb.WebpbMeta;
   static fromAliases: Record<
     string,
     (data?: unknown) => SubTypeSubValueStringSuper
@@ -52,15 +53,13 @@ export class SubTypeSubValueStringSuper
 
   protected constructor(p?: ISubTypeSubValueStringSuper) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValueStringSuper.CLASS,
-      context: SubTypeSubValueStringSuper.CONTEXT,
-      method: SubTypeSubValueStringSuper.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValueStringSuper",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValueStringSuper): SubTypeSubValueStringSuper {
@@ -90,6 +89,7 @@ export class SubTypeSubValueSuper<
   implements ISubTypeSubValueSuper<T>, Webpb.WebpbMessage
 {
   type?: T;
+  webpbMeta: () => Webpb.WebpbMeta;
   static fromAliases: Record<string, (data?: unknown) => SubTypeSubValueSuper> =
     {};
 
@@ -100,15 +100,13 @@ export class SubTypeSubValueSuper<
 
   protected constructor(p?: ISubTypeSubValueSuper) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValueSuper.CLASS,
-      context: SubTypeSubValueSuper.CONTEXT,
-      method: SubTypeSubValueSuper.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValueSuper",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValueSuper): SubTypeSubValueSuper {
@@ -134,6 +132,7 @@ export class SubTypeSubValue0
   implements ISubTypeSubValue0, Webpb.WebpbMessage
 {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue0";
   static CONTEXT = "";
@@ -143,15 +142,13 @@ export class SubTypeSubValue0
   protected constructor(p?: ISubTypeSubValue0) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue0.CLASS,
-      context: SubTypeSubValue0.CONTEXT,
-      method: SubTypeSubValue0.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue0",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue0): SubTypeSubValue0 {
@@ -176,6 +173,7 @@ export class SubTypeSubValue1
   implements ISubTypeSubValue1, Webpb.WebpbMessage
 {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue1";
   static CONTEXT = "";
@@ -185,15 +183,13 @@ export class SubTypeSubValue1
   protected constructor(p?: ISubTypeSubValue1) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue1.CLASS,
-      context: SubTypeSubValue1.CONTEXT,
-      method: SubTypeSubValue1.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue1",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue1): SubTypeSubValue1 {
@@ -222,6 +218,7 @@ export class SubTypeSubValue2
   implements ISubTypeSubValue2, Webpb.WebpbMessage
 {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue2";
   static CONTEXT = "";
@@ -231,15 +228,13 @@ export class SubTypeSubValue2
   protected constructor(p?: ISubTypeSubValue2) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue2.CLASS,
-      context: SubTypeSubValue2.CONTEXT,
-      method: SubTypeSubValue2.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue2",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue2): SubTypeSubValue2 {
@@ -261,6 +256,7 @@ export interface ISubTypeSubValue3 {
 
 export class SubTypeSubValue3 implements ISubTypeSubValue3, Webpb.WebpbMessage {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue3";
   static CONTEXT = "";
@@ -269,15 +265,13 @@ export class SubTypeSubValue3 implements ISubTypeSubValue3, Webpb.WebpbMessage {
 
   protected constructor(p?: ISubTypeSubValue3) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue3.CLASS,
-      context: SubTypeSubValue3.CONTEXT,
-      method: SubTypeSubValue3.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue3",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue3): SubTypeSubValue3 {
@@ -302,6 +296,7 @@ export class SubTypeSubValue4
   implements ISubTypeSubValue4, Webpb.WebpbMessage
 {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue4";
   static CONTEXT = "";
@@ -311,15 +306,13 @@ export class SubTypeSubValue4
   protected constructor(p?: ISubTypeSubValue4) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue4.CLASS,
-      context: SubTypeSubValue4.CONTEXT,
-      method: SubTypeSubValue4.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue4",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue4): SubTypeSubValue4 {
@@ -344,6 +337,7 @@ export class SubTypeSubValue5
   implements ISubTypeSubValue5, Webpb.WebpbMessage
 {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue5";
   static CONTEXT = "";
@@ -353,15 +347,13 @@ export class SubTypeSubValue5
   protected constructor(p?: ISubTypeSubValue5) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue5.CLASS,
-      context: SubTypeSubValue5.CONTEXT,
-      method: SubTypeSubValue5.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue5",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue5): SubTypeSubValue5 {
@@ -386,6 +378,7 @@ export class SubTypeSubValue6
   implements ISubTypeSubValue6, Webpb.WebpbMessage
 {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "SubTypeSubValue6";
   static CONTEXT = "";
@@ -395,15 +388,13 @@ export class SubTypeSubValue6
   protected constructor(p?: ISubTypeSubValue6) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: SubTypeSubValue6.CLASS,
-      context: SubTypeSubValue6.CONTEXT,
-      method: SubTypeSubValue6.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "SubTypeSubValue6",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ISubTypeSubValue6): SubTypeSubValue6 {

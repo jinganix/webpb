@@ -10,6 +10,7 @@ export interface IMessage {
 
 export class Message implements IMessage, Webpb.WebpbMessage {
   id?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Message";
   static CONTEXT = "";
@@ -18,15 +19,13 @@ export class Message implements IMessage, Webpb.WebpbMessage {
 
   protected constructor(p?: IMessage) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: Message.CLASS,
-      context: Message.CONTEXT,
-      method: Message.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "Message",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IMessage): Message {
@@ -49,6 +48,7 @@ export namespace Message {
 
   export class Nested implements INested, Webpb.WebpbMessage {
     test1?: number | null;
+    webpbMeta: () => Webpb.WebpbMeta;
 
     static CLASS = "Nested";
     static CONTEXT = "";
@@ -57,15 +57,13 @@ export namespace Message {
 
     protected constructor(p?: INested) {
       Webpb.assign(p, this, []);
-    }
-
-    webpbMeta(): Webpb.WebpbMeta {
-      return {
-        class: Nested.CLASS,
-        context: Nested.CONTEXT,
-        method: Nested.METHOD,
-        path: "",
-      };
+      this.webpbMeta = () =>
+        ({
+          class: "Nested",
+          context: "",
+          method: "",
+          path: "",
+        }) as Webpb.WebpbMeta;
     }
 
     static create(p?: INested): Nested {

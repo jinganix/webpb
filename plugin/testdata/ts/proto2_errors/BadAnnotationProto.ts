@@ -12,6 +12,7 @@ export interface IBadAnnotation {
 export class BadAnnotation implements IBadAnnotation, Webpb.WebpbMessage {
   foo_2!: number;
   bar_2!: string;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "BadAnnotation";
   static CONTEXT = "";
@@ -20,15 +21,13 @@ export class BadAnnotation implements IBadAnnotation, Webpb.WebpbMessage {
 
   protected constructor(p?: IBadAnnotation) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: BadAnnotation.CLASS,
-      context: BadAnnotation.CONTEXT,
-      method: BadAnnotation.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "BadAnnotation",
+        context: "",
+        method: "",
+        path: "",
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IBadAnnotation): BadAnnotation {

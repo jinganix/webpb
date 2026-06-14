@@ -30,6 +30,7 @@ export class PrimitiveTypes implements IPrimitiveTypes, Webpb.WebpbMessage {
   sfixed32_field!: number;
   sfixed64_field!: number;
   repeated_float!: number[];
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "PrimitiveTypes";
   static CONTEXT = "";
@@ -38,15 +39,13 @@ export class PrimitiveTypes implements IPrimitiveTypes, Webpb.WebpbMessage {
 
   protected constructor(p?: IPrimitiveTypes) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: PrimitiveTypes.CLASS,
-      context: PrimitiveTypes.CONTEXT,
-      method: PrimitiveTypes.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "PrimitiveTypes",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IPrimitiveTypes): PrimitiveTypes {
