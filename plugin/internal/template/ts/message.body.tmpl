@@ -16,6 +16,7 @@ export class {{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.sub_typ
   {{.name}}{{if not .default}}{{if .optional}}?{{else}}!{{end}}{{end}}: {{.type}}{{if .optional}} | null{{end}}{{if .default}} = {{.default}}{{end}};
   {{- end}}
 {{- end}}
+  webpbMeta: () => Webpb.WebpbMeta;
 {{- if hasContent .sub_type_prop}}
   static fromAliases: Record<string, (data?: unknown) => {{.className}}> = {};
 {{- end}}
@@ -43,23 +44,21 @@ export class {{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.sub_typ
     {{- end}}
   {{- end}}
 {{- end}}
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: {{.className}}.CLASS,
-      context: {{.className}}.CONTEXT,
-      method: {{.className}}.METHOD,
+    this.webpbMeta = () =>
+      ({
+        class: "{{.className}}",
+        context: "{{.context}}",
+        method: "{{.method}}",
 {{- if hasContent .path}}
-      path: `{{- if index .path "url"}}{{index .path "url"}}{{end}}{{- if hasContent (index .path "queries")}}${Webpb.query("?", {
+        path: `{{- if index .path "url"}}{{index .path "url"}}{{end}}{{- if hasContent (index .path "queries")}}${Webpb.query("?", {
 {{- range $i, $q := index .path "queries"}}
-        "{{$q.key}}": {{$q.value}},
+          "{{$q.key}}": {{$q.value}},
 {{- end}}
-      })}{{end}}`,
+        })}{{end}}`,
 {{- else}}
-      path: "",
+        path: "",
 {{- end}}
-    };
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: I{{.className}}): {{.className}} {

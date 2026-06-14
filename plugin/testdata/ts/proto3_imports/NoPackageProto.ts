@@ -10,6 +10,7 @@ export interface INoPackageTest {
 
 export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
   foo?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "NoPackageTest";
   static CONTEXT = "";
@@ -18,15 +19,13 @@ export class NoPackageTest implements INoPackageTest, Webpb.WebpbMessage {
 
   protected constructor(p?: INoPackageTest) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: NoPackageTest.CLASS,
-      context: NoPackageTest.CONTEXT,
-      method: NoPackageTest.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "NoPackageTest",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: INoPackageTest): NoPackageTest {
@@ -52,6 +51,7 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
   foo_1?: number | null;
   bar_1?: string | null;
   test?: INoPackageTest | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "NoPackage";
   static CONTEXT = "";
@@ -61,15 +61,13 @@ export class NoPackage implements INoPackage, Webpb.WebpbMessage {
   protected constructor(p?: INoPackage) {
     Webpb.assign(p, this, []);
     p?.test && (this.test = NoPackageTest.create(p.test));
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: NoPackage.CLASS,
-      context: NoPackage.CONTEXT,
-      method: NoPackage.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "NoPackage",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: INoPackage): NoPackage {

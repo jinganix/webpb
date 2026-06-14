@@ -31,7 +31,7 @@ describe("HttpService", () => {
 
     // Then
     expect(result.log.url).toContain("/options/http-route");
-    expect(result.data).toEqual({ echo: "echo: demo" });
+    expect(result.data).toMatchObject({ echo: "echo: demo" });
   });
 
   it("should return raw data when response type is omitted", async () => {

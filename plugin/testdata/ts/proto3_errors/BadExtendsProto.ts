@@ -10,6 +10,7 @@ export interface IBadExtends extends IBadExtendsFoo<"foo"> {
 
 export class BadExtends extends BadExtendsFoo<"foo"> implements IBadExtends, Webpb.WebpbMessage {
   value?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "BadExtends";
   static CONTEXT = "";
@@ -19,15 +20,13 @@ export class BadExtends extends BadExtendsFoo<"foo"> implements IBadExtends, Web
   protected constructor(p?: IBadExtends) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: BadExtends.CLASS,
-      context: BadExtends.CONTEXT,
-      method: BadExtends.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "BadExtends",
+        context: "",
+        method: "",
+        path: "",
+      } as Webpb.WebpbMeta);
   }
 
   static create(p?: IBadExtends): BadExtends {

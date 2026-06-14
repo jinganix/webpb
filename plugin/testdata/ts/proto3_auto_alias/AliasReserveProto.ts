@@ -13,6 +13,7 @@ export class AliasReserveParent
   implements IAliasReserveParent, Webpb.WebpbMessage
 {
   foo_1?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "AliasReserveParent";
   static CONTEXT = "";
@@ -21,15 +22,13 @@ export class AliasReserveParent
 
   protected constructor(p?: IAliasReserveParent) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: AliasReserveParent.CLASS,
-      context: AliasReserveParent.CONTEXT,
-      method: AliasReserveParent.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "AliasReserveParent",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IAliasReserveParent): AliasReserveParent {
@@ -60,6 +59,7 @@ export class AliasReserveChild
   implements IAliasReserveChild, Webpb.WebpbMessage
 {
   foo_2?: number | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "AliasReserveChild";
   static CONTEXT = "";
@@ -69,15 +69,13 @@ export class AliasReserveChild
   protected constructor(p?: IAliasReserveChild) {
     super();
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: AliasReserveChild.CLASS,
-      context: AliasReserveChild.CONTEXT,
-      method: AliasReserveChild.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "AliasReserveChild",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IAliasReserveChild): AliasReserveChild {

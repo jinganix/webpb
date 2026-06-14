@@ -12,6 +12,7 @@ export interface IPostRequest {
 export class PostRequest implements IPostRequest, Webpb.WebpbMessage {
   id!: number;
   body?: string | null;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "PostRequest";
   static CONTEXT = "/api";
@@ -20,15 +21,13 @@ export class PostRequest implements IPostRequest, Webpb.WebpbMessage {
 
   protected constructor(p?: IPostRequest) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: PostRequest.CLASS,
-      context: PostRequest.CONTEXT,
-      method: PostRequest.METHOD,
-      path: `/items/${this.id}`,
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "PostRequest",
+        context: "/api",
+        method: "POST",
+        path: `/items/${p?.id}`,
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IPostRequest): PostRequest {
@@ -52,6 +51,7 @@ export interface IPutRequest {
 export class PutRequest implements IPutRequest, Webpb.WebpbMessage {
   id!: number;
   body!: string;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "PutRequest";
   static CONTEXT = "/api";
@@ -60,15 +60,13 @@ export class PutRequest implements IPutRequest, Webpb.WebpbMessage {
 
   protected constructor(p?: IPutRequest) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: PutRequest.CLASS,
-      context: PutRequest.CONTEXT,
-      method: PutRequest.METHOD,
-      path: `/items/${this.id}`,
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "PutRequest",
+        context: "/api",
+        method: "PUT",
+        path: `/items/${p?.id}`,
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IPutRequest): PutRequest {
@@ -90,6 +88,7 @@ export interface IDeleteRequest {
 
 export class DeleteRequest implements IDeleteRequest, Webpb.WebpbMessage {
   id!: number;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "DeleteRequest";
   static CONTEXT = "/api";
@@ -98,15 +97,13 @@ export class DeleteRequest implements IDeleteRequest, Webpb.WebpbMessage {
 
   protected constructor(p?: IDeleteRequest) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: DeleteRequest.CLASS,
-      context: DeleteRequest.CONTEXT,
-      method: DeleteRequest.METHOD,
-      path: `/items/${this.id}`,
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "DeleteRequest",
+        context: "/api",
+        method: "DELETE",
+        path: `/items/${p?.id}`,
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: IDeleteRequest): DeleteRequest {

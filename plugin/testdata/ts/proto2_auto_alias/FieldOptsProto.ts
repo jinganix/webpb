@@ -10,6 +10,7 @@ export interface ILevel3 {
 
 export class Level3 implements ILevel3, Webpb.WebpbMessage {
   test1!: number;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Level3";
   static CONTEXT = "";
@@ -18,15 +19,13 @@ export class Level3 implements ILevel3, Webpb.WebpbMessage {
 
   protected constructor(p?: ILevel3) {
     Webpb.assign(p, this, []);
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: Level3.CLASS,
-      context: Level3.CONTEXT,
-      method: Level3.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "Level3",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ILevel3): Level3 {
@@ -52,6 +51,7 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
   test1!: number;
   test2!: ILevel3;
   test3!: ILevel3[];
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Level2";
   static CONTEXT = "";
@@ -62,15 +62,13 @@ export class Level2 implements ILevel2, Webpb.WebpbMessage {
     Webpb.assign(p, this, []);
     p?.test2 && (this.test2 = Level3.create(p.test2));
     p?.test3 && (this.test3 = p.test3.map((x) => Level3.create(x)));
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: Level2.CLASS,
-      context: Level2.CONTEXT,
-      method: Level2.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "Level2",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ILevel2): Level2 {
@@ -114,6 +112,7 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
   test4!: ILevel3;
   test5!: Record<number, ILevel3>;
   test6!: Record<string, ILevel3>;
+  webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "Level1";
   static CONTEXT = "";
@@ -129,15 +128,13 @@ export class Level1 implements ILevel1, Webpb.WebpbMessage {
       (this.test5 = Webpb.mapValues(p.test5, (x) => Level3.create(x)));
     p?.test6 &&
       (this.test6 = Webpb.mapValues(p.test6, (x) => Level3.create(x)));
-  }
-
-  webpbMeta(): Webpb.WebpbMeta {
-    return {
-      class: Level1.CLASS,
-      context: Level1.CONTEXT,
-      method: Level1.METHOD,
-      path: "",
-    };
+    this.webpbMeta = () =>
+      ({
+        class: "Level1",
+        context: "",
+        method: "",
+        path: "",
+      }) as Webpb.WebpbMeta;
   }
 
   static create(p?: ILevel1): Level1 {
