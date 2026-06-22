@@ -45,7 +45,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "./proto": "./proto"
+    "./proto": "./proto",
+    "./proto/*": "./proto/*"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
