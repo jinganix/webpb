@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
@@ -107,7 +107,7 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout master
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
@@ -174,7 +174,7 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout master
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
@@ -249,7 +249,7 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout master
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
@@ -265,7 +265,7 @@ jobs:
           echo "release_commit=${release_commit}" >> "${GITHUB_ENV}"
 
       - name: Checkout release commit
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           fetch-depth: 0
@@ -321,7 +321,7 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout release tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           ref: refs/tags/v${{ env.release_version }}
@@ -367,7 +367,7 @@ jobs:
           echo "Release version: ${release_version}"
 
       - name: Checkout release tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           ref: refs/tags/v${{ env.release_version }}
