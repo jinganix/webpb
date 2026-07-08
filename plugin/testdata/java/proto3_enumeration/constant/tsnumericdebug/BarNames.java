@@ -4,8 +4,8 @@
 
 package constant.tsnumericdebug;
 
-public interface LogLevelNames {
-  String info = "info";
-  String warn = "warn";
-  String error = "error";
+public interface BarNames {
+  String x = "x";
+  String y = "y";
+  String z = "z";
 }

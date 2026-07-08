@@ -197,33 +197,33 @@ option (f_opts).ts = {
 仅在需要运行时名↔数查询的枚举上开启 `enum_by_name` 或 `enum_by_value`（如解析配置字符串、日志）。全局 `enum_by_name: true` 会把每个成员名作为字符串键打进 bundle。
 
 ```protobuf
-enum BuffType {
+enum Bar {
   option (e_opts).ts = { enum_by_name: true };
   // ...
 }
 ```
 
-`ClaimStatus` 生成示例（单 enum 开启 `enum_by_name: true` 时）：
+`Foo` 生成示例（单 enum 开启 `enum_by_name: true` 时）：
 
 ```typescript
-export const enum ClaimStatus {
-  acceptable = 0,
-  active = 1,
-  claimable = 2,
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
 }
 
-export const ClaimStatusValues: readonly ClaimStatus[] = [0, 1, 2];
+export const FooValues: readonly Foo[] = [0, 1, 2];
 
-export const ClaimStatusByName = {
-  acceptable: 0,
-  active: 1,
-  claimable: 2,
+export const FooByName = {
+  a: 0,
+  b: 1,
+  c: 2,
 } as const;
 
-export type ClaimStatusName = keyof typeof ClaimStatusByName;
+export type FooName = keyof typeof FooByName;
 
-export function claimStatusFromName(name: ClaimStatusName): ClaimStatus {
-  return ClaimStatusByName[name];
+export function fooFromName(name: FooName): Foo {
+  return FooByName[name];
 }
 ```
 

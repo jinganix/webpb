@@ -2,22 +2,22 @@
 // https://github.com/jinganix/webpb
 // TsNumericEnum.proto
 
-export const enum ClaimStatus {
-  acceptable = 0,
-  active = 1,
-  claimable = 2,
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
 }
 
-export const ClaimStatusValues: readonly ClaimStatus[] = [0, 1, 2];
+export const FooValues: readonly Foo[] = [0, 1, 2];
 
-export const ClaimStatusByName = {
-  acceptable: 0,
-  active: 1,
-  claimable: 2,
+export const FooByName = {
+  a: 0,
+  b: 1,
+  c: 2,
 } as const;
 
-export type ClaimStatusName = keyof typeof ClaimStatusByName;
+export type FooName = keyof typeof FooByName;
 
-export function claimStatusFromName(name: ClaimStatusName): ClaimStatus {
-  return ClaimStatusByName[name];
+export function fooFromName(name: FooName): Foo {
+  return FooByName[name];
 }

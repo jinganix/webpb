@@ -4,8 +4,8 @@
 
 package constant.tsnumeric;
 
-public interface ClaimStatusValues {
-  int acceptable = 0;
-  int active = 1;
-  int claimable = 2;
+public interface FooValues {
+  int a = 0;
+  int b = 1;
+  int c = 2;
 }

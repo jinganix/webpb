@@ -197,33 +197,33 @@ option (f_opts).ts = {
 Enable `enum_by_name` or `enum_by_value` only on enums that need runtime name lookup (e.g. parsing config strings or logging). Global `enum_by_name: true` emits every member name as a string key into the bundle.
 
 ```protobuf
-enum BuffType {
+enum Bar {
   option (e_opts).ts = { enum_by_name: true };
   // ...
 }
 ```
 
-Example output for `ClaimStatus` (with per-enum `enum_by_name: true`):
+Example output for `Foo` (with per-enum `enum_by_name: true`):
 
 ```typescript
-export const enum ClaimStatus {
-  acceptable = 0,
-  active = 1,
-  claimable = 2,
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
 }
 
-export const ClaimStatusValues: readonly ClaimStatus[] = [0, 1, 2];
+export const FooValues: readonly Foo[] = [0, 1, 2];
 
-export const ClaimStatusByName = {
-  acceptable: 0,
-  active: 1,
-  claimable: 2,
+export const FooByName = {
+  a: 0,
+  b: 1,
+  c: 2,
 } as const;
 
-export type ClaimStatusName = keyof typeof ClaimStatusByName;
+export type FooName = keyof typeof FooByName;
 
-export function claimStatusFromName(name: ClaimStatusName): ClaimStatus {
-  return ClaimStatusByName[name];
+export function fooFromName(name: FooName): Foo {
+  return FooByName[name];
 }
 ```
 

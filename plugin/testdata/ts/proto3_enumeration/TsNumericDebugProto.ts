@@ -2,34 +2,34 @@
 // https://github.com/jinganix/webpb
 // TsNumericDebugEnum.proto
 
-export enum LogLevel {
-  info = 0,
-  warn = 1,
-  error = 2,
+export enum Bar {
+  x = 0,
+  y = 1,
+  z = 2,
 }
 
-export const LogLevelValues: readonly LogLevel[] = [0, 1, 2];
+export const BarValues: readonly Bar[] = [0, 1, 2];
 
-export const LogLevelByName = {
-  error: 2,
-  info: 0,
-  warn: 1,
+export const BarByName = {
+  x: 0,
+  y: 1,
+  z: 2,
 } as const;
 
-export type LogLevelName = keyof typeof LogLevelByName;
+export type BarName = keyof typeof BarByName;
 
-export const LogLevelByValue = {
-  0: "info",
-  1: "warn",
-  2: "error",
+export const BarByValue = {
+  0: "x",
+  1: "y",
+  2: "z",
 } as const;
 
-export type LogLevelByValueKey = keyof typeof LogLevelByValue;
+export type BarByValueKey = keyof typeof BarByValue;
 
-export function logLevelFromName(name: LogLevelName): LogLevel {
-  return LogLevelByName[name];
+export function barFromName(name: BarName): Bar {
+  return BarByName[name];
 }
 
-export function logLevelToName(value: LogLevel): string {
-  return LogLevelByValue[value];
+export function barToName(value: Bar): string {
+  return BarByValue[value];
 }

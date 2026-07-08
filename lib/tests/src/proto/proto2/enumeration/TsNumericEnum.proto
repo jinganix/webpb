@@ -6,7 +6,7 @@ option java_package = "constant.tsnumeric";
 
 import "webpb/WebpbExtend.proto";
 
-enum ClaimStatus {
+enum Foo {
   option (e_opts).ts = {
     default_const_enum: true
     enum_auto_alias: false
@@ -15,7 +15,7 @@ enum ClaimStatus {
     enum_helpers: true
   };
 
-  acceptable = 0;
-  active = 1;
-  claimable = 2;
+  a = 0;
+  b = 1;
+  c = 2;
 }

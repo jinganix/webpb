@@ -14,8 +14,8 @@ option (f_opts).ts = {
   enum_helpers: true
 };
 
-enum LogLevel {
-  info = 0;
-  warn = 1;
-  error = 2;
+enum Bar {
+  x = 0;
+  y = 1;
+  z = 2;
 }

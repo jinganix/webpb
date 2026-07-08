@@ -4,8 +4,8 @@
 
 package constant.tsnumericdebug;
 
-public interface LogLevelValues {
-  int info = 0;
-  int warn = 1;
-  int error = 2;
+public interface BarValues {
+  int x = 0;
+  int y = 1;
+  int z = 2;
 }

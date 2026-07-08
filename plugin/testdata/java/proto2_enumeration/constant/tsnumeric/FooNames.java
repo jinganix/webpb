@@ -4,8 +4,8 @@
 
 package constant.tsnumeric;
 
-public interface ClaimStatusNames {
-  String acceptable = "acceptable";
-  String active = "active";
-  String claimable = "claimable";
+public interface FooNames {
+  String a = "a";
+  String b = "b";
+  String c = "c";
 }
