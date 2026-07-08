@@ -10,8 +10,8 @@ import (
 
 // EnumGenerator generates TypeScript enums.
 type EnumGenerator struct {
-	webpbOpts *webpb.TsFileOpts
-	fileOpts  *webpb.TsFileOpts
+	webpbOpts   *webpb.TsFileOpts
+	fileOpts    *webpb.TsFileOpts
 	stringValue bool
 }
 
@@ -30,29 +30,108 @@ func (g *EnumGenerator) Generate(descriptor protoreflect.EnumDescriptor) (string
 		return "", err
 	}
 	g.stringValue = core.IsStringValue(descriptor)
+	constEnum := g.isDefaultConstEnum(descriptor)
+	primaryKeyword := "enum"
+	aliasKeyword := "const enum"
+	aliasPrefix := "Const"
+	if constEnum {
+		primaryKeyword = "const enum"
+		aliasKeyword = "enum"
+		aliasPrefix = "Enum"
+	}
 	data := map[string]any{
-		"className": string(descriptor.Name()),
-		"enums":     g.getEnums(descriptor),
+		"className":      string(descriptor.Name()),
+		"enums":          g.getEnums(descriptor),
+		"primaryKeyword": primaryKeyword,
+		"aliasKeyword":   aliasKeyword,
+		"aliasPrefix":    aliasPrefix,
+		"autoAlias":      g.isEnumAutoAlias(descriptor),
+		"valuesLiteral":  g.isEnumValuesLiteral(descriptor),
+		"byName":         g.isEnumByName(descriptor),
+		"byValue":        g.isEnumByValue(descriptor),
 	}
-	tmpl := "enum"
-	if g.isDefaultConstEnum(descriptor) {
-		tmpl = "const.enum"
+	return engine.Process("enum", data)
+}
+
+func (g *EnumGenerator) enumTs(descriptor protoreflect.EnumDescriptor) *webpb.TsEnumOpts {
+	return core.GetEnumOpts(descriptor, core.HasEnumTs).GetTs()
+}
+
+// resolveBool resolves a tri-state option by cascading enum -> file -> webpb options,
+// falling back to def when unset at every level.
+func (g *EnumGenerator) resolveBool(
+	descriptor protoreflect.EnumDescriptor,
+	fromEnum func(*webpb.TsEnumOpts) *bool,
+	fromFile func(*webpb.TsFileOpts) *bool,
+	def bool,
+) bool {
+	if enumTs := g.enumTs(descriptor); enumTs != nil {
+		if v := fromEnum(enumTs); v != nil {
+			return *v
+		}
 	}
-	return engine.Process(tmpl, data)
+	if g.fileOpts != nil {
+		if v := fromFile(g.fileOpts); v != nil {
+			return *v
+		}
+	}
+	if g.webpbOpts != nil {
+		if v := fromFile(g.webpbOpts); v != nil {
+			return *v
+		}
+	}
+	return def
 }
 
 func (g *EnumGenerator) isDefaultConstEnum(descriptor protoreflect.EnumDescriptor) bool {
-	enumTs := core.GetEnumOpts(descriptor, core.HasEnumTs).GetTs()
-	if enumTs != nil && enumTs.DefaultConstEnum != nil {
-		return enumTs.GetDefaultConstEnum()
-	}
-	if g.fileOpts != nil && g.fileOpts.DefaultConstEnum != nil {
-		return g.fileOpts.GetDefaultConstEnum()
-	}
-	if g.webpbOpts != nil && g.webpbOpts.DefaultConstEnum != nil {
-		return g.webpbOpts.GetDefaultConstEnum()
-	}
-	return false
+	return g.resolveBool(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *bool { return o.DefaultConstEnum },
+		func(o *webpb.TsFileOpts) *bool { return o.DefaultConstEnum },
+		false,
+	)
+}
+
+// isEnumAutoAlias reports whether the secondary alias enum (Enum*/Const*) should be
+// generated. Defaults to true to preserve backward-compatible output.
+func (g *EnumGenerator) isEnumAutoAlias(descriptor protoreflect.EnumDescriptor) bool {
+	return g.resolveBool(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *bool { return o.EnumAutoAlias },
+		func(o *webpb.TsFileOpts) *bool { return o.EnumAutoAlias },
+		true,
+	)
+}
+
+// isEnumValuesLiteral reports whether the *Values array should use literal values
+// instead of enum member references.
+func (g *EnumGenerator) isEnumValuesLiteral(descriptor protoreflect.EnumDescriptor) bool {
+	return g.resolveBool(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *bool { return o.EnumValuesLiteral },
+		func(o *webpb.TsFileOpts) *bool { return o.EnumValuesLiteral },
+		false,
+	)
+}
+
+// isEnumByName reports whether a name -> value map should be generated.
+func (g *EnumGenerator) isEnumByName(descriptor protoreflect.EnumDescriptor) bool {
+	return g.resolveBool(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *bool { return o.EnumByName },
+		func(o *webpb.TsFileOpts) *bool { return o.EnumByName },
+		false,
+	)
+}
+
+// isEnumByValue reports whether a value -> name map should be generated.
+func (g *EnumGenerator) isEnumByValue(descriptor protoreflect.EnumDescriptor) bool {
+	return g.resolveBool(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *bool { return o.EnumByValue },
+		func(o *webpb.TsFileOpts) *bool { return o.EnumByValue },
+		false,
+	)
 }
 
 func (g *EnumGenerator) getEnums(enumDescriptor protoreflect.EnumDescriptor) []map[string]string {

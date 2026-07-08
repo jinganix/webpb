@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package TsNumericProto;
+
+option java_package = "constant.tsnumeric";
+
+import "webpb/WebpbExtend.proto";
+
+enum ClaimStatus {
+  option (e_opts).ts = {
+    default_const_enum: true
+    enum_auto_alias: false
+    enum_values_literal: true
+    enum_by_name: true
+  };
+
+  acceptable = 0;
+  active = 1;
+  claimable = 2;
+}

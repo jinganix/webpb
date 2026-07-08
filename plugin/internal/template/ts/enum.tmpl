@@ -1,4 +1,4 @@
-export enum {{.className}} {
+export {{.primaryKeyword}} {{.className}} {
 {{- range .enums}}
   {{.name}} = {{.value}},
 {{- end}}
@@ -6,18 +6,40 @@ export enum {{.className}} {
 
 export const {{.className}}Values = [
 {{- range .enums}}
+{{- if $.valuesLiteral}}
+  {{.value}},
+{{- else}}
   {{$.className}}.{{.name}},
 {{- end}}
+{{- end}}
 ];
+{{- if .autoAlias}}
 
-export const enum Const{{.className}} {
+export {{.aliasKeyword}} {{.aliasPrefix}}{{.className}} {
 {{- range .enums}}
   {{.name}} = {{.value}},
 {{- end}}
 }
 
-export const Const{{.className}}Values = [
+export const {{.aliasPrefix}}{{.className}}Values = [
 {{- range .enums}}
-  Const{{$.className}}.{{.name}},
+  {{$.aliasPrefix}}{{$.className}}.{{.name}},
 {{- end}}
 ];
+{{- end}}
+{{- if .byName}}
+
+export const {{.className}}ByName = {
+{{- range .enums}}
+  {{.name}}: {{.value}},
+{{- end}}
+};
+{{- end}}
+{{- if .byValue}}
+
+export const {{.className}}ByValue = {
+{{- range .enums}}
+  {{.value}}: "{{.name}}",
+{{- end}}
+};
+{{- end}}
