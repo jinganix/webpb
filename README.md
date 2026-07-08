@@ -121,6 +121,10 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `ts` | `int64_as_string` | Serialize `int64` as string in JSON |
 | `ts` | `auto_alias` | Derive JSON field names from proto field names |
 | `ts` | `default_const_enum` | Emit const enums for protobuf enums |
+| `ts` | `enum_auto_alias` | Emit secondary runtime alias enum (`EnumX` / `ConstX`); default `true` |
+| `ts` | `enum_values_literal` | Emit `XValues` as numeric literals (`[0, 1, 2]`) instead of member references; default `false` |
+| `ts` | `enum_by_name` | Emit `XByName` forward map (name → number); default `false` |
+| `ts` | `enum_by_value` | Emit `XByValue` reverse map (number → name); default `false` |
 
 ### Message — `(m_opts)`
 
@@ -166,6 +170,47 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `java` | `annotation` | Enum-level Java annotations |
 | `java` | `implements` | Java interfaces for the enum |
 | `ts` | `default_const_enum` | Override file-level const-enum behavior |
+| `ts` | `enum_auto_alias` | Override file-level `enum_auto_alias` |
+| `ts` | `enum_values_literal` | Override file-level `enum_values_literal` |
+| `ts` | `enum_by_name` | Override file-level `enum_by_name` |
+| `ts` | `enum_by_value` | Override file-level `enum_by_value` |
+
+#### TypeScript enum output
+
+When `default_const_enum` is enabled, webpb emits a primary `const enum X` plus a secondary runtime alias (`enum EnumX` or `const enum ConstX`, depending on the primary). That bidirectional alias increases frontend bundle size when bundled with esbuild, SWC, or Rolldown without `tsc` inlining.
+
+The `enum_*` options above are opt-in tuning knobs. Set them in `(f_opts).ts` for all enums in a file, or in `(e_opts).ts` to override a single enum. Resolution order: enum → file → `WebpbOptions.proto`.
+
+Recommended preset for smaller frontend bundles:
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_auto_alias: false
+  enum_values_literal: true
+  enum_by_name: true
+};
+```
+
+Example output for `ClaimStatus`:
+
+```typescript
+export const enum ClaimStatus {
+  acceptable = 0,
+  active = 1,
+  claimable = 2,
+}
+
+export const ClaimStatusValues = [0, 1, 2];
+
+export const ClaimStatusByName = {
+  acceptable: 0,
+  active: 1,
+  claimable: 2,
+};
+```
+
+Enable `enum_by_value` only when you need number → name lookup at runtime (e.g. logging); it adds reverse string keys to the bundle.
 
 ### Enum value — `(v_opts)`
 

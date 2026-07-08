@@ -121,6 +121,10 @@ option (m_opts).ts = {auto_alias: true};
 | `ts` | `int64_as_string` | JSON 中将 `int64` 序列化为字符串 |
 | `ts` | `auto_alias` | 由 proto 字段名推导 JSON 字段名 |
 | `ts` | `default_const_enum` | 为 protobuf 枚举生成 const enum |
+| `ts` | `enum_auto_alias` | 生成次级运行时别名枚举（`EnumX` / `ConstX`）；默认 `true` |
+| `ts` | `enum_values_literal` | `XValues` 输出为数字字面量（`[0, 1, 2]`）而非成员引用；默认 `false` |
+| `ts` | `enum_by_name` | 生成 `XByName` 正向映射（名 → 数）；默认 `false` |
+| `ts` | `enum_by_value` | 生成 `XByValue` 反向映射（数 → 名）；默认 `false` |
 
 ### 消息 — `(m_opts)`
 
@@ -166,6 +170,47 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `java` | `annotation` | 枚举级 Java 注解 |
 | `java` | `implements` | 枚举实现的 Java 接口 |
 | `ts` | `default_const_enum` | 覆盖文件级 const enum 行为 |
+| `ts` | `enum_auto_alias` | 覆盖文件级 `enum_auto_alias` |
+| `ts` | `enum_values_literal` | 覆盖文件级 `enum_values_literal` |
+| `ts` | `enum_by_name` | 覆盖文件级 `enum_by_name` |
+| `ts` | `enum_by_value` | 覆盖文件级 `enum_by_value` |
+
+#### TypeScript 枚举输出
+
+启用 `default_const_enum` 时，webpb 会生成主枚举 `const enum X`，以及次级运行时别名（`enum EnumX` 或 `const enum ConstX`，取决于主枚举类型）。该双向别名在 esbuild、SWC、Rolldown 等打包器中未经 `tsc` 内联时会显著增大 bundle 体积。
+
+上述 `enum_*` 选项为按需开启的调优项。可在 `(f_opts).ts` 中设置文件级默认值，或在 `(e_opts).ts` 中覆盖单个枚举。解析顺序：枚举 → 文件 → `WebpbOptions.proto`。
+
+前端 bundle 体积优化推荐配置：
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_auto_alias: false
+  enum_values_literal: true
+  enum_by_name: true
+};
+```
+
+`ClaimStatus` 的生成示例：
+
+```typescript
+export const enum ClaimStatus {
+  acceptable = 0,
+  active = 1,
+  claimable = 2,
+}
+
+export const ClaimStatusValues = [0, 1, 2];
+
+export const ClaimStatusByName = {
+  acceptable: 0,
+  active: 1,
+  claimable: 2,
+};
+```
+
+仅在需要运行时「数 → 名」查询（如日志）时开启 `enum_by_value`；反向字符串键会增加 bundle 体积。
 
 ### 枚举值 — `(v_opts)`
 
