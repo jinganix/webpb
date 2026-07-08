@@ -23,8 +23,11 @@ open class WebpbExtension {
   /** webpb artifact version; defaults to the Gradle plugin release version. */
   var webpbVersion: String? = null
 
-  /** {@code com.google.protobuf:protoc} version. */
-  var protobufVersion: String = "4.35.0"
+  /**
+   * {@code com.google.protobuf:protoc} version; defaults to the version bundled with the plugin.
+   * May also be set via the {@code webpb.protobufVersion} Gradle property.
+   */
+  var protobufVersion: String? = null
 
   /** Delete the protobuf output directory before each generation task runs. */
   var cleanOutput: Boolean = true

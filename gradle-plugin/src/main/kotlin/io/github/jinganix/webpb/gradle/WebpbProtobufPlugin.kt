@@ -39,11 +39,12 @@ abstract class WebpbProtobufPlugin(
 
     project.afterEvaluate {
       val webpbVersion = extension.webpbVersion ?: WebpbVersions.pluginReleaseVersion()
+      val protobufVersion = resolveProtobufVersion(project, extension)
       val localPath = extension.localPluginPath ?: detectLocalPluginPath(project, protocArtifactId)
 
       project.extensions.configure<ProtobufExtension> {
         protoc {
-          artifact = "com.google.protobuf:protoc:${extension.protobufVersion}"
+          artifact = "com.google.protobuf:protoc:$protobufVersion"
         }
         plugins {
           clearGrpcPluginLocator(this)
@@ -89,6 +90,12 @@ abstract class WebpbProtobufPlugin(
     plugins: org.gradle.api.NamedDomainObjectContainer<GenerateProtoTask.PluginOptions>,
   ) {
     plugins.findByName("grpc")?.let(plugins::remove)
+  }
+
+  private fun resolveProtobufVersion(project: Project, extension: WebpbExtension): String {
+    return extension.protobufVersion
+      ?: project.findProperty("webpb.protobufVersion") as String?
+      ?: WebpbVersions.protobufVersion()
   }
 
   private fun detectLocalPluginPath(project: Project, protocArtifactId: String): String? {

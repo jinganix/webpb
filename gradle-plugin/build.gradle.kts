@@ -57,10 +57,16 @@ gradlePlugin {
   }
 }
 
+val versionProtobufJava: String = gradleProperties.getProperty("versionProtobufJava")
+
 tasks.processResources {
   inputs.property("webpbVersion", version)
+  inputs.property("protobufVersion", versionProtobufJava)
   filesMatching("webpb-version.properties") {
-    expand("webpbVersion" to version)
+    expand(
+      "webpbVersion" to version,
+      "protobufVersion" to versionProtobufJava,
+    )
   }
 }
 

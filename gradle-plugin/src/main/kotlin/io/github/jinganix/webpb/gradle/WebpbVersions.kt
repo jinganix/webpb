@@ -21,10 +21,14 @@ package io.github.jinganix.webpb.gradle
 import java.util.Properties
 
 internal object WebpbVersions {
-  fun pluginReleaseVersion(): String {
+  private val properties: Properties by lazy {
     val stream =
       WebpbVersions::class.java.getResourceAsStream("/webpb-version.properties")
         ?: error("webpb-version.properties is missing from the Gradle plugin jar")
-    return Properties().apply { stream.use { load(it) } }.getProperty("webpbVersion")
+    Properties().apply { stream.use { load(it) } }
   }
+
+  fun pluginReleaseVersion(): String = properties.getProperty("webpbVersion")
+
+  fun protobufVersion(): String = properties.getProperty("protobufVersion")
 }
