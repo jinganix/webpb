@@ -4,7 +4,7 @@ export {{.primaryKeyword}} {{.className}} {
 {{- end}}
 }
 
-export const {{.className}}Values = [
+export const {{.className}}Values{{if .valuesLiteral}}: readonly {{.className}}[]{{end}} = [
 {{- range .enums}}
 {{- if $.valuesLiteral}}
   {{.value}},
@@ -21,9 +21,13 @@ export {{.aliasKeyword}} {{.aliasPrefix}}{{.className}} {
 {{- end}}
 }
 
-export const {{.aliasPrefix}}{{.className}}Values = [
+export const {{.aliasPrefix}}{{.className}}Values{{if $.valuesLiteral}}: readonly {{.aliasPrefix}}{{.className}}[]{{end}} = [
 {{- range .enums}}
+{{- if $.valuesLiteral}}
+  {{.value}},
+{{- else}}
   {{$.aliasPrefix}}{{$.className}}.{{.name}},
+{{- end}}
 {{- end}}
 ];
 {{- end}}
@@ -33,7 +37,9 @@ export const {{.className}}ByName = {
 {{- range .enums}}
   {{.name}}: {{.value}},
 {{- end}}
-};
+} as const;
+
+export type {{.className}}Name = keyof typeof {{.className}}ByName;
 {{- end}}
 {{- if .byValue}}
 
@@ -41,5 +47,7 @@ export const {{.className}}ByValue = {
 {{- range .enums}}
   {{.value}}: "{{.name}}",
 {{- end}}
-};
+} as const;
+
+export type {{.className}}ByValueKey = keyof typeof {{.className}}ByValue;
 {{- end}}

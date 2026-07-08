@@ -8,16 +8,20 @@ export enum LogLevel {
   error = 2,
 }
 
-export const LogLevelValues = [0, 1, 2];
+export const LogLevelValues: readonly LogLevel[] = [0, 1, 2];
 
 export const LogLevelByName = {
   error: 2,
   info: 0,
   warn: 1,
-};
+} as const;
+
+export type LogLevelName = keyof typeof LogLevelByName;
 
 export const LogLevelByValue = {
   0: "info",
   1: "warn",
   2: "error",
-};
+} as const;
+
+export type LogLevelByValueKey = keyof typeof LogLevelByValue;

@@ -188,11 +188,20 @@ option (f_opts).ts = {
   default_const_enum: true
   enum_auto_alias: false
   enum_values_literal: true
-  enum_by_name: true
+  enum_by_name: false
 };
 ```
 
-Example output for `ClaimStatus`:
+Enable `enum_by_name` or `enum_by_value` only on enums that need runtime name lookup (e.g. parsing config strings or logging). Global `enum_by_name: true` emits every member name as a string key into the bundle.
+
+```protobuf
+enum BuffType {
+  option (e_opts).ts = { enum_by_name: true };
+  // ...
+}
+```
+
+Example output for `ClaimStatus` (with per-enum `enum_by_name: true`):
 
 ```typescript
 export const enum ClaimStatus {
@@ -201,16 +210,18 @@ export const enum ClaimStatus {
   claimable = 2,
 }
 
-export const ClaimStatusValues = [0, 1, 2];
+export const ClaimStatusValues: readonly ClaimStatus[] = [0, 1, 2];
 
 export const ClaimStatusByName = {
   acceptable: 0,
   active: 1,
   claimable: 2,
-};
+} as const;
+
+export type ClaimStatusName = keyof typeof ClaimStatusByName;
 ```
 
-Enable `enum_by_value` only when you need number → name lookup at runtime (e.g. logging); it adds reverse string keys to the bundle.
+When `enum_values_literal` is enabled, `Values` is typed as `readonly X[]` so `for...of` loops do not require `as X[]` casts. Maps use `as const` with `XName` / `XByValueKey` helper types.
 
 ### Enum value — `(v_opts)`
 

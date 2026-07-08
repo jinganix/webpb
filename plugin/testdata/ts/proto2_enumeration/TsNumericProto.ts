@@ -8,10 +8,12 @@ export const enum ClaimStatus {
   claimable = 2,
 }
 
-export const ClaimStatusValues = [0, 1, 2];
+export const ClaimStatusValues: readonly ClaimStatus[] = [0, 1, 2];
 
 export const ClaimStatusByName = {
   acceptable: 0,
   active: 1,
   claimable: 2,
-};
+} as const;
+
+export type ClaimStatusName = keyof typeof ClaimStatusByName;

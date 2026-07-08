@@ -188,11 +188,20 @@ option (f_opts).ts = {
   default_const_enum: true
   enum_auto_alias: false
   enum_values_literal: true
-  enum_by_name: true
+  enum_by_name: false
 };
 ```
 
-`ClaimStatus` 的生成示例：
+仅在需要运行时名↔数查询的枚举上开启 `enum_by_name` 或 `enum_by_value`（如解析配置字符串、日志）。全局 `enum_by_name: true` 会把每个成员名作为字符串键打进 bundle。
+
+```protobuf
+enum BuffType {
+  option (e_opts).ts = { enum_by_name: true };
+  // ...
+}
+```
+
+`ClaimStatus` 生成示例（单 enum 开启 `enum_by_name: true` 时）：
 
 ```typescript
 export const enum ClaimStatus {
@@ -201,16 +210,18 @@ export const enum ClaimStatus {
   claimable = 2,
 }
 
-export const ClaimStatusValues = [0, 1, 2];
+export const ClaimStatusValues: readonly ClaimStatus[] = [0, 1, 2];
 
 export const ClaimStatusByName = {
   acceptable: 0,
   active: 1,
   claimable: 2,
-};
+} as const;
+
+export type ClaimStatusName = keyof typeof ClaimStatusByName;
 ```
 
-仅在需要运行时「数 → 名」查询（如日志）时开启 `enum_by_value`；反向字符串键会增加 bundle 体积。
+启用 `enum_values_literal` 时，`Values` 类型为 `readonly X[]`，`for...of` 无需 `as X[]` 强转。映射表使用 `as const`，并导出 `XName` / `XByValueKey` 辅助类型。
 
 ### 枚举值 — `(v_opts)`
 
