@@ -190,6 +190,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 ```protobuf
 option (f_opts).ts = {
   default_const_enum: true
+  enum_emit_mode: "js_dts"
   enum_auto_alias: false
   enum_values_literal: true
   enum_by_name: false
@@ -267,6 +268,21 @@ export const FooValues = [0, 1, 2];
 ```
 
 Message 文件通过 `.js` 扩展名引用拆分后的枚举：`import type { Baz } from "./Baz.js";`。
+
+#### 稀疏枚举值
+
+`XValues` 按 **proto 声明顺序** 列出所有已声明的数值，不是连续的 `[0..max]` 区间。例如成员为 `a = 0`、`b = 20`、`c = 23` 时，`XValues` 为 `[0, 20, 23]`。仅在需要运行时名↔值查询时开启 `enum_by_name` / `enum_by_value`；webpb 默认不生成 `min`/`max` 或 `isValid(n)` 辅助函数。
+
+#### 从 `EnumX` 迁移
+
+| 原写法 | 新写法 |
+|--------|--------|
+| `import { EnumX, X }` | `import { X, XByName }` 或 `import type { X }` |
+| `EnumX[name]` | `XByName[name]`，或 `enum_helpers: true` 时用 `xFromName(name)` |
+| `EnumX[code]` | `enum_by_value: true` 时用 `xToName(code)` 或 `XByValue[code]` |
+| `Object.entries(EnumX)` | `Object.entries(XByName)` |
+
+迁移期间可临时设 `enum_auto_alias: true`（或保留旧默认），待调用方不再引用 `EnumX` 后再关闭。
 
 ### 枚举值 — `(v_opts)`
 

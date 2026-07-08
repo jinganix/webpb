@@ -190,6 +190,7 @@ Recommended preset for smaller frontend bundles:
 ```protobuf
 option (f_opts).ts = {
   default_const_enum: true
+  enum_emit_mode: "js_dts"
   enum_auto_alias: false
   enum_values_literal: true
   enum_by_name: false
@@ -267,6 +268,21 @@ export const FooValues = [0, 1, 2];
 ```
 
 Message files import split enums with a `.js` extension: `import type { Baz } from "./Baz.js";`.
+
+#### Sparse enum values
+
+`XValues` lists every **declared** numeric value in proto declaration order. It is not a continuous `[0..max]` range. For example, if members are `a = 0`, `b = 20`, `c = 23`, then `XValues` is `[0, 20, 23]`. Use `enum_by_name` / `enum_by_value` only when you need runtime name↔value lookup; webpb does not emit `min`/`max` or `isValid(n)` helpers by default.
+
+#### Migrating from `EnumX`
+
+| From | To |
+|------|-----|
+| `import { EnumX, X }` | `import { X, XByName }` or `import type { X }` |
+| `EnumX[name]` | `XByName[name]` or `xFromName(name)` when `enum_helpers: true` |
+| `EnumX[code]` | `xToName(code)` or `XByValue[code]` when `enum_by_value: true` |
+| `Object.entries(EnumX)` | `Object.entries(XByName)` |
+
+Set `enum_auto_alias: true` temporarily (or keep legacy defaults) while migrating call sites, then disable it once imports no longer reference `EnumX`.
 
 ### Enum value — `(v_opts)`
 
