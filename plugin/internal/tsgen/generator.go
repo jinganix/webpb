@@ -26,29 +26,49 @@ func sharedTSEngine() (*template.Engine, error) {
 // Generator generates TypeScript source files.
 type Generator struct{}
 
+// FileOutput holds the main package file and any extra enum split files.
+type FileOutput struct {
+	MainTS string
+	Extra  map[string]string
+}
+
 // NewGenerator creates a TypeScript generator.
 func NewGenerator() *Generator {
 	return &Generator{}
 }
 
-// Generate generates a TypeScript file for a protobuf file.
-func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescriptor) (string, error) {
+// Generate generates TypeScript outputs for a protobuf file.
+func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescriptor) (*FileOutput, error) {
 	engine, err := sharedTSEngine()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if shouldIgnore(string(fd.Package())) {
-		return "", nil
+		return &FileOutput{}, nil
 	}
-	imports := NewImports(string(fd.Package()), getImports(fd), getLookup(fd))
+	imports := NewImports(string(fd.Package()), getImports(fd), getLookup(fd), ctx.JsDtsEnums)
 	var messages []string
+	extra := map[string]string{}
+	hasInline := false
+	enumGen := NewEnumGenerator(fd)
 	enums := fd.Enums()
 	for i := 0; i < enums.Len(); i++ {
-		content, err := NewEnumGenerator(fd).Generate(enums.Get(i))
+		descriptor := enums.Get(i)
+		outputs, err := enumGen.GenerateOutputs(descriptor)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		messages = append(messages, content)
+		if outputs.InlineTS != "" {
+			messages = append(messages, outputs.InlineTS)
+			hasInline = true
+		}
+		enumName := string(descriptor.Name())
+		if outputs.DTS != "" {
+			extra[enumName+".d.ts"] = wrapEnumSplitFile(fd.Path(), outputs.DTS)
+		}
+		if outputs.JS != "" {
+			extra[enumName+".js"] = wrapEnumSplitFile(fd.Path(), outputs.JS)
+		}
 	}
 	var dynamicImports []string
 	msgGen := NewMessageGenerator(imports, fd, ctx.AllDescriptors)
@@ -57,7 +77,7 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 		descriptor := msgTypes.Get(i)
 		content, err := msgGen.Generate(descriptor)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		messages = append(messages, content)
 		opt := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
@@ -79,6 +99,9 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 	if len(dynamicImportLines) > 0 {
 		importBlocks = append(importBlocks, strings.Join(dynamicImportLines, "\n"))
 	}
+	if !hasInline && msgTypes.Len() == 0 {
+		return &FileOutput{MainTS: "", Extra: extra}, nil
+	}
 	data := map[string]any{
 		"filename":   fd.Path(),
 		"imports":    strings.Join(importBlocks, "\n"),
@@ -87,9 +110,12 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 	}
 	content, err := engine.Process("file", data)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return normalizeTsTemplateOutput(content), nil
+	return &FileOutput{
+		MainTS: normalizeTsTemplateOutput(content),
+		Extra:  extra,
+	}, nil
 }
 
 func shouldIgnore(packageName string) bool {

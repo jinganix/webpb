@@ -2,12 +2,26 @@ package tsgen
 
 import (
 	"fmt"
+	"strings"
 	"unicode"
 
 	"github.com/jinganix/webpb/plugin/internal/core"
 	webpb "github.com/jinganix/webpb/plugin/gen/webpb"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+const (
+	enumEmitModeTS        = "ts"
+	enumEmitModeJsDts     = "js_dts"
+	enumEmitModeTsAndJs   = "ts_and_js_dts"
+)
+
+// EnumOutputs holds generated enum artifacts.
+type EnumOutputs struct {
+	InlineTS string
+	DTS      string
+	JS       string
+}
 
 // EnumGenerator generates TypeScript enums.
 type EnumGenerator struct {
@@ -24,13 +38,58 @@ func NewEnumGenerator(fd protoreflect.FileDescriptor) *EnumGenerator {
 	}
 }
 
-// Generate generates TypeScript source for an enum.
+// Generate generates inline TypeScript source for an enum.
 func (g *EnumGenerator) Generate(descriptor protoreflect.EnumDescriptor) (string, error) {
-	engine, err := sharedTSEngine()
+	outputs, err := g.GenerateOutputs(descriptor)
 	if err != nil {
 		return "", err
 	}
+	return outputs.InlineTS, nil
+}
+
+// GenerateOutputs generates inline TS and optional js_dts split files.
+func (g *EnumGenerator) GenerateOutputs(descriptor protoreflect.EnumDescriptor) (EnumOutputs, error) {
+	engine, err := sharedTSEngine()
+	if err != nil {
+		return EnumOutputs{}, err
+	}
 	g.stringValue = core.IsStringValue(descriptor)
+	data := g.enumTemplateData(descriptor)
+	var outputs EnumOutputs
+	mode := g.emitMode(descriptor)
+	if mode == enumEmitModeTS || mode == enumEmitModeTsAndJs {
+		inline, err := engine.Process("enum", data)
+		if err != nil {
+			return EnumOutputs{}, err
+		}
+		outputs.InlineTS = inline
+	}
+	if mode == enumEmitModeJsDts || mode == enumEmitModeTsAndJs {
+		dts, err := engine.Process("enum.d.ts", data)
+		if err != nil {
+			return EnumOutputs{}, err
+		}
+		js, err := engine.Process("enum.js", data)
+		if err != nil {
+			return EnumOutputs{}, err
+		}
+		outputs.DTS = dts
+		outputs.JS = js
+	}
+	return outputs, nil
+}
+
+// EnumUsesJsDts reports whether an enum is emitted as .js + .d.ts files.
+func EnumUsesJsDts(fd protoreflect.FileDescriptor, descriptor protoreflect.EnumDescriptor) bool {
+	return NewEnumGenerator(fd).usesJsDts(descriptor)
+}
+
+func (g *EnumGenerator) usesJsDts(descriptor protoreflect.EnumDescriptor) bool {
+	mode := g.emitMode(descriptor)
+	return mode == enumEmitModeJsDts || mode == enumEmitModeTsAndJs
+}
+
+func (g *EnumGenerator) enumTemplateData(descriptor protoreflect.EnumDescriptor) map[string]any {
 	constEnum := g.isDefaultConstEnum(descriptor)
 	primaryKeyword := "enum"
 	aliasKeyword := "const enum"
@@ -40,7 +99,7 @@ func (g *EnumGenerator) Generate(descriptor protoreflect.EnumDescriptor) (string
 		aliasKeyword = "enum"
 		aliasPrefix = "Enum"
 	}
-	data := map[string]any{
+	return map[string]any{
 		"className":      string(descriptor.Name()),
 		"enums":          g.getEnums(descriptor),
 		"primaryKeyword": primaryKeyword,
@@ -53,11 +112,49 @@ func (g *EnumGenerator) Generate(descriptor protoreflect.EnumDescriptor) (string
 		"helpers":        g.isEnumHelpers(descriptor),
 		"helperPrefix":   enumHelperPrefix(string(descriptor.Name())),
 	}
-	return engine.Process("enum", data)
 }
 
 func (g *EnumGenerator) enumTs(descriptor protoreflect.EnumDescriptor) *webpb.TsEnumOpts {
 	return core.GetEnumOpts(descriptor, core.HasEnumTs).GetTs()
+}
+
+func (g *EnumGenerator) emitMode(descriptor protoreflect.EnumDescriptor) string {
+	mode := g.resolveString(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *string { return o.EnumEmitMode },
+		func(o *webpb.TsFileOpts) *string { return o.EnumEmitMode },
+		enumEmitModeTS,
+	)
+	switch mode {
+	case enumEmitModeJsDts, enumEmitModeTsAndJs:
+		return mode
+	default:
+		return enumEmitModeTS
+	}
+}
+
+func (g *EnumGenerator) resolveString(
+	descriptor protoreflect.EnumDescriptor,
+	fromEnum func(*webpb.TsEnumOpts) *string,
+	fromFile func(*webpb.TsFileOpts) *string,
+	def string,
+) string {
+	if enumTs := g.enumTs(descriptor); enumTs != nil {
+		if v := fromEnum(enumTs); v != nil && strings.TrimSpace(*v) != "" {
+			return strings.TrimSpace(*v)
+		}
+	}
+	if g.fileOpts != nil {
+		if v := fromFile(g.fileOpts); v != nil && strings.TrimSpace(*v) != "" {
+			return strings.TrimSpace(*v)
+		}
+	}
+	if g.webpbOpts != nil {
+		if v := fromFile(g.webpbOpts); v != nil && strings.TrimSpace(*v) != "" {
+			return strings.TrimSpace(*v)
+		}
+	}
+	return def
 }
 
 // resolveBool resolves a tri-state option by cascading enum -> file -> webpb options,
@@ -95,8 +192,6 @@ func (g *EnumGenerator) isDefaultConstEnum(descriptor protoreflect.EnumDescripto
 	)
 }
 
-// isEnumAutoAlias reports whether the secondary alias enum (Enum*/Const*) should be
-// generated. Defaults to true to preserve backward-compatible output.
 func (g *EnumGenerator) isEnumAutoAlias(descriptor protoreflect.EnumDescriptor) bool {
 	return g.resolveBool(
 		descriptor,
@@ -106,8 +201,6 @@ func (g *EnumGenerator) isEnumAutoAlias(descriptor protoreflect.EnumDescriptor) 
 	)
 }
 
-// isEnumValuesLiteral reports whether the *Values array should use literal values
-// instead of enum member references.
 func (g *EnumGenerator) isEnumValuesLiteral(descriptor protoreflect.EnumDescriptor) bool {
 	return g.resolveBool(
 		descriptor,
@@ -117,7 +210,6 @@ func (g *EnumGenerator) isEnumValuesLiteral(descriptor protoreflect.EnumDescript
 	)
 }
 
-// isEnumByName reports whether a name -> value map should be generated.
 func (g *EnumGenerator) isEnumByName(descriptor protoreflect.EnumDescriptor) bool {
 	return g.resolveBool(
 		descriptor,
@@ -127,7 +219,6 @@ func (g *EnumGenerator) isEnumByName(descriptor protoreflect.EnumDescriptor) boo
 	)
 }
 
-// isEnumByValue reports whether a value -> name map should be generated.
 func (g *EnumGenerator) isEnumByValue(descriptor protoreflect.EnumDescriptor) bool {
 	return g.resolveBool(
 		descriptor,
@@ -137,7 +228,6 @@ func (g *EnumGenerator) isEnumByValue(descriptor protoreflect.EnumDescriptor) bo
 	)
 }
 
-// isEnumHelpers reports whether narrow helper functions should be generated.
 func (g *EnumGenerator) isEnumHelpers(descriptor protoreflect.EnumDescriptor) bool {
 	return g.resolveBool(
 		descriptor,
@@ -178,4 +268,12 @@ func (g *EnumGenerator) getEnumValue(descriptor protoreflect.EnumValueDescriptor
 		return fmt.Sprintf("%d", int32(descriptor.Number()))
 	}
 	return `"` + opts.GetValue() + `"`
+}
+
+func wrapEnumSplitFile(protoPath, body string) string {
+	content := "// Code generated by Webpb compiler, do not edit.\n" +
+		"// https://github.com/jinganix/webpb\n" +
+		"// " + protoPath + "\n\n" +
+		body
+	return normalizeTsTemplateOutput(content)
 }

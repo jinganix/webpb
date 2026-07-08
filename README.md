@@ -126,6 +126,7 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `ts` | `enum_by_name` | Emit `XByName` forward map (name → number); default `false` |
 | `ts` | `enum_by_value` | Emit `XByValue` reverse map (number → name); default `false` |
 | `ts` | `enum_helpers` | Emit `xFromName` / `xToName` helpers when `by_name` / `by_value` maps exist; default `false` |
+| `ts` | `enum_emit_mode` | Enum output shape: `ts` (default), `js_dts`, or `ts_and_js_dts` |
 
 ### Message — `(m_opts)`
 
@@ -176,6 +177,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `ts` | `enum_by_name` | Override file-level `enum_by_name` |
 | `ts` | `enum_by_value` | Override file-level `enum_by_value` |
 | `ts` | `enum_helpers` | Override file-level `enum_helpers` |
+| `ts` | `enum_emit_mode` | Override file-level `enum_emit_mode` |
 
 #### TypeScript enum output
 
@@ -232,6 +234,39 @@ When `enum_helpers: true`, webpb emits narrow lookup functions (`xFromName` when
 When `enum_values_literal` is enabled, `Values` is typed as `readonly X[]` so `for...of` loops do not require `as X[]` casts. Maps use `as const` with `XName` / `XByValueKey` helper types.
 
 Message fields that reference enums from another proto file use `import type { X }` instead of `import * as XEnum`, so the message module does not pull in enum runtime exports (`Values`, `ByName`) unless the field needs enum members at runtime (e.g. `sub_values` in polymorphic messages still use namespace imports).
+
+#### `enum_emit_mode: js_dts`
+
+When set to `js_dts` (or `ts_and_js_dts` for migration), each enum is emitted as a separate `{EnumName}.d.ts` + `{EnumName}.js` pair instead of inline `.ts`. The `.d.ts` holds `const enum` types and `declare` bindings; the `.js` holds only runtime values (literal `Values`, optional maps/helpers). Bundlers can import the `.js` directly without `tsc` inlining.
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+```
+
+`Foo.d.ts`:
+
+```typescript
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
+}
+
+export declare const FooValues: readonly Foo[];
+```
+
+`Foo.js`:
+
+```typescript
+export const FooValues = [0, 1, 2];
+```
+
+Message files import split enums with a `.js` extension: `import type { Baz } from "./Baz.js";`.
 
 ### Enum value — `(v_opts)`
 

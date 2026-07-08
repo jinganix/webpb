@@ -17,12 +17,15 @@ func main() {
 		genCtx := tsgen.NewGeneratorContext(ctx.Descriptors, ctx.TargetDescriptors)
 		files := map[string]string{}
 		for _, fd := range ctx.TargetDescriptors {
-			content, err := generator.Generate(genCtx, fd)
+			output, err := generator.Generate(genCtx, fd)
 			if err != nil {
 				return nil, err
 			}
-			if content != "" {
-				files[string(fd.Package())+".ts"] = content
+			if output.MainTS != "" {
+				files[string(fd.Package())+".ts"] = output.MainTS
+			}
+			for name, content := range output.Extra {
+				files[name] = content
 			}
 		}
 		subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.TargetDescriptors)

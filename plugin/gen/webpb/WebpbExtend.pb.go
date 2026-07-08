@@ -219,6 +219,7 @@ type TsFileOpts struct {
 	EnumByName        *bool                  `protobuf:"varint,1006,opt,name=enum_by_name,json=enumByName" json:"enum_by_name,omitempty"`
 	EnumByValue       *bool                  `protobuf:"varint,1007,opt,name=enum_by_value,json=enumByValue" json:"enum_by_value,omitempty"`
 	EnumHelpers       *bool                  `protobuf:"varint,1008,opt,name=enum_helpers,json=enumHelpers" json:"enum_helpers,omitempty"`
+	EnumEmitMode      *string                `protobuf:"bytes,1009,opt,name=enum_emit_mode,json=enumEmitMode" json:"enum_emit_mode,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -314,6 +315,13 @@ func (x *TsFileOpts) GetEnumHelpers() bool {
 		return *x.EnumHelpers
 	}
 	return false
+}
+
+func (x *TsFileOpts) GetEnumEmitMode() string {
+	if x != nil && x.EnumEmitMode != nil {
+		return *x.EnumEmitMode
+	}
+	return ""
 }
 
 type MessageOpts struct {
@@ -736,6 +744,7 @@ type TsEnumOpts struct {
 	EnumByName        *bool                  `protobuf:"varint,1004,opt,name=enum_by_name,json=enumByName" json:"enum_by_name,omitempty"`
 	EnumByValue       *bool                  `protobuf:"varint,1005,opt,name=enum_by_value,json=enumByValue" json:"enum_by_value,omitempty"`
 	EnumHelpers       *bool                  `protobuf:"varint,1006,opt,name=enum_helpers,json=enumHelpers" json:"enum_helpers,omitempty"`
+	EnumEmitMode      *string                `protobuf:"bytes,1007,opt,name=enum_emit_mode,json=enumEmitMode" json:"enum_emit_mode,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -810,6 +819,13 @@ func (x *TsEnumOpts) GetEnumHelpers() bool {
 		return *x.EnumHelpers
 	}
 	return false
+}
+
+func (x *TsEnumOpts) GetEnumEmitMode() string {
+	if x != nil && x.EnumEmitMode != nil {
+		return *x.EnumEmitMode
+	}
+	return ""
 }
 
 type FieldOpts struct {
@@ -1321,7 +1337,7 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"annotation\x18\xeb\a \x03(\tR\n" +
 	"annotation\x12*\n" +
 	"\x10field_annotation\x18\xec\a \x03(\tR\x0ffieldAnnotation\x124\n" +
-	"\x15repeatable_annotation\x18\xed\a \x03(\tR\x14repeatableAnnotation\"\xe3\x02\n" +
+	"\x15repeatable_annotation\x18\xed\a \x03(\tR\x14repeatableAnnotation\"\x8a\x03\n" +
 	"\n" +
 	"TsFileOpts\x12\x17\n" +
 	"\x06import\x18\xe8\a \x03(\tR\x06import\x12'\n" +
@@ -1334,7 +1350,8 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\fenum_by_name\x18\xee\a \x01(\bR\n" +
 	"enumByName\x12#\n" +
 	"\renum_by_value\x18\xef\a \x01(\bR\venumByValue\x12\"\n" +
-	"\fenum_helpers\x18\xf0\a \x01(\bR\venumHelpers\"y\n" +
+	"\fenum_helpers\x18\xf0\a \x01(\bR\venumHelpers\x12%\n" +
+	"\x0eenum_emit_mode\x18\xf1\a \x01(\tR\fenumEmitMode\"y\n" +
 	"\vMessageOpts\x12\"\n" +
 	"\x03opt\x18\xe8\a \x01(\v2\x0f.OptMessageOptsR\x03opt\x12%\n" +
 	"\x04java\x18\xe9\a \x01(\v2\x10.JavaMessageOptsR\x04java\x12\x1f\n" +
@@ -1371,7 +1388,7 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"annotation\x12\x1f\n" +
 	"\n" +
 	"implements\x18\xe9\a \x03(\tR\n" +
-	"implements\"\x81\x02\n" +
+	"implements\"\xa8\x02\n" +
 	"\n" +
 	"TsEnumOpts\x12-\n" +
 	"\x12default_const_enum\x18\xe9\a \x01(\bR\x10defaultConstEnum\x12'\n" +
@@ -1380,7 +1397,8 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\fenum_by_name\x18\xec\a \x01(\bR\n" +
 	"enumByName\x12#\n" +
 	"\renum_by_value\x18\xed\a \x01(\bR\venumByValue\x12\"\n" +
-	"\fenum_helpers\x18\xee\a \x01(\bR\venumHelpers\"q\n" +
+	"\fenum_helpers\x18\xee\a \x01(\bR\venumHelpers\x12%\n" +
+	"\x0eenum_emit_mode\x18\xef\a \x01(\tR\fenumEmitMode\"q\n" +
 	"\tFieldOpts\x12 \n" +
 	"\x03opt\x18\xe8\a \x01(\v2\r.OptFieldOptsR\x03opt\x12#\n" +
 	"\x04java\x18\xe9\a \x01(\v2\x0e.JavaFieldOptsR\x04java\x12\x1d\n" +

@@ -126,6 +126,7 @@ option (m_opts).ts = {auto_alias: true};
 | `ts` | `enum_by_name` | 生成 `XByName` 正向映射（名 → 数）；默认 `false` |
 | `ts` | `enum_by_value` | 生成 `XByValue` 反向映射（数 → 名）；默认 `false` |
 | `ts` | `enum_helpers` | 在存在 `by_name` / `by_value` 映射时生成 `xFromName` / `xToName` 辅助函数；默认 `false` |
+| `ts` | `enum_emit_mode` | 枚举输出形态：`ts`（默认）、`js_dts`、`ts_and_js_dts` |
 
 ### 消息 — `(m_opts)`
 
@@ -176,6 +177,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `ts` | `enum_by_name` | 覆盖文件级 `enum_by_name` |
 | `ts` | `enum_by_value` | 覆盖文件级 `enum_by_value` |
 | `ts` | `enum_helpers` | 覆盖文件级 `enum_helpers` |
+| `ts` | `enum_emit_mode` | 覆盖文件级 `enum_emit_mode` |
 
 #### TypeScript 枚举输出
 
@@ -232,6 +234,39 @@ export function fooFromName(name: FooName): Foo {
 启用 `enum_values_literal` 时，`Values` 类型为 `readonly X[]`，`for...of` 无需 `as X[]` 强转。映射表使用 `as const`，并导出 `XName` / `XByValueKey` 辅助类型。
 
 引用其他 proto 文件中枚举的 message 字段使用 `import type { X }`，而非 `import * as XEnum`，避免 message 模块 transitive 依赖枚举的运行时导出（`Values`、`ByName`）。多态消息的 `sub_values` 等仍需枚举成员的运行时访问时，仍保留 namespace import。
+
+#### `enum_emit_mode: js_dts`
+
+设为 `js_dts`（或迁移期 `ts_and_js_dts`）时，每个枚举单独输出 `{EnumName}.d.ts` + `{EnumName}.js`，不再内联进 `.ts`。`.d.ts` 含 `const enum` 类型与 `declare` 绑定；`.js` 仅含运行时值（字面量 `Values`、可选 maps/helpers）。打包器可直接消费 `.js`，无需 `tsc` 内联。
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+```
+
+`Foo.d.ts`：
+
+```typescript
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
+}
+
+export declare const FooValues: readonly Foo[];
+```
+
+`Foo.js`：
+
+```typescript
+export const FooValues = [0, 1, 2];
+```
+
+Message 文件通过 `.js` 扩展名引用拆分后的枚举：`import type { Baz } from "./Baz.js";`。
 
 ### 枚举值 — `(v_opts)`
 

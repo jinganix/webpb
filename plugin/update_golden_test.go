@@ -73,15 +73,18 @@ func TestUpdateTSGolden(t *testing.T) {
 			genCtx := tsgen.NewGeneratorContext(ctx.Descriptors, ctx.TargetDescriptors)
 			files := map[string]string{}
 			for _, fd := range ctx.TargetDescriptors {
-				content, err := generator.Generate(genCtx, fd)
+				output, err := generator.Generate(genCtx, fd)
 				if err != nil {
 					if shouldExpectError(dump, fd.Path()) {
 						continue
 					}
 					t.Fatalf("generate %s: %v", fd.Path(), err)
 				}
-				if content != "" {
-					files[path.Base(string(fd.Package())+".ts")] = content
+				if output.MainTS != "" {
+					files[path.Base(string(fd.Package())+".ts")] = output.MainTS
+				}
+				for name, content := range output.Extra {
+					files[path.Base(name)] = content
 				}
 			}
 			subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.TargetDescriptors)
