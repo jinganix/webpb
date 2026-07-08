@@ -11,6 +11,7 @@ var prefixPattern = regexp.MustCompile(`^([./]+)`)
 // Imports manages TypeScript imports.
 type Imports struct {
 	imported    []ImportPath
+	typeImports []TypeImport
 	packageName string
 	imports     []string
 	lookup      []string
@@ -36,6 +37,30 @@ func (i *Imports) ImportPath(importPath ImportPath) {
 		return
 	}
 	i.addImported(importPath)
+}
+
+// ImportEnumType imports an enum as a type-only binding and returns its local name.
+func (i *Imports) ImportEnumType(enumFullName string) string {
+	parts := splitTypeName(enumFullName)
+	if len(parts) == 0 {
+		return enumFullName
+	}
+	enumName := parts[len(parts)-1]
+	if len(parts) == 1 {
+		if path, _, ok := i.resolveLookupPath(enumName); ok {
+			i.addTypeImport(path, enumName, 0)
+		}
+		return enumName
+	}
+	if parts[0] == i.packageName {
+		return enumName
+	}
+	if path, order, ok := i.resolveLookupPath(enumName); ok {
+		i.addTypeImport(path, enumName, order)
+		return enumName
+	}
+	i.addTypeImport("./"+parts[0], enumName, 0)
+	return enumName
 }
 
 // ImportType imports a type and returns its local reference.
@@ -70,6 +95,28 @@ func (i *Imports) ImportType(typeName string) string {
 	return typeName
 }
 
+func (i *Imports) resolveLookupPath(typeName string) (path string, order int, ok bool) {
+	typeTail := "/" + typeName
+	for _, s := range i.lookup {
+		if !strings.HasSuffix(s, typeTail) {
+			continue
+		}
+		prefix := ""
+		relative := s
+		if m := prefixPattern.FindStringSubmatch(s); len(m) > 1 {
+			prefix = m[1]
+			relative = strings.TrimPrefix(s, prefix)
+		}
+		resolved := prefix + strings.TrimSuffix(relative, "/"+typeName)
+		resolvedOrder := -1
+		if prefix != "" && !strings.HasPrefix(prefix, "/") {
+			resolvedOrder = 0
+		}
+		return resolved, resolvedOrder, true
+	}
+	return "", 0, false
+}
+
 func (i *Imports) addImported(importPath ImportPath) {
 	for _, path := range i.imported {
 		if path.name == importPath.name {
@@ -79,8 +126,39 @@ func (i *Imports) addImported(importPath ImportPath) {
 	i.imported = append(i.imported, importPath)
 }
 
+func (i *Imports) addTypeImport(path, name string, order int) {
+	for idx, entry := range i.typeImports {
+		if entry.path != path {
+			continue
+		}
+		for _, existing := range entry.names {
+			if existing == name {
+				return
+			}
+		}
+		i.typeImports[idx].names = append(i.typeImports[idx].names, name)
+		sort.Strings(i.typeImports[idx].names)
+		return
+	}
+	i.typeImports = append(i.typeImports, TypeImport{
+		path:  path,
+		names: []string{name},
+		order: order,
+	})
+}
+
 // ToList returns import statements.
 func (i *Imports) ToList() []string {
+	sortedTypeImports := append([]TypeImport{}, i.typeImports...)
+	sort.Slice(sortedTypeImports, func(a, b int) bool {
+		if sortedTypeImports[a].order != 0 || sortedTypeImports[b].order != 0 {
+			if sortedTypeImports[a].order != sortedTypeImports[b].order {
+				return sortedTypeImports[a].order < sortedTypeImports[b].order
+			}
+		}
+		return sortedTypeImports[a].path < sortedTypeImports[b].path
+	})
+
 	sorted := append([]ImportPath{}, i.imported...)
 	sort.Slice(sorted, func(a, b int) bool {
 		if sorted[a].order != 0 || sorted[b].order != 0 {
@@ -90,7 +168,11 @@ func (i *Imports) ToList() []string {
 		}
 		return sorted[a].name < sorted[b].name
 	})
-	out := make([]string, 0, len(sorted)+len(i.imports))
+
+	out := make([]string, 0, len(sortedTypeImports)+len(sorted)+len(i.imports))
+	for _, entry := range sortedTypeImports {
+		out = append(out, `import type { `+strings.Join(entry.names, ", ")+` } from "`+entry.path+`";`)
+	}
 	for _, e := range sorted {
 		out = append(out, `import * as `+e.name+` from "`+e.path+`";`)
 	}

@@ -223,6 +223,8 @@ export type ClaimStatusName = keyof typeof ClaimStatusByName;
 
 启用 `enum_values_literal` 时，`Values` 类型为 `readonly X[]`，`for...of` 无需 `as X[]` 强转。映射表使用 `as const`，并导出 `XName` / `XByValueKey` 辅助类型。
 
+引用其他 proto 文件中枚举的 message 字段使用 `import type { X }`，而非 `import * as XEnum`，避免 message 模块 transitive 依赖枚举的运行时导出（`Values`、`ByName`）。多态消息的 `sub_values` 等仍需枚举成员的运行时访问时，仍保留 namespace import。
+
 ### 枚举值 — `(v_opts)`
 
 | 分组 | 字段 | 说明 |

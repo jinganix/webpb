@@ -223,6 +223,8 @@ export type ClaimStatusName = keyof typeof ClaimStatusByName;
 
 When `enum_values_literal` is enabled, `Values` is typed as `readonly X[]` so `for...of` loops do not require `as X[]` casts. Maps use `as const` with `XName` / `XByValueKey` helper types.
 
+Message fields that reference enums from another proto file use `import type { X }` instead of `import * as XEnum`, so the message module does not pull in enum runtime exports (`Values`, `ByName`) unless the field needs enum members at runtime (e.g. `sub_values` in polymorphic messages still use namespace imports).
+
 ### Enum value — `(v_opts)`
 
 | Group | Field | Description |
