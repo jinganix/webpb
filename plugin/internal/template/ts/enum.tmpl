@@ -51,3 +51,15 @@ export const {{.className}}ByValue = {
 
 export type {{.className}}ByValueKey = keyof typeof {{.className}}ByValue;
 {{- end}}
+{{- if and .helpers .byName}}
+
+export function {{.helperPrefix}}FromName(name: {{.className}}Name): {{.className}} {
+  return {{.className}}ByName[name];
+}
+{{- end}}
+{{- if and .helpers .byValue}}
+
+export function {{.helperPrefix}}ToName(value: {{.className}}): string {
+  return {{.className}}ByValue[value];
+}
+{{- end}}

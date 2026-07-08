@@ -17,3 +17,7 @@ export const ClaimStatusByName = {
 } as const;
 
 export type ClaimStatusName = keyof typeof ClaimStatusByName;
+
+export function claimStatusFromName(name: ClaimStatusName): ClaimStatus {
+  return ClaimStatusByName[name];
+}

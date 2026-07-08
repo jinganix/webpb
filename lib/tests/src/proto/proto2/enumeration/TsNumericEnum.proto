@@ -12,6 +12,7 @@ enum ClaimStatus {
     enum_auto_alias: false
     enum_values_literal: true
     enum_by_name: true
+    enum_helpers: true
   };
 
   acceptable = 0;

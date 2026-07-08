@@ -37,6 +37,7 @@ message TsFileOpts {
   optional bool enum_values_literal = 1005;
   optional bool enum_by_name = 1006;
   optional bool enum_by_value = 1007;
+  optional bool enum_helpers = 1008;
 }
 
 // message options
@@ -96,6 +97,7 @@ message TsEnumOpts {
   optional bool enum_values_literal = 1003;
   optional bool enum_by_name = 1004;
   optional bool enum_by_value = 1005;
+  optional bool enum_helpers = 1006;
 }
 
 // field options

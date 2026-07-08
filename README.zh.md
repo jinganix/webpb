@@ -125,6 +125,7 @@ option (m_opts).ts = {auto_alias: true};
 | `ts` | `enum_values_literal` | `XValues` 输出为数字字面量（`[0, 1, 2]`）而非成员引用；默认 `false` |
 | `ts` | `enum_by_name` | 生成 `XByName` 正向映射（名 → 数）；默认 `false` |
 | `ts` | `enum_by_value` | 生成 `XByValue` 反向映射（数 → 名）；默认 `false` |
+| `ts` | `enum_helpers` | 在存在 `by_name` / `by_value` 映射时生成 `xFromName` / `xToName` 辅助函数；默认 `false` |
 
 ### 消息 — `(m_opts)`
 
@@ -174,6 +175,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `ts` | `enum_values_literal` | 覆盖文件级 `enum_values_literal` |
 | `ts` | `enum_by_name` | 覆盖文件级 `enum_by_name` |
 | `ts` | `enum_by_value` | 覆盖文件级 `enum_by_value` |
+| `ts` | `enum_helpers` | 覆盖文件级 `enum_helpers` |
 
 #### TypeScript 枚举输出
 
@@ -219,7 +221,13 @@ export const ClaimStatusByName = {
 } as const;
 
 export type ClaimStatusName = keyof typeof ClaimStatusByName;
+
+export function claimStatusFromName(name: ClaimStatusName): ClaimStatus {
+  return ClaimStatusByName[name];
+}
 ```
+
+启用 `enum_helpers: true` 时，会生成窄查找函数（`enum_by_name` 开启时输出 `xFromName`，`enum_by_value` 开启时输出 `xToName`），作为旧版 `EnumX[name]` / `EnumX[code]` 的类型安全替代。
 
 启用 `enum_values_literal` 时，`Values` 类型为 `readonly X[]`，`for...of` 无需 `as X[]` 强转。映射表使用 `as const`，并导出 `XName` / `XByValueKey` 辅助类型。
 

@@ -125,6 +125,7 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `ts` | `enum_values_literal` | Emit `XValues` as numeric literals (`[0, 1, 2]`) instead of member references; default `false` |
 | `ts` | `enum_by_name` | Emit `XByName` forward map (name → number); default `false` |
 | `ts` | `enum_by_value` | Emit `XByValue` reverse map (number → name); default `false` |
+| `ts` | `enum_helpers` | Emit `xFromName` / `xToName` helpers when `by_name` / `by_value` maps exist; default `false` |
 
 ### Message — `(m_opts)`
 
@@ -174,6 +175,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `ts` | `enum_values_literal` | Override file-level `enum_values_literal` |
 | `ts` | `enum_by_name` | Override file-level `enum_by_name` |
 | `ts` | `enum_by_value` | Override file-level `enum_by_value` |
+| `ts` | `enum_helpers` | Override file-level `enum_helpers` |
 
 #### TypeScript enum output
 
@@ -219,7 +221,13 @@ export const ClaimStatusByName = {
 } as const;
 
 export type ClaimStatusName = keyof typeof ClaimStatusByName;
+
+export function claimStatusFromName(name: ClaimStatusName): ClaimStatus {
+  return ClaimStatusByName[name];
+}
 ```
+
+When `enum_helpers: true`, webpb emits narrow lookup functions (`xFromName` when `enum_by_name` is on, `xToName` when `enum_by_value` is on) as a typed replacement for legacy `EnumX[name]` / `EnumX[code]` access.
 
 When `enum_values_literal` is enabled, `Values` is typed as `readonly X[]` so `for...of` loops do not require `as X[]` casts. Maps use `as const` with `XName` / `XByValueKey` helper types.
 

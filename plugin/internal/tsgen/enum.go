@@ -2,6 +2,7 @@ package tsgen
 
 import (
 	"fmt"
+	"unicode"
 
 	"github.com/jinganix/webpb/plugin/internal/core"
 	webpb "github.com/jinganix/webpb/plugin/gen/webpb"
@@ -49,6 +50,8 @@ func (g *EnumGenerator) Generate(descriptor protoreflect.EnumDescriptor) (string
 		"valuesLiteral":  g.isEnumValuesLiteral(descriptor),
 		"byName":         g.isEnumByName(descriptor),
 		"byValue":        g.isEnumByValue(descriptor),
+		"helpers":        g.isEnumHelpers(descriptor),
+		"helperPrefix":   enumHelperPrefix(string(descriptor.Name())),
 	}
 	return engine.Process("enum", data)
 }
@@ -132,6 +135,25 @@ func (g *EnumGenerator) isEnumByValue(descriptor protoreflect.EnumDescriptor) bo
 		func(o *webpb.TsFileOpts) *bool { return o.EnumByValue },
 		false,
 	)
+}
+
+// isEnumHelpers reports whether narrow helper functions should be generated.
+func (g *EnumGenerator) isEnumHelpers(descriptor protoreflect.EnumDescriptor) bool {
+	return g.resolveBool(
+		descriptor,
+		func(o *webpb.TsEnumOpts) *bool { return o.EnumHelpers },
+		func(o *webpb.TsFileOpts) *bool { return o.EnumHelpers },
+		false,
+	)
+}
+
+func enumHelperPrefix(className string) string {
+	if className == "" {
+		return ""
+	}
+	runes := []rune(className)
+	runes[0] = unicode.ToLower(runes[0])
+	return string(runes)
 }
 
 func (g *EnumGenerator) getEnums(enumDescriptor protoreflect.EnumDescriptor) []map[string]string {

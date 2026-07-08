@@ -11,6 +11,7 @@ option (f_opts).ts = {
   enum_values_literal: true
   enum_by_name: true
   enum_by_value: true
+  enum_helpers: true
 };
 
 enum LogLevel {

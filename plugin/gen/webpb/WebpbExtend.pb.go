@@ -218,6 +218,7 @@ type TsFileOpts struct {
 	EnumValuesLiteral *bool                  `protobuf:"varint,1005,opt,name=enum_values_literal,json=enumValuesLiteral" json:"enum_values_literal,omitempty"`
 	EnumByName        *bool                  `protobuf:"varint,1006,opt,name=enum_by_name,json=enumByName" json:"enum_by_name,omitempty"`
 	EnumByValue       *bool                  `protobuf:"varint,1007,opt,name=enum_by_value,json=enumByValue" json:"enum_by_value,omitempty"`
+	EnumHelpers       *bool                  `protobuf:"varint,1008,opt,name=enum_helpers,json=enumHelpers" json:"enum_helpers,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -304,6 +305,13 @@ func (x *TsFileOpts) GetEnumByName() bool {
 func (x *TsFileOpts) GetEnumByValue() bool {
 	if x != nil && x.EnumByValue != nil {
 		return *x.EnumByValue
+	}
+	return false
+}
+
+func (x *TsFileOpts) GetEnumHelpers() bool {
+	if x != nil && x.EnumHelpers != nil {
+		return *x.EnumHelpers
 	}
 	return false
 }
@@ -727,6 +735,7 @@ type TsEnumOpts struct {
 	EnumValuesLiteral *bool                  `protobuf:"varint,1003,opt,name=enum_values_literal,json=enumValuesLiteral" json:"enum_values_literal,omitempty"`
 	EnumByName        *bool                  `protobuf:"varint,1004,opt,name=enum_by_name,json=enumByName" json:"enum_by_name,omitempty"`
 	EnumByValue       *bool                  `protobuf:"varint,1005,opt,name=enum_by_value,json=enumByValue" json:"enum_by_value,omitempty"`
+	EnumHelpers       *bool                  `protobuf:"varint,1006,opt,name=enum_helpers,json=enumHelpers" json:"enum_helpers,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -792,6 +801,13 @@ func (x *TsEnumOpts) GetEnumByName() bool {
 func (x *TsEnumOpts) GetEnumByValue() bool {
 	if x != nil && x.EnumByValue != nil {
 		return *x.EnumByValue
+	}
+	return false
+}
+
+func (x *TsEnumOpts) GetEnumHelpers() bool {
+	if x != nil && x.EnumHelpers != nil {
+		return *x.EnumHelpers
 	}
 	return false
 }
@@ -1305,7 +1321,7 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"annotation\x18\xeb\a \x03(\tR\n" +
 	"annotation\x12*\n" +
 	"\x10field_annotation\x18\xec\a \x03(\tR\x0ffieldAnnotation\x124\n" +
-	"\x15repeatable_annotation\x18\xed\a \x03(\tR\x14repeatableAnnotation\"\xbf\x02\n" +
+	"\x15repeatable_annotation\x18\xed\a \x03(\tR\x14repeatableAnnotation\"\xe3\x02\n" +
 	"\n" +
 	"TsFileOpts\x12\x17\n" +
 	"\x06import\x18\xe8\a \x03(\tR\x06import\x12'\n" +
@@ -1317,7 +1333,8 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\x13enum_values_literal\x18\xed\a \x01(\bR\x11enumValuesLiteral\x12!\n" +
 	"\fenum_by_name\x18\xee\a \x01(\bR\n" +
 	"enumByName\x12#\n" +
-	"\renum_by_value\x18\xef\a \x01(\bR\venumByValue\"y\n" +
+	"\renum_by_value\x18\xef\a \x01(\bR\venumByValue\x12\"\n" +
+	"\fenum_helpers\x18\xf0\a \x01(\bR\venumHelpers\"y\n" +
 	"\vMessageOpts\x12\"\n" +
 	"\x03opt\x18\xe8\a \x01(\v2\x0f.OptMessageOptsR\x03opt\x12%\n" +
 	"\x04java\x18\xe9\a \x01(\v2\x10.JavaMessageOptsR\x04java\x12\x1f\n" +
@@ -1354,7 +1371,7 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"annotation\x12\x1f\n" +
 	"\n" +
 	"implements\x18\xe9\a \x03(\tR\n" +
-	"implements\"\xdd\x01\n" +
+	"implements\"\x81\x02\n" +
 	"\n" +
 	"TsEnumOpts\x12-\n" +
 	"\x12default_const_enum\x18\xe9\a \x01(\bR\x10defaultConstEnum\x12'\n" +
@@ -1362,7 +1379,8 @@ const file_webpb_WebpbExtend_proto_rawDesc = "" +
 	"\x13enum_values_literal\x18\xeb\a \x01(\bR\x11enumValuesLiteral\x12!\n" +
 	"\fenum_by_name\x18\xec\a \x01(\bR\n" +
 	"enumByName\x12#\n" +
-	"\renum_by_value\x18\xed\a \x01(\bR\venumByValue\"q\n" +
+	"\renum_by_value\x18\xed\a \x01(\bR\venumByValue\x12\"\n" +
+	"\fenum_helpers\x18\xee\a \x01(\bR\venumHelpers\"q\n" +
 	"\tFieldOpts\x12 \n" +
 	"\x03opt\x18\xe8\a \x01(\v2\r.OptFieldOptsR\x03opt\x12#\n" +
 	"\x04java\x18\xe9\a \x01(\v2\x0e.JavaFieldOptsR\x04java\x12\x1d\n" +

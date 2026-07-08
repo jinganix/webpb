@@ -25,3 +25,11 @@ export const LogLevelByValue = {
 } as const;
 
 export type LogLevelByValueKey = keyof typeof LogLevelByValue;
+
+export function logLevelFromName(name: LogLevelName): LogLevel {
+  return LogLevelByName[name];
+}
+
+export function logLevelToName(value: LogLevel): string {
+  return LogLevelByValue[value];
+}
