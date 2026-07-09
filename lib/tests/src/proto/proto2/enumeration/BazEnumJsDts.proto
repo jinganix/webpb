@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package BazEnum;
+
+option java_package = "constant.bazenum";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+
+enum Baz {
+  a = 0;
+  b = 1;
+  c = 2;
+}

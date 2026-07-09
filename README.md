@@ -238,7 +238,9 @@ Message fields that reference enums from another proto file use `import type { X
 
 #### `enum_emit_mode: js_dts`
 
-When set to `js_dts` (or `ts_and_js_dts` for migration), each enum is emitted as a separate `{EnumName}.d.ts` + `{EnumName}.js` pair instead of inline `.ts`. The `.d.ts` holds `const enum` types and `declare` bindings; the `.js` holds only runtime values (literal `Values`, optional maps/helpers). Bundlers can import the `.js` directly without `tsc` inlining.
+When set to `js_dts` (or `ts_and_js_dts` for migration), each enum is emitted as a separate `{EnumName}.d.ts` + `{EnumName}.js` pair. The `{Package}.ts` file becomes a **shim** that re-exports types from `./{EnumName}` and runtime values from `./{EnumName}.js` — it does not inline a second `const enum`. The `.d.ts` holds `const enum` types and `declare` bindings; the `.js` holds only runtime values (literal `Values`, optional maps/helpers). Bundlers can import the `.js` directly without `tsc` inlining.
+
+`ts_and_js_dts` generates the **same** shim + split files as `js_dts` (no duplicate inline enum). Use it only as a migration alias; prefer `js_dts` for new projects.
 
 ```protobuf
 option (f_opts).ts = {
@@ -267,7 +269,15 @@ export declare const FooValues: readonly Foo[];
 export const FooValues = [0, 1, 2];
 ```
 
-Message files import split enums with a `.js` extension: `import type { Baz } from "./Baz.js";`.
+When the protobuf **package name differs from the enum name** (e.g. `package BarEnum` + `enum Bar`), `{Package}.ts` is the stable entry for legacy imports:
+
+```typescript
+// BarEnum.ts (shim)
+export type { Bar } from "./Bar";
+export { BarValues } from "./Bar.js";
+```
+
+Enum-only proto files still emit `{Package}.ts` (the shim). Message fields in the same file use the shim re-export without a separate import. Cross-file references use `import type { Bar } from "./BarEnum"` (the package shim), not `./Bar.js`, so hand-written code and generated messages share one `Bar` type.
 
 #### Sparse enum values
 

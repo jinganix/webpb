@@ -238,7 +238,9 @@ export function fooFromName(name: FooName): Foo {
 
 #### `enum_emit_mode: js_dts`
 
-设为 `js_dts`（或迁移期 `ts_and_js_dts`）时，每个枚举单独输出 `{EnumName}.d.ts` + `{EnumName}.js`，不再内联进 `.ts`。`.d.ts` 含 `const enum` 类型与 `declare` 绑定；`.js` 仅含运行时值（字面量 `Values`、可选 maps/helpers）。打包器可直接消费 `.js`，无需 `tsc` 内联。
+设为 `js_dts`（或迁移期 `ts_and_js_dts`）时，每个枚举单独输出 `{EnumName}.d.ts` + `{EnumName}.js`。`{Package}.ts` 变为 **shim**：从 `./{EnumName}` re-export 类型、从 `./{EnumName}.js` re-export 运行时值，**不再**内联第二份 `const enum`。`.d.ts` 含类型与 `declare` 绑定；`.js` 仅含运行时值。打包器可直接消费 `.js`，无需 `tsc` 内联。
+
+`ts_and_js_dts` 与 `js_dts` 生成物**相同**（shim + split，无双份 inline enum），仅作迁移别名；新项目请用 `js_dts`。
 
 ```protobuf
 option (f_opts).ts = {
@@ -267,7 +269,15 @@ export declare const FooValues: readonly Foo[];
 export const FooValues = [0, 1, 2];
 ```
 
-Message 文件通过 `.js` 扩展名引用拆分后的枚举：`import type { Baz } from "./Baz.js";`。
+当 protobuf **package 名与枚举名不同**（如 `package BarEnum` + `enum Bar`）时，`{Package}.ts` 是稳定入口，兼容 `import { Bar } from "./BarEnum"`：
+
+```typescript
+// BarEnum.ts（shim）
+export type { Bar } from "./Bar";
+export { BarValues } from "./Bar.js";
+```
+
+纯枚举 proto 也会生成 `{Package}.ts`（shim）。同文件 message 字段直接使用 shim 中的类型，无需额外 import。跨文件引用使用 `import type { Bar } from "./BarEnum"`（package shim），而非 `./Bar.js`，保证手写代码与生成 message 共用同一 `Bar` 类型。
 
 #### 稀疏枚举值
 

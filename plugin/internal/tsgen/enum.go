@@ -57,7 +57,7 @@ func (g *EnumGenerator) GenerateOutputs(descriptor protoreflect.EnumDescriptor) 
 	data := g.enumTemplateData(descriptor)
 	var outputs EnumOutputs
 	mode := g.emitMode(descriptor)
-	if mode == enumEmitModeTS || mode == enumEmitModeTsAndJs {
+	if mode == enumEmitModeTS {
 		inline, err := engine.Process("enum", data)
 		if err != nil {
 			return EnumOutputs{}, err
@@ -77,6 +77,25 @@ func (g *EnumGenerator) GenerateOutputs(descriptor protoreflect.EnumDescriptor) 
 		outputs.JS = js
 	}
 	return outputs, nil
+}
+
+// GenerateShim generates a package-level re-export shim for js_dts enums.
+func (g *EnumGenerator) GenerateShim(descriptor protoreflect.EnumDescriptor) (string, error) {
+	if !g.usesJsDts(descriptor) {
+		return "", nil
+	}
+	engine, err := sharedTSEngine()
+	if err != nil {
+		return "", err
+	}
+	g.stringValue = core.IsStringValue(descriptor)
+	data := g.enumTemplateData(descriptor)
+	return engine.Process("enum.shim", data)
+}
+
+// UsesJsDts reports whether an enum is emitted as split .js + .d.ts files.
+func (g *EnumGenerator) UsesJsDts(descriptor protoreflect.EnumDescriptor) bool {
+	return g.usesJsDts(descriptor)
 }
 
 // EnumUsesJsDts reports whether an enum is emitted as .js + .d.ts files.

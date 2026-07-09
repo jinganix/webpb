@@ -48,8 +48,8 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 	}
 	imports := NewImports(string(fd.Package()), getImports(fd), getLookup(fd), ctx.JsDtsEnums)
 	var messages []string
+	var shimBlocks []string
 	extra := map[string]string{}
-	hasInline := false
 	enumGen := NewEnumGenerator(fd)
 	enums := fd.Enums()
 	for i := 0; i < enums.Len(); i++ {
@@ -60,7 +60,15 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 		}
 		if outputs.InlineTS != "" {
 			messages = append(messages, outputs.InlineTS)
-			hasInline = true
+		}
+		if enumGen.UsesJsDts(descriptor) {
+			shim, err := enumGen.GenerateShim(descriptor)
+			if err != nil {
+				return nil, err
+			}
+			if shim != "" {
+				shimBlocks = append(shimBlocks, shim)
+			}
 		}
 		enumName := string(descriptor.Name())
 		if outputs.DTS != "" {
@@ -99,14 +107,18 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 	if len(dynamicImportLines) > 0 {
 		importBlocks = append(importBlocks, strings.Join(dynamicImportLines, "\n"))
 	}
-	if !hasInline && msgTypes.Len() == 0 {
+	body := append(shimBlocks, messages...)
+	if len(body) == 0 && len(extra) == 0 {
+		return &FileOutput{}, nil
+	}
+	if len(body) == 0 {
 		return &FileOutput{MainTS: "", Extra: extra}, nil
 	}
 	data := map[string]any{
 		"filename":   fd.Path(),
 		"imports":    strings.Join(importBlocks, "\n"),
 		"hasImports": len(importBlocks) > 0,
-		"messages":   messages,
+		"messages":   body,
 	}
 	content, err := engine.Process("file", data)
 	if err != nil {

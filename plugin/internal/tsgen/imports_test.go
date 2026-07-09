@@ -56,22 +56,21 @@ func TestImportEnumTypeSamePackageJsDts(t *testing.T) {
 	if ref != "Baz" {
 		t.Fatalf("got %q, want Baz", ref)
 	}
-	got := imports.ToList()
-	if len(got) != 1 || got[0] != `import type { Baz } from "./Baz.js";` {
-		t.Fatalf("unexpected imports: %v", got)
+	if len(imports.ToList()) != 0 {
+		t.Fatalf("unexpected imports: %v", imports.ToList())
 	}
 }
 
 func TestImportEnumTypeJsDts(t *testing.T) {
 	t.Parallel()
-	jsDts := map[string]struct{}{"OtherProto.Foo": {}}
-	imports := NewImports("MapValueJsDtsProto", nil, nil, jsDts)
-	ref := imports.ImportEnumType("OtherProto.Foo")
-	if ref != "Foo" {
-		t.Fatalf("got %q, want Foo", ref)
+	jsDts := map[string]struct{}{"BarEnum.Bar": {}}
+	imports := NewImports("FooProto", nil, nil, jsDts)
+	ref := imports.ImportEnumType("BarEnum.Bar")
+	if ref != "Bar" {
+		t.Fatalf("got %q, want Bar", ref)
 	}
 	got := imports.ToList()
-	if len(got) != 1 || got[0] != `import type { Foo } from "./Foo.js";` {
+	if len(got) != 1 || got[0] != `import type { Bar } from "./BarEnum";` {
 		t.Fatalf("unexpected imports: %v", got)
 	}
 }

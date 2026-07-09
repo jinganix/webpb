@@ -3,7 +3,10 @@
 // MapValueJsDts.proto
 
 import * as Webpb from "webpb";
-import type { Baz } from "./Baz.js";
+
+export type { Baz } from "./Baz";
+
+export { BazValues } from "./Baz.js";
 
 export interface IMapValueJsDtsPb {
   sort: Record<string, Baz>;

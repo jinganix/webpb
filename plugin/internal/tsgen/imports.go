@@ -53,22 +53,19 @@ func (i *Imports) ImportEnumType(enumFullName string) string {
 	enumName := parts[len(parts)-1]
 	if len(parts) == 1 {
 		if path, _, ok := i.resolveLookupPath(enumName); ok {
-			i.addTypeImport(i.typeImportPath(path, enumName), enumName, 0)
+			i.addTypeImport(path, enumName, 0)
 		}
 		return enumName
 	}
 	if parts[0] == i.packageName {
-		if _, jsDts := i.jsDtsEnums[enumFullName]; jsDts {
-			i.addTypeImport("./"+enumName+".js", enumName, 0)
-		}
 		return enumName
 	}
 	if _, jsDts := i.jsDtsEnums[enumFullName]; jsDts {
-		i.addTypeImport(`./`+enumName+`.js`, enumName, 0)
+		i.addTypeImport("./"+parts[0], enumName, 0)
 		return enumName
 	}
 	if path, order, ok := i.resolveLookupPath(enumName); ok {
-		i.addTypeImport(i.typeImportPath(path, enumName), enumName, order)
+		i.addTypeImport(path, enumName, order)
 		return enumName
 	}
 	i.addTypeImport(`./`+parts[0], enumName, 0)
@@ -105,15 +102,6 @@ func (i *Imports) ImportType(typeName string) string {
 	}
 	i.addImported(NewImportPath(parts[0], "./"+parts[0]))
 	return typeName
-}
-
-func (i *Imports) typeImportPath(modulePath, enumName string) string {
-	for fullName := range i.jsDtsEnums {
-		if strings.HasSuffix(fullName, "."+enumName) {
-			return "./" + enumName + ".js"
-		}
-	}
-	return modulePath
 }
 
 func (i *Imports) resolveLookupPath(typeName string) (path string, order int, ok bool) {

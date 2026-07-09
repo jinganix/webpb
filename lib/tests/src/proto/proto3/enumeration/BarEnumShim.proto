@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package BarEnum;
+
+option java_package = "constant.barenum";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+
+enum Bar {
+  a = 0;
+  b = 1;
+  c = 2;
+}
+
+message FooPb {
+  Bar type = 1;
+}
