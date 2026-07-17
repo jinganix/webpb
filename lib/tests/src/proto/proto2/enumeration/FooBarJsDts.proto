@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package FooProto;
+
+option java_package = "constant.fooproto";
+
+import "webpb/WebpbExtend.proto";
+import "BarEnumShim.proto";
+
+message FooBarPb {
+  optional BarEnum.Bar type = 1;
+}

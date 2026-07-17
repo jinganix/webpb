@@ -121,6 +121,12 @@ option (m_opts).ts = {auto_alias: true};
 | `ts` | `int64_as_string` | JSON 中将 `int64` 序列化为字符串 |
 | `ts` | `auto_alias` | 由 proto 字段名推导 JSON 字段名 |
 | `ts` | `default_const_enum` | 为 protobuf 枚举生成 const enum |
+| `ts` | `enum_auto_alias` | 生成次级运行时别名枚举（`EnumX` / `ConstX`）；默认 `true` |
+| `ts` | `enum_values_literal` | `XValues` 输出为数字字面量（`[0, 1, 2]`）而非成员引用；默认 `false` |
+| `ts` | `enum_by_name` | 生成 `XByName` 正向映射（名 → 数）；默认 `false` |
+| `ts` | `enum_by_value` | 生成 `XByValue` 反向映射（数 → 名）；默认 `false` |
+| `ts` | `enum_helpers` | 在存在 `by_name` / `by_value` 映射时生成 `xFromName` / `xToName` 辅助函数；默认 `false` |
+| `ts` | `enum_emit_mode` | 枚举输出形态：`ts`（默认）、`js_dts`、`ts_and_js_dts` |
 
 ### 消息 — `(m_opts)`
 
@@ -166,6 +172,127 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `java` | `annotation` | 枚举级 Java 注解 |
 | `java` | `implements` | 枚举实现的 Java 接口 |
 | `ts` | `default_const_enum` | 覆盖文件级 const enum 行为 |
+| `ts` | `enum_auto_alias` | 覆盖文件级 `enum_auto_alias` |
+| `ts` | `enum_values_literal` | 覆盖文件级 `enum_values_literal` |
+| `ts` | `enum_by_name` | 覆盖文件级 `enum_by_name` |
+| `ts` | `enum_by_value` | 覆盖文件级 `enum_by_value` |
+| `ts` | `enum_helpers` | 覆盖文件级 `enum_helpers` |
+| `ts` | `enum_emit_mode` | 覆盖文件级 `enum_emit_mode` |
+
+#### TypeScript 枚举输出
+
+启用 `default_const_enum` 时，webpb 会生成主枚举 `const enum X`，以及次级运行时别名（`enum EnumX` 或 `const enum ConstX`，取决于主枚举类型）。该双向别名在 esbuild、SWC、Rolldown 等打包器中未经 `tsc` 内联时会显著增大 bundle 体积。
+
+上述 `enum_*` 选项为按需开启的调优项。可在 `(f_opts).ts` 中设置文件级默认值，或在 `(e_opts).ts` 中覆盖单个枚举。解析顺序：枚举 → 文件 → `WebpbOptions.proto`。
+
+前端 bundle 体积优化推荐配置：
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+  enum_by_name: false
+};
+```
+
+仅在需要运行时名↔数查询的枚举上开启 `enum_by_name` 或 `enum_by_value`（如解析配置字符串、日志）。全局 `enum_by_name: true` 会把每个成员名作为字符串键打进 bundle。
+
+```protobuf
+enum Bar {
+  option (e_opts).ts = { enum_by_name: true };
+  // ...
+}
+```
+
+`Foo` 生成示例（单 enum 开启 `enum_by_name: true` 时）：
+
+```typescript
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
+}
+
+export const FooValues: readonly Foo[] = [0, 1, 2];
+
+export const FooByName = {
+  a: 0,
+  b: 1,
+  c: 2,
+} as const;
+
+export type FooName = keyof typeof FooByName;
+
+export function fooFromName(name: FooName): Foo {
+  return FooByName[name];
+}
+```
+
+启用 `enum_helpers: true` 时，会生成窄查找函数（`enum_by_name` 开启时输出 `xFromName`，`enum_by_value` 开启时输出 `xToName`），作为旧版 `EnumX[name]` / `EnumX[code]` 的类型安全替代。
+
+启用 `enum_values_literal` 时，`Values` 类型为 `readonly X[]`，`for...of` 无需 `as X[]` 强转。映射表使用 `as const`，并导出 `XName` / `XByValueKey` 辅助类型。
+
+引用其他 proto 文件中枚举的 message 字段使用 `import type { X }`，而非 `import * as XEnum`，避免 message 模块 transitive 依赖枚举的运行时导出（`Values`、`ByName`）。多态消息的 `sub_values` 等仍需枚举成员的运行时访问时，仍保留 namespace import。
+
+#### `enum_emit_mode: js_dts`
+
+设为 `js_dts`（或迁移期 `ts_and_js_dts`）时，每个枚举单独输出 `{EnumName}.d.ts` + `{EnumName}.js`。`{Package}.ts` 变为 **shim**：从 `./{EnumName}` re-export 类型、从 `./{EnumName}.js` re-export 运行时值，**不再**内联第二份 `const enum`。`.d.ts` 含类型与 `declare` 绑定；`.js` 仅含运行时值。打包器可直接消费 `.js`，无需 `tsc` 内联。
+
+`ts_and_js_dts` 与 `js_dts` 生成物**相同**（shim + split，无双份 inline enum），仅作迁移别名；新项目请用 `js_dts`。
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+```
+
+`Foo.d.ts`：
+
+```typescript
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
+}
+
+export declare const FooValues: readonly Foo[];
+```
+
+`Foo.js`：
+
+```typescript
+export const FooValues = [0, 1, 2];
+```
+
+当 protobuf **package 名与枚举名不同**（如 `package BarEnum` + `enum Bar`）时，`{Package}.ts` 是稳定入口，兼容 `import { Bar } from "./BarEnum"`：
+
+```typescript
+// BarEnum.ts（shim）
+export type { Bar } from "./Bar";
+export { BarValues } from "./Bar.js";
+```
+
+纯枚举 proto 也会生成 `{Package}.ts`（shim）。同文件 message 字段直接使用 shim 中的类型，无需额外 import。跨文件引用使用 `import type { Bar } from "./BarEnum"`（package shim），而非 `./Bar.js`，保证手写代码与生成 message 共用同一 `Bar` 类型。
+
+#### 稀疏枚举值
+
+`XValues` 按 **proto 声明顺序** 列出所有已声明的数值，不是连续的 `[0..max]` 区间。例如成员为 `a = 0`、`b = 20`、`c = 23` 时，`XValues` 为 `[0, 20, 23]`。仅在需要运行时名↔值查询时开启 `enum_by_name` / `enum_by_value`；webpb 默认不生成 `min`/`max` 或 `isValid(n)` 辅助函数。
+
+#### 从 `EnumX` 迁移
+
+| 原写法 | 新写法 |
+|--------|--------|
+| `import { EnumX, X }` | `import { X, XByName }` 或 `import type { X }` |
+| `EnumX[name]` | `XByName[name]`，或 `enum_helpers: true` 时用 `xFromName(name)` |
+| `EnumX[code]` | `enum_by_value: true` 时用 `xToName(code)` 或 `XByValue[code]` |
+| `Object.entries(EnumX)` | `Object.entries(XByName)` |
+
+迁移期间可临时设 `enum_auto_alias: true`（或保留旧默认），待调用方不再引用 `EnumX` 后再关闭。
 
 ### 枚举值 — `(v_opts)`
 

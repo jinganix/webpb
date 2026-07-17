@@ -174,7 +174,7 @@ func (g *MessageGenerator) getSubType(descriptor protoreflect.MessageDescriptor)
 			continue
 		}
 		if core.IsEnum(field) {
-			return g.imports.ImportType(string(field.Enum().FullName()))
+			return g.imports.ImportEnumType(string(field.Enum().FullName()))
 		}
 		return nil
 	}
@@ -357,6 +357,9 @@ func (g *MessageGenerator) toType(field protoreflect.FieldDescriptor, toI bool) 
 	fullName := core.GetFieldTypeFullName(field)
 	if fullName == "google.protobuf.Any" {
 		return unknownType
+	}
+	if core.IsEnum(field) {
+		return g.imports.ImportEnumType(fullName)
 	}
 	typeName := fullName
 	if toI && core.IsMessage(field) {

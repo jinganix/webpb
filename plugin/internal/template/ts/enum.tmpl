@@ -1,23 +1,65 @@
-export enum {{.className}} {
+export {{.primaryKeyword}} {{.className}} {
 {{- range .enums}}
   {{.name}} = {{.value}},
 {{- end}}
 }
 
-export const {{.className}}Values = [
+export const {{.className}}Values{{if .valuesLiteral}}: readonly {{.className}}[]{{end}} = [
 {{- range .enums}}
+{{- if $.valuesLiteral}}
+  {{.value}},
+{{- else}}
   {{$.className}}.{{.name}},
 {{- end}}
+{{- end}}
 ];
+{{- if .autoAlias}}
 
-export const enum Const{{.className}} {
+export {{.aliasKeyword}} {{.aliasPrefix}}{{.className}} {
 {{- range .enums}}
   {{.name}} = {{.value}},
 {{- end}}
 }
 
-export const Const{{.className}}Values = [
+export const {{.aliasPrefix}}{{.className}}Values{{if $.valuesLiteral}}: readonly {{.aliasPrefix}}{{.className}}[]{{end}} = [
 {{- range .enums}}
-  Const{{$.className}}.{{.name}},
+{{- if $.valuesLiteral}}
+  {{.value}},
+{{- else}}
+  {{$.aliasPrefix}}{{$.className}}.{{.name}},
+{{- end}}
 {{- end}}
 ];
+{{- end}}
+{{- if .byName}}
+
+export const {{.className}}ByName = {
+{{- range .enums}}
+  {{.name}}: {{.value}},
+{{- end}}
+} as const;
+
+export type {{.className}}Name = keyof typeof {{.className}}ByName;
+{{- end}}
+{{- if .byValue}}
+
+export const {{.className}}ByValue = {
+{{- range .enums}}
+  {{.value}}: "{{.name}}",
+{{- end}}
+} as const;
+
+export type {{.className}}ByValueKey = keyof typeof {{.className}}ByValue;
+{{- end}}
+{{- if and .helpers .byName}}
+
+export function {{.helperPrefix}}FromName(name: {{.className}}Name): {{.className}} {
+  return {{.className}}ByName[name];
+}
+{{- end}}
+{{- if and .helpers .byValue}}
+
+export function {{.helperPrefix}}ToName(value: {{.className}}): string {
+  return {{.className}}ByValue[value];
+}
+{{- end}}

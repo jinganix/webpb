@@ -121,6 +121,12 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `ts` | `int64_as_string` | Serialize `int64` as string in JSON |
 | `ts` | `auto_alias` | Derive JSON field names from proto field names |
 | `ts` | `default_const_enum` | Emit const enums for protobuf enums |
+| `ts` | `enum_auto_alias` | Emit secondary runtime alias enum (`EnumX` / `ConstX`); default `true` |
+| `ts` | `enum_values_literal` | Emit `XValues` as numeric literals (`[0, 1, 2]`) instead of member references; default `false` |
+| `ts` | `enum_by_name` | Emit `XByName` forward map (name → number); default `false` |
+| `ts` | `enum_by_value` | Emit `XByValue` reverse map (number → name); default `false` |
+| `ts` | `enum_helpers` | Emit `xFromName` / `xToName` helpers when `by_name` / `by_value` maps exist; default `false` |
+| `ts` | `enum_emit_mode` | Enum output shape: `ts` (default), `js_dts`, or `ts_and_js_dts` |
 
 ### Message — `(m_opts)`
 
@@ -166,6 +172,127 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `java` | `annotation` | Enum-level Java annotations |
 | `java` | `implements` | Java interfaces for the enum |
 | `ts` | `default_const_enum` | Override file-level const-enum behavior |
+| `ts` | `enum_auto_alias` | Override file-level `enum_auto_alias` |
+| `ts` | `enum_values_literal` | Override file-level `enum_values_literal` |
+| `ts` | `enum_by_name` | Override file-level `enum_by_name` |
+| `ts` | `enum_by_value` | Override file-level `enum_by_value` |
+| `ts` | `enum_helpers` | Override file-level `enum_helpers` |
+| `ts` | `enum_emit_mode` | Override file-level `enum_emit_mode` |
+
+#### TypeScript enum output
+
+When `default_const_enum` is enabled, webpb emits a primary `const enum X` plus a secondary runtime alias (`enum EnumX` or `const enum ConstX`, depending on the primary). That bidirectional alias increases frontend bundle size when bundled with esbuild, SWC, or Rolldown without `tsc` inlining.
+
+The `enum_*` options above are opt-in tuning knobs. Set them in `(f_opts).ts` for all enums in a file, or in `(e_opts).ts` to override a single enum. Resolution order: enum → file → `WebpbOptions.proto`.
+
+Recommended preset for smaller frontend bundles:
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+  enum_by_name: false
+};
+```
+
+Enable `enum_by_name` or `enum_by_value` only on enums that need runtime name lookup (e.g. parsing config strings or logging). Global `enum_by_name: true` emits every member name as a string key into the bundle.
+
+```protobuf
+enum Bar {
+  option (e_opts).ts = { enum_by_name: true };
+  // ...
+}
+```
+
+Example output for `Foo` (with per-enum `enum_by_name: true`):
+
+```typescript
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
+}
+
+export const FooValues: readonly Foo[] = [0, 1, 2];
+
+export const FooByName = {
+  a: 0,
+  b: 1,
+  c: 2,
+} as const;
+
+export type FooName = keyof typeof FooByName;
+
+export function fooFromName(name: FooName): Foo {
+  return FooByName[name];
+}
+```
+
+When `enum_helpers: true`, webpb emits narrow lookup functions (`xFromName` when `enum_by_name` is on, `xToName` when `enum_by_value` is on) as a typed replacement for legacy `EnumX[name]` / `EnumX[code]` access.
+
+When `enum_values_literal` is enabled, `Values` is typed as `readonly X[]` so `for...of` loops do not require `as X[]` casts. Maps use `as const` with `XName` / `XByValueKey` helper types.
+
+Message fields that reference enums from another proto file use `import type { X }` instead of `import * as XEnum`, so the message module does not pull in enum runtime exports (`Values`, `ByName`) unless the field needs enum members at runtime (e.g. `sub_values` in polymorphic messages still use namespace imports).
+
+#### `enum_emit_mode: js_dts`
+
+When set to `js_dts` (or `ts_and_js_dts` for migration), each enum is emitted as a separate `{EnumName}.d.ts` + `{EnumName}.js` pair. The `{Package}.ts` file becomes a **shim** that re-exports types from `./{EnumName}` and runtime values from `./{EnumName}.js` — it does not inline a second `const enum`. The `.d.ts` holds `const enum` types and `declare` bindings; the `.js` holds only runtime values (literal `Values`, optional maps/helpers). Bundlers can import the `.js` directly without `tsc` inlining.
+
+`ts_and_js_dts` generates the **same** shim + split files as `js_dts` (no duplicate inline enum). Use it only as a migration alias; prefer `js_dts` for new projects.
+
+```protobuf
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+```
+
+`Foo.d.ts`:
+
+```typescript
+export const enum Foo {
+  a = 0,
+  b = 1,
+  c = 2,
+}
+
+export declare const FooValues: readonly Foo[];
+```
+
+`Foo.js`:
+
+```typescript
+export const FooValues = [0, 1, 2];
+```
+
+When the protobuf **package name differs from the enum name** (e.g. `package BarEnum` + `enum Bar`), `{Package}.ts` is the stable entry for legacy imports:
+
+```typescript
+// BarEnum.ts (shim)
+export type { Bar } from "./Bar";
+export { BarValues } from "./Bar.js";
+```
+
+Enum-only proto files still emit `{Package}.ts` (the shim). Message fields in the same file use the shim re-export without a separate import. Cross-file references use `import type { Bar } from "./BarEnum"` (the package shim), not `./Bar.js`, so hand-written code and generated messages share one `Bar` type.
+
+#### Sparse enum values
+
+`XValues` lists every **declared** numeric value in proto declaration order. It is not a continuous `[0..max]` range. For example, if members are `a = 0`, `b = 20`, `c = 23`, then `XValues` is `[0, 20, 23]`. Use `enum_by_name` / `enum_by_value` only when you need runtime name↔value lookup; webpb does not emit `min`/`max` or `isValid(n)` helpers by default.
+
+#### Migrating from `EnumX`
+
+| From | To |
+|------|-----|
+| `import { EnumX, X }` | `import { X, XByName }` or `import type { X }` |
+| `EnumX[name]` | `XByName[name]` or `xFromName(name)` when `enum_helpers: true` |
+| `EnumX[code]` | `xToName(code)` or `XByValue[code]` when `enum_by_value: true` |
+| `Object.entries(EnumX)` | `Object.entries(XByName)` |
+
+Set `enum_auto_alias: true` temporarily (or keep legacy defaults) while migrating call sites, then disable it once imports no longer reference `EnumX`.
 
 ### Enum value — `(v_opts)`
 

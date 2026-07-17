@@ -1,0 +1,31 @@
+export type {
+  {{.className}},
+{{- if .autoAlias}}
+  {{.aliasPrefix}}{{.className}},
+{{- end}}
+{{- if .byName}}
+  {{.className}}Name,
+{{- end}}
+{{- if .byValue}}
+  {{.className}}ByValueKey,
+{{- end}}
+} from "./{{.className}}";
+
+export {
+  {{.className}}Values,
+{{- if .autoAlias}}
+  {{.aliasPrefix}}{{.className}}Values,
+{{- end}}
+{{- if .byName}}
+  {{.className}}ByName,
+{{- end}}
+{{- if .byValue}}
+  {{.className}}ByValue,
+{{- end}}
+{{- if and .helpers .byName}}
+  {{.helperPrefix}}FromName,
+{{- end}}
+{{- if and .helpers .byValue}}
+  {{.helperPrefix}}ToName,
+{{- end}}
+} from "./{{.className}}.js";

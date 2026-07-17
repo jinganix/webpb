@@ -33,6 +33,12 @@ message TsFileOpts {
   optional bool int64_as_string = 1001;
   optional bool auto_alias = 1002;
   optional bool default_const_enum = 1003;
+  optional bool enum_auto_alias = 1004;
+  optional bool enum_values_literal = 1005;
+  optional bool enum_by_name = 1006;
+  optional bool enum_by_value = 1007;
+  optional bool enum_helpers = 1008;
+  optional string enum_emit_mode = 1009;
 }
 
 // message options
@@ -88,6 +94,12 @@ message JavaEnumOpts {
 
 message TsEnumOpts {
   optional bool default_const_enum = 1001;
+  optional bool enum_auto_alias = 1002;
+  optional bool enum_values_literal = 1003;
+  optional bool enum_by_name = 1004;
+  optional bool enum_by_value = 1005;
+  optional bool enum_helpers = 1006;
+  optional string enum_emit_mode = 1007;
 }
 
 // field options

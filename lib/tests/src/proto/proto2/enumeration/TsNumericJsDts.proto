@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package TsNumericJsDtsProto;
+
+option java_package = "constant.tsnumericjsdts";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_emit_mode: "js_dts"
+  enum_auto_alias: false
+  enum_values_literal: true
+};
+
+enum Foo {
+  a = 0;
+  b = 1;
+  c = 2;
+}

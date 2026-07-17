@@ -1,0 +1,45 @@
+export {{.primaryKeyword}} {{.className}} {
+{{- range .enums}}
+  {{.name}} = {{.value}},
+{{- end}}
+}
+
+export declare const {{.className}}Values: readonly {{.className}}[];
+{{- if .autoAlias}}
+
+export {{.aliasKeyword}} {{.aliasPrefix}}{{.className}} {
+{{- range .enums}}
+  {{.name}} = {{.value}},
+{{- end}}
+}
+
+export declare const {{.aliasPrefix}}{{.className}}Values: readonly {{.aliasPrefix}}{{.className}}[];
+{{- end}}
+{{- if .byName}}
+
+export declare const {{.className}}ByName: {
+{{- range .enums}}
+  readonly {{.name}}: {{.value}};
+{{- end}}
+};
+
+export type {{.className}}Name = keyof typeof {{.className}}ByName;
+{{- end}}
+{{- if .byValue}}
+
+export declare const {{.className}}ByValue: {
+{{- range .enums}}
+  readonly {{.value}}: "{{.name}}";
+{{- end}}
+};
+
+export type {{.className}}ByValueKey = keyof typeof {{.className}}ByValue;
+{{- end}}
+{{- if and .helpers .byName}}
+
+export declare function {{.helperPrefix}}FromName(name: {{.className}}Name): {{.className}};
+{{- end}}
+{{- if and .helpers .byValue}}
+
+export declare function {{.helperPrefix}}ToName(value: {{.className}}): string;
+{{- end}}

@@ -4,6 +4,7 @@
 
 import * as Webpb from "webpb";
 import * as Include2Proto from "./Include2Proto";
+import type { Enum } from "./IncludeProto";
 import * as IncludeProto from "./IncludeProto";
 
 export enum Test3 {
@@ -237,7 +238,7 @@ export class Test6 implements ITest6, Webpb.WebpbMessage {
 export interface ITest {
   test1?: number | null;
   test2?: IncludeProto.IMessage | null;
-  test3?: IncludeProto.Enum | null;
+  test3?: Enum | null;
   test4?: ITest4 | null;
   test5: Record<string, number>;
   test6: Record<number, IncludeProto.IMessage>;
@@ -259,7 +260,7 @@ export interface ITest {
 export class Test implements ITest, Webpb.WebpbMessage {
   test1?: number | null;
   test2?: IncludeProto.IMessage | null;
-  test3?: IncludeProto.Enum | null;
+  test3?: Enum | null;
   test4?: ITest4 | null;
   test5!: Record<string, number>;
   test6!: Record<number, IncludeProto.IMessage>;

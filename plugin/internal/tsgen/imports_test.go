@@ -22,3 +22,55 @@ func TestImportTypeIgnoresInvalidExtends(t *testing.T) {
 		t.Fatalf("unexpected imports: %v", imports.ToList())
 	}
 }
+
+func TestImportEnumTypeCrossPackage(t *testing.T) {
+	t.Parallel()
+	imports := NewImports("TestProto", nil, []string{"./IncludeProto/Enum"}, nil)
+	ref := imports.ImportEnumType("IncludeProto.Enum")
+	if ref != "Enum" {
+		t.Fatalf("got %q, want Enum", ref)
+	}
+	got := imports.ToList()
+	if len(got) != 1 || got[0] != `import type { Enum } from "./IncludeProto";` {
+		t.Fatalf("unexpected imports: %v", got)
+	}
+}
+
+func TestImportEnumTypeSamePackage(t *testing.T) {
+	t.Parallel()
+	imports := NewImports("RepeatedEnumProto", nil, nil, nil)
+	ref := imports.ImportEnumType("RepeatedEnumProto.Status")
+	if ref != "Status" {
+		t.Fatalf("got %q, want Status", ref)
+	}
+	if len(imports.ToList()) != 0 {
+		t.Fatalf("unexpected imports: %v", imports.ToList())
+	}
+}
+
+func TestImportEnumTypeSamePackageJsDts(t *testing.T) {
+	t.Parallel()
+	jsDts := map[string]struct{}{"MapValueJsDtsProto.Baz": {}}
+	imports := NewImports("MapValueJsDtsProto", nil, nil, jsDts)
+	ref := imports.ImportEnumType("MapValueJsDtsProto.Baz")
+	if ref != "Baz" {
+		t.Fatalf("got %q, want Baz", ref)
+	}
+	if len(imports.ToList()) != 0 {
+		t.Fatalf("unexpected imports: %v", imports.ToList())
+	}
+}
+
+func TestImportEnumTypeJsDts(t *testing.T) {
+	t.Parallel()
+	jsDts := map[string]struct{}{"BarEnum.Bar": {}}
+	imports := NewImports("FooProto", nil, nil, jsDts)
+	ref := imports.ImportEnumType("BarEnum.Bar")
+	if ref != "Bar" {
+		t.Fatalf("got %q, want Bar", ref)
+	}
+	got := imports.ToList()
+	if len(got) != 1 || got[0] != `import type { Bar } from "./BarEnum";` {
+		t.Fatalf("unexpected imports: %v", got)
+	}
+}

@@ -7,6 +7,13 @@ type ImportPath struct {
 	order int
 }
 
+// TypeImport records a type-only import from a module path.
+type TypeImport struct {
+	path  string
+	names []string
+	order int
+}
+
 // NewImportPath creates an ImportPath.
 func NewImportPath(name, path string) ImportPath {
 	return ImportPath{name: name, path: path, order: 0}

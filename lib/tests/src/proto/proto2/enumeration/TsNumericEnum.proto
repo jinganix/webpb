@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package TsNumericProto;
+
+option java_package = "constant.tsnumeric";
+
+import "webpb/WebpbExtend.proto";
+
+enum Foo {
+  option (e_opts).ts = {
+    default_const_enum: true
+    enum_auto_alias: false
+    enum_values_literal: true
+    enum_by_name: true
+    enum_helpers: true
+  };
+
+  a = 0;
+  b = 1;
+  c = 2;
+}

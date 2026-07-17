@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package TsNumericDebugProto;
+
+option java_package = "constant.tsnumericdebug";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {
+  enum_auto_alias: false
+  enum_values_literal: true
+  enum_by_name: true
+  enum_by_value: true
+  enum_helpers: true
+};
+
+enum Bar {
+  x = 0;
+  y = 1;
+  z = 2;
+}

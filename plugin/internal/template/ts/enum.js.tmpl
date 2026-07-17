@@ -1,0 +1,41 @@
+export const {{.className}}Values = [
+{{- range .enums}}
+  {{.value}},
+{{- end}}
+];
+{{- if .autoAlias}}
+
+export const {{.aliasPrefix}}{{.className}}Values = [
+{{- range .enums}}
+  {{.value}},
+{{- end}}
+];
+{{- end}}
+{{- if .byName}}
+
+export const {{.className}}ByName = {
+{{- range .enums}}
+  {{.name}}: {{.value}},
+{{- end}}
+} as const;
+{{- end}}
+{{- if .byValue}}
+
+export const {{.className}}ByValue = {
+{{- range .enums}}
+  {{.value}}: "{{.name}}",
+{{- end}}
+} as const;
+{{- end}}
+{{- if and .helpers .byName}}
+
+export function {{.helperPrefix}}FromName(name) {
+  return {{.className}}ByName[name];
+}
+{{- end}}
+{{- if and .helpers .byValue}}
+
+export function {{.helperPrefix}}ToName(value) {
+  return {{.className}}ByValue[value];
+}
+{{- end}}
