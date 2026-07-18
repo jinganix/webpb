@@ -277,16 +277,51 @@ func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) (str
 		if err != nil {
 			return "", err
 		}
+		moveValid := shouldMoveValidToTypeArgument(field)
+		if moveValid {
+			if _, err := g.imports.ImportAnnotation("@Valid"); err != nil {
+				return "", err
+			}
+		}
 		javaOpts := core.GetFieldOpts(field, core.HasFieldJava).GetJava()
+		var containerType string
 		if javaOpts.GetAsSet() {
-			return g.imports.ImportClassOrInterface("Set<" + elemType + ">")
+			containerType, err = g.imports.ImportClassOrInterface("Set<" + elemType + ">")
+		} else if javaOpts.GetAsCollection() {
+			containerType, err = g.imports.ImportClassOrInterface("Collection<" + elemType + ">")
+		} else {
+			containerType, err = g.imports.ImportClassOrInterface("List<" + elemType + ">")
 		}
-		if javaOpts.GetAsCollection() {
-			return g.imports.ImportClassOrInterface("Collection<" + elemType + ">")
+		if err != nil {
+			return "", err
 		}
-		return g.imports.ImportClassOrInterface("List<" + elemType + ">")
+		if moveValid {
+			containerType = strings.Replace(containerType, "<", "<@Valid ", 1)
+		}
+		return containerType, nil
 	}
 	return g.toType(field)
+}
+
+func shouldMoveValidToTypeArgument(field protoreflect.FieldDescriptor) bool {
+	return field.Cardinality() == protoreflect.Repeated &&
+		!field.IsMap() &&
+		field.Kind() == protoreflect.MessageKind &&
+		fieldAnnotationRequestsValid(field)
+}
+
+func fieldAnnotationRequestsValid(field protoreflect.FieldDescriptor) bool {
+	for _, anno := range core.GetFieldOpts(field, core.HasFieldJava).GetJava().GetAnnotation() {
+		if isValidAnnotationRequest(anno) {
+			return true
+		}
+	}
+	return false
+}
+
+func isValidAnnotationRequest(anno string) bool {
+	trimmed := strings.TrimSpace(anno)
+	return trimmed == "@Valid" || strings.HasPrefix(trimmed, "@Valid(")
 }
 
 func (g *MessageGenerator) getFieldAnnotations(descriptor protoreflect.MessageDescriptor, field protoreflect.FieldDescriptor, alias string) ([]string, error) {
@@ -309,6 +344,9 @@ func (g *MessageGenerator) getFieldAnnotations(descriptor protoreflect.MessageDe
 	}
 	var out []string
 	for _, anno := range annotations {
+		if shouldMoveValidToTypeArgument(field) && isValidAnnotationRequest(anno) {
+			continue
+		}
 		imported, err := g.imports.ImportAnnotation(anno)
 		if err != nil {
 			return nil, err

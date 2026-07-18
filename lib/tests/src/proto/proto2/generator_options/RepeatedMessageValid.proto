@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package RepeatedMessageValidProto;
+
+option java_package = "repeated_message_valid";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).java = {
+  import: 'jakarta.validation.Valid'
+  import: 'jakarta.validation.constraints.NotNull'
+  import: 'jakarta.validation.constraints.Size'
+};
+
+message Item {
+  required string message = 1 [(opts).java = {annotation: '@NotNull'}];
+}
+
+message RepeatedMessageValid {
+  repeated Item items = 1 [
+    (opts).java = {annotation: '@NotNull', annotation: '@Size(min = 1)', annotation: '@Valid'}
+  ];
+  repeated string tags = 2 [(opts).java = {annotation: '@Valid'}];
+}
