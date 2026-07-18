@@ -1,6 +1,6 @@
 {
   "name": "webpb",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "webpb TypeScript runtime and protoc code generation CLI",
   "scripts": {
     "build": "rimraf build && tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.cjs && tsc -p tsconfig.cli.json && node scripts/prepare-build.mjs && copyfiles ./README.md build",
