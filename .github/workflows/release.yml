@@ -114,7 +114,7 @@ jobs:
           ref: master
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           package-manager-cache: false
@@ -191,7 +191,7 @@ jobs:
           echo "release_commit=${release_commit}" >> "${GITHUB_ENV}"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           package-manager-cache: false
@@ -373,7 +373,7 @@ jobs:
           ref: refs/tags/v${{ env.release_version }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
