@@ -69,6 +69,22 @@ public class OptionsController {
 
 Register `WebpbHandlerMethodArgumentResolver` and `WebpbRequestBodyAdvice` in Spring MVC configuration (see [`WebMvcConfiguration.java`](sample/backend/src/main/java/io/github/jinganix/webpb/sample/backend/WebMvcConfiguration.java)).
 
+### Spring WebFlux
+
+For reactive servers, register `WebpbWebFluxConfiguration` (or wire the three beans manually):
+
+- `WebpbExchangeWebFilter` — propagates `ServerWebExchange` for body decoding
+- `WebpbReactiveHandlerMethodArgumentResolver` — GET / query-only `WebpbMessage` parameters
+- `WebpbReactiveRequestBodyAdvice` — `@RequestBody WebpbMessage` merges path/query after JSON decode (WebFlux counterpart of `WebpbRequestBodyAdvice`)
+
+```java
+@Configuration
+@Import(WebpbWebFluxConfiguration.class)
+public class AppWebFluxConfiguration {}
+```
+
+Controller signatures are the same as Servlet MVC: `@Valid @RequestBody FooRequest request` for POST with `in_query` fields.
+
 ### TypeScript client
 
 Generated classes expose `webpbMeta()` with `method` and `path`. The sample [`HttpService`](sample/frontend/src/services/http.service.ts) sends JSON requests using that metadata:

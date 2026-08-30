@@ -69,6 +69,22 @@ public class OptionsController {
 
 在 Spring MVC 配置中注册 `WebpbHandlerMethodArgumentResolver` 与 `WebpbRequestBodyAdvice`（见 [`WebMvcConfiguration.java`](sample/backend/src/main/java/io/github/jinganix/webpb/sample/backend/WebMvcConfiguration.java)）。
 
+### Spring WebFlux
+
+响应式服务端注册 `WebpbWebFluxConfiguration`（或手动注册三个 bean）：
+
+- `WebpbExchangeWebFilter` — 在 Reactor 上下文中传播 `ServerWebExchange`
+- `WebpbReactiveHandlerMethodArgumentResolver` — 无 `@RequestBody` 的 query/path 绑定
+- `WebpbReactiveRequestBodyAdvice` — `@RequestBody WebpbMessage` 在 JSON 反序列化后合并 path/query（`WebpbRequestBodyAdvice` 的 WebFlux 对应实现）
+
+```java
+@Configuration
+@Import(WebpbWebFluxConfiguration.class)
+public class AppWebFluxConfiguration {}
+```
+
+Controller 写法与 Servlet MVC 相同：POST 含 `in_query` 字段时用 `@Valid @RequestBody FooRequest request`。
+
 ### TypeScript 客户端
 
 生成的类通过 `webpbMeta()` 暴露 `method` 与 `path`。示例 [`HttpService`](sample/frontend/src/services/http.service.ts) 据此发送 JSON 请求：
