@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import io.github.jinganix.webpb.runtime.model.FooController;
 import io.github.jinganix.webpb.runtime.model.FooRequest;
+import io.github.jinganix.webpb.runtime.model.ValidatedFooController;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
@@ -93,5 +94,32 @@ class WebpbReactiveHandlerMethodArgumentResolverTest {
     assertThat(argument).isNotNull();
     assertThat(argument.getId()).isEqualTo(42);
     assertThat(argument.isPagination()).isTrue();
+  }
+
+  @Test
+  @DisplayName("should validate argument when parameter has valid annotation")
+  void shouldValidateArgumentWhenParameterHasValidAnnotation() throws Exception {
+    // Given
+    WebpbReactiveHandlerMethodArgumentResolver resolver =
+        new WebpbReactiveHandlerMethodArgumentResolver();
+    Method method =
+        ReflectionUtils.findMethod(ValidatedFooController.class, "getFoo", FooRequest.class)
+            .orElseThrow();
+    MethodParameter parameter =
+        new InvocableHandlerMethod(new ValidatedFooController(), method).getMethodParameters()[0];
+    MockServerWebExchange exchange =
+        MockServerWebExchange.from(
+            MockServerHttpRequest.get("/domain/42/action?pagination=true").build());
+    exchange
+        .getAttributes()
+        .put(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.singletonMap("id", "42"));
+
+    // When
+    FooRequest argument =
+        (FooRequest) resolver.resolveArgument(parameter, new BindingContext(), exchange).block();
+
+    // Then
+    assertThat(argument).isNotNull();
+    assertThat(argument.getId()).isEqualTo(42);
   }
 }

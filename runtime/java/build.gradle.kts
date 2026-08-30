@@ -17,6 +17,7 @@ dependencies {
   compileOnly("org.springframework:spring-webmvc:${versionSpringFramework}")
   implementation("tools.jackson.core:jackson-databind:${versionJackson}")
   testImplementation("tools.jackson.dataformat:jackson-dataformat-xml:${versionJackson}")
+  testImplementation("jakarta.validation:jakarta.validation-api:3.1.1")
   testImplementation("io.projectreactor.netty:reactor-netty:${versionReactorNetty}")
   testImplementation("jakarta.servlet:jakarta.servlet-api:${versionJakartaServletApi}")
   testImplementation("org.springframework:spring-test:${versionSpringFramework}")
