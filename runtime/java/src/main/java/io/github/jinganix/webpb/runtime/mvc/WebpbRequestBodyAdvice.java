@@ -19,7 +19,7 @@
 package io.github.jinganix.webpb.runtime.mvc;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
-import io.github.jinganix.webpb.runtime.WebpbUtils;
+import io.github.jinganix.webpb.runtime.support.WebpbRequestBodySupport;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.springframework.core.MethodParameter;
@@ -56,6 +56,6 @@ public class WebpbRequestBodyAdvice extends RequestBodyAdviceAdapter {
     if (variableMap.isEmpty()) {
       return object;
     }
-    return WebpbUtils.updateMessage((WebpbMessage) object, variableMap);
+    return WebpbRequestBodySupport.mergeBody((WebpbMessage) object, variableMap);
   }
 }
