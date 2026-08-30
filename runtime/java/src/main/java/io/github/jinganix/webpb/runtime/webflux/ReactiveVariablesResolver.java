@@ -73,7 +73,8 @@ public final class ReactiveVariablesResolver {
     if (contextView == null || !contextView.hasKey(WebpbExchangeWebFilter.EXCHANGE_CONTEXT_KEY)) {
       return Collections.emptyMap();
     }
-    return getVariableMap((ServerWebExchange) contextView.get(WebpbExchangeWebFilter.EXCHANGE_CONTEXT_KEY));
+    return getVariableMap(
+        (ServerWebExchange) contextView.get(WebpbExchangeWebFilter.EXCHANGE_CONTEXT_KEY));
   }
 
   private static Map<String, String[]> toParameterMap(MultiValueMap<String, String> queryParams) {

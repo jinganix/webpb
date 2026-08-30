@@ -38,6 +38,8 @@ public class WebpbExchangeWebFilter implements WebFilter {
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-    return chain.filter(exchange).contextWrite(context -> context.put(EXCHANGE_CONTEXT_KEY, exchange));
+    return chain
+        .filter(exchange)
+        .contextWrite(context -> context.put(EXCHANGE_CONTEXT_KEY, exchange));
   }
 }

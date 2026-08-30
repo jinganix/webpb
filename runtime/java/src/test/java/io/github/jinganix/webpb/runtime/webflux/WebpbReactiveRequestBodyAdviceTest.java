@@ -72,7 +72,8 @@ class WebpbReactiveRequestBodyAdviceTest {
                 ResolvableType.forClass(BodyQueryRequest.class),
                 MediaType.APPLICATION_JSON,
                 null)
-            .contextWrite(context -> context.put(WebpbExchangeWebFilter.EXCHANGE_CONTEXT_KEY, exchange))
+            .contextWrite(
+                context -> context.put(WebpbExchangeWebFilter.EXCHANGE_CONTEXT_KEY, exchange))
             .map(BodyQueryRequest.class::cast)
             .block();
 
@@ -91,9 +92,11 @@ class WebpbReactiveRequestBodyAdviceTest {
 
     // When / Then
     assertThat(
-            advice.canDecode(ResolvableType.forClass(WebpbMessage.class), MediaType.APPLICATION_JSON))
+            advice.canDecode(
+                ResolvableType.forClass(WebpbMessage.class), MediaType.APPLICATION_JSON))
         .isFalse();
-    assertThat(advice.canDecode(ResolvableType.forClass(FooRequest.class), MediaType.APPLICATION_JSON))
+    assertThat(
+            advice.canDecode(ResolvableType.forClass(FooRequest.class), MediaType.APPLICATION_JSON))
         .isTrue();
   }
 }

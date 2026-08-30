@@ -38,7 +38,9 @@ public final class WebpbRequestBodySupport {
    */
   @SuppressWarnings("unchecked")
   public static <T> T mergeBody(T body, Map<String, String> variableMap) {
-    if (body == null || CollectionUtils.isEmpty(variableMap) || !(body instanceof WebpbMessage message)) {
+    if (body == null
+        || CollectionUtils.isEmpty(variableMap)
+        || !(body instanceof WebpbMessage message)) {
       return body;
     }
     return (T) WebpbUtils.updateMessage(message, variableMap);

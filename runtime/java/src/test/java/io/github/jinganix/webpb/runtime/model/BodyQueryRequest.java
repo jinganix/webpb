@@ -34,10 +34,7 @@ public class BodyQueryRequest implements WebpbMessage {
 
   @JsonIgnore
   private WebpbMeta webpbMeta =
-      WebpbMeta.builder()
-          .method("POST")
-          .path("/posts/{id}?tenantOnly={tenantOnly}")
-          .build();
+      WebpbMeta.builder().method("POST").path("/posts/{id}?tenantOnly={tenantOnly}").build();
 
   @InQuery private long id;
   @InQuery private boolean tenantOnly;

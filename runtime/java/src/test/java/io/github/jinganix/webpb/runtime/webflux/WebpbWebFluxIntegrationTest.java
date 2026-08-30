@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.jinganix.webpb.runtime.model.BodyQueryController;
 import io.github.jinganix.webpb.runtime.model.BodyQueryRequest;
-import io.github.jinganix.webpb.runtime.model.GetFooController;
 import io.github.jinganix.webpb.runtime.model.FooRequest;
+import io.github.jinganix.webpb.runtime.model.GetFooController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,9 +47,11 @@ class WebpbWebFluxIntegrationTest {
         WebTestClient.bindToController(bodyQueryController, getFooController)
             .webFilter(new WebpbExchangeWebFilter())
             .argumentResolvers(
-                configurer -> configurer.addCustomResolver(new WebpbReactiveHandlerMethodArgumentResolver()))
+                configurer ->
+                    configurer.addCustomResolver(new WebpbReactiveHandlerMethodArgumentResolver()))
             .httpMessageCodecs(
-                configurer -> configurer.customCodecs().register(new WebpbReactiveRequestBodyAdvice()))
+                configurer ->
+                    configurer.customCodecs().register(new WebpbReactiveRequestBodyAdvice()))
             .build();
   }
 

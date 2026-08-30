@@ -37,7 +37,8 @@ class WebpbRequestBodySupportTest {
     FooRequest request = new FooRequest();
 
     // When / Then
-    assertThat(WebpbRequestBodySupport.mergeBody(request, Collections.emptyMap())).isSameAs(request);
+    assertThat(WebpbRequestBodySupport.mergeBody(request, Collections.emptyMap()))
+        .isSameAs(request);
   }
 
   @Test

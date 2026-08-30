@@ -87,9 +87,7 @@ class WebpbReactiveHandlerMethodArgumentResolverTest {
     // When
     FooRequest argument =
         (FooRequest)
-            resolver
-                .resolveArgument(webpbParameter(), new BindingContext(), exchange)
-                .block();
+            resolver.resolveArgument(webpbParameter(), new BindingContext(), exchange).block();
 
     // Then
     assertThat(argument).isNotNull();

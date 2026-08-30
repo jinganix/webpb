@@ -36,8 +36,7 @@ class ReactiveVariablesResolverTest {
   void shouldReturnMergedVariablesFromExchange() {
     // Given
     MockServerWebExchange exchange =
-        MockServerWebExchange.from(
-            MockServerHttpRequest.post("/posts/42?tenantOnly=true").build());
+        MockServerWebExchange.from(MockServerHttpRequest.post("/posts/42?tenantOnly=true").build());
     exchange
         .getAttributes()
         .put(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.singletonMap("id", "42"));

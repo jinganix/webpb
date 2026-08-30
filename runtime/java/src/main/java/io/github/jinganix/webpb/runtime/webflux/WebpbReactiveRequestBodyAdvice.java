@@ -34,12 +34,14 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * WebFlux counterpart of {@link io.github.jinganix.webpb.runtime.mvc.WebpbRequestBodyAdvice}.
  *
- * <p>Registers as a custom JSON decoder so {@code @RequestBody WebpbMessage} parameters merge path and
- * query variables after JSON deserialization.
+ * <p>Registers as a custom JSON decoder so {@code @RequestBody WebpbMessage} parameters merge path
+ * and query variables after JSON deserialization.
  */
 public class WebpbReactiveRequestBodyAdvice extends JacksonJsonDecoder {
 
-  /** Construct a {@link WebpbReactiveRequestBodyAdvice} with the webpb transport {@link JsonMapper}. */
+  /**
+   * Construct a {@link WebpbReactiveRequestBodyAdvice} with the webpb transport {@link JsonMapper}.
+   */
   public WebpbReactiveRequestBodyAdvice() {
     super((JsonMapper) JacksonConfig.createTransportObjectMapper());
   }
