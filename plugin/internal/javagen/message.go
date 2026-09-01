@@ -31,19 +31,21 @@ var javaPrimitiveTypes = map[protoreflect.Kind]string{
 // MessageGenerator generates Java message classes.
 type MessageGenerator struct {
 	fileDescriptor protoreflect.FileDescriptor
+	allFiles       []protoreflect.FileDescriptor
 	imports        *Imports
 	webpbOpts      *webpb.JavaFileOpts
 	fileOpts       *webpb.JavaFileOpts
 }
 
 // NewMessageGenerator creates a message generator.
-func NewMessageGenerator(fd protoreflect.FileDescriptor) (*MessageGenerator, error) {
+func NewMessageGenerator(fd protoreflect.FileDescriptor, allFiles []protoreflect.FileDescriptor) (*MessageGenerator, error) {
 	lookup, err := GetLookup(fd)
 	if err != nil {
 		return nil, err
 	}
 	return &MessageGenerator{
 		fileDescriptor: fd,
+		allFiles:       allFiles,
 		imports:        NewImports(GetJavaPackage(fd), lookup, fd),
 		webpbOpts:      core.GetWebpbFileOpts(fd, core.HasFileJava).GetJava(),
 		fileOpts:       core.GetFileOpts(fd, core.HasFileJava).GetJava(),
@@ -52,15 +54,24 @@ func NewMessageGenerator(fd protoreflect.FileDescriptor) (*MessageGenerator, err
 
 // Generate generates Java source for a message.
 func (g *MessageGenerator) Generate(descriptor protoreflect.MessageDescriptor) (string, error) {
+	if core.IsAugmentMessage(descriptor) {
+		if err := core.CheckAugmentMessage(g.allFiles, descriptor); err != nil {
+			return "", err
+		}
+		return "", nil
+	}
 	engine, err := sharedJavaEngine()
 	if err != nil {
 		return "", err
 	}
 	return g.generate(func() (map[string]any, error) {
-		if err := core.CheckDuplicatedFields(descriptor); err != nil {
+		if err := core.CheckAugmentTarget(g.allFiles, descriptor); err != nil {
 			return nil, err
 		}
-		if err := core.CheckAliasReserve(descriptor); err != nil {
+		if err := core.CheckDuplicatedFields(g.allFiles, descriptor); err != nil {
+			return nil, err
+		}
+		if err := core.CheckAliasReserve(g.allFiles, descriptor); err != nil {
 			return nil, err
 		}
 		data, err := g.getMessageData(descriptor, 0)
@@ -225,15 +236,19 @@ func (g *MessageGenerator) getImplements(descriptor protoreflect.MessageDescript
 }
 
 func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) ([]map[string]any, error) {
-	autoAliases := core.GetAutoAliases(descriptor)
-	fields := g.getMemberFields(descriptor)
+	autoAliases := core.GetAutoAliases(g.allFiles, descriptor)
+	fields := core.GetMemberFields(g.allFiles, descriptor)
 	out := make([]map[string]any, 0, len(fields))
 	for _, field := range fields {
 		fieldType, err := g.getFieldType(field)
 		if err != nil {
 			return nil, err
 		}
-		annos, err := g.getFieldAnnotations(descriptor, field, autoAliases[string(field.Name())])
+		owner, _ := field.Parent().(protoreflect.MessageDescriptor)
+		if owner == nil {
+			owner = descriptor
+		}
+		annos, err := g.getFieldAnnotations(owner, field, autoAliases[string(field.Name())])
 		if err != nil {
 			return nil, err
 		}
@@ -244,18 +259,6 @@ func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) 
 		})
 	}
 	return out, nil
-}
-
-func (g *MessageGenerator) getMemberFields(descriptor protoreflect.MessageDescriptor) []protoreflect.FieldDescriptor {
-	var fields []protoreflect.FieldDescriptor
-	for i := 0; i < descriptor.Fields().Len(); i++ {
-		field := descriptor.Fields().Get(i)
-		if core.GetFieldOpts(field, core.HasFieldOpt).GetOpt().GetOmitted() {
-			continue
-		}
-		fields = append(fields, field)
-	}
-	return fields
 }
 
 func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) (string, error) {

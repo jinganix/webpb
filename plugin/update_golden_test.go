@@ -34,7 +34,7 @@ func TestUpdateJavaGolden(t *testing.T) {
 			}
 			generated := map[string]string{}
 			for _, fd := range ctx.TargetDescriptors {
-				files, err := generator.Generate(fd)
+				files, err := generator.Generate(fd, ctx.Descriptors)
 				if err != nil {
 					t.Fatalf("generate %s: %v", fd.Path(), err)
 				}

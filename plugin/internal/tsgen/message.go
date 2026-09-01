@@ -51,10 +51,19 @@ func NewMessageGenerator(imports *Imports, fd protoreflect.FileDescriptor, allFi
 
 // Generate generates TypeScript source for a message.
 func (g *MessageGenerator) Generate(descriptor protoreflect.MessageDescriptor) (string, error) {
-	if err := core.CheckDuplicatedFields(descriptor); err != nil {
+	if core.IsAugmentMessage(descriptor) {
+		if err := core.CheckAugmentMessage(g.allFiles, descriptor); err != nil {
+			return "", err
+		}
+		return "", nil
+	}
+	if err := core.CheckAugmentTarget(g.allFiles, descriptor); err != nil {
 		return "", err
 	}
-	if err := core.CheckAliasReserve(descriptor); err != nil {
+	if err := core.CheckDuplicatedFields(g.allFiles, descriptor); err != nil {
+		return "", err
+	}
+	if err := core.CheckAliasReserve(g.allFiles, descriptor); err != nil {
 		return "", err
 	}
 	engine, err := sharedTSEngine()
@@ -103,11 +112,25 @@ func (g *MessageGenerator) getMessageData(descriptor protoreflect.MessageDescrip
 
 func (g *MessageGenerator) getOmitted(descriptor protoreflect.MessageDescriptor) []string {
 	var omitted []string
+	seen := map[string]struct{}{}
+	add := func(name string) {
+		if _, ok := seen[name]; ok {
+			return
+		}
+		seen[name] = struct{}{}
+		omitted = append(omitted, name)
+	}
 	for i := 0; i < descriptor.Fields().Len(); i++ {
 		field := descriptor.Fields().Get(i)
 		opt := core.GetFieldOpts(field, core.HasFieldOpt).GetOpt()
 		if opt.GetInQuery() || opt.GetOmitted() {
-			omitted = append(omitted, string(field.Name()))
+			add(string(field.Name()))
+		}
+	}
+	for _, field := range core.GetAugmentFields(g.allFiles, descriptor) {
+		opt := core.GetFieldOpts(field, core.HasFieldOpt).GetOpt()
+		if opt.GetInQuery() {
+			add(string(field.Name()))
 		}
 	}
 	return omitted
@@ -144,8 +167,8 @@ func (g *MessageGenerator) isAutoAlias(descriptor protoreflect.MessageDescriptor
 }
 
 func (g *MessageGenerator) getAliases(descriptor protoreflect.MessageDescriptor) map[string]string {
-	autoAliases := core.GetAutoAliases(descriptor)
-	fields := core.GetAllFields(descriptor)
+	autoAliases := core.GetAutoAliases(g.allFiles, descriptor)
+	fields := core.GetAllFields(g.allFiles, descriptor)
 	aliases := map[string]string{}
 	for _, field := range fields {
 		alias := core.GetFieldOpts(field, core.HasFieldTs).GetTs().GetAlias()
@@ -281,8 +304,7 @@ func (g *MessageGenerator) getter(value string) string {
 
 func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) []map[string]any {
 	var fields []map[string]any
-	for i := 0; i < descriptor.Fields().Len(); i++ {
-		field := descriptor.Fields().Get(i)
+	appendField := func(field protoreflect.FieldDescriptor) {
 		data := map[string]any{
 			"type":       g.getFieldType(field),
 			"name":       string(field.Name()),
@@ -315,6 +337,12 @@ func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) 
 			}
 		}
 		fields = append(fields, data)
+	}
+	for i := 0; i < descriptor.Fields().Len(); i++ {
+		appendField(descriptor.Fields().Get(i))
+	}
+	for _, field := range core.GetAugmentFields(g.allFiles, descriptor) {
+		appendField(field)
 	}
 	return fields
 }

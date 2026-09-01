@@ -22,7 +22,7 @@ func TestPrimitiveTypesFields(t *testing.T) {
 	if fd == nil {
 		t.Fatal("PrimitiveTypes.proto not found")
 	}
-	msgGen, err := NewMessageGenerator(fd)
+	msgGen, err := NewMessageGenerator(fd, ctx.Descriptors)
 	if err != nil {
 		t.Fatalf("new generator: %v", err)
 	}

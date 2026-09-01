@@ -61,6 +61,13 @@ message OptMessageOpts {
   optional string sub_type = 1006;
   repeated string sub_values = 1007;
   optional int32 alias_reserve = 1008;
+  // Merge this message's fields into the named target message at codegen time.
+  // The augment message itself is not generated as a standalone type.
+  optional string augment_of = 1009;
+  // When true, other messages may declare augment_of targeting this message.
+  optional bool open = 1010;
+  // Host augment fields must use field numbers greater than this value.
+  optional int32 field_reserve = 1011;
 }
 
 message JavaMessageOpts {

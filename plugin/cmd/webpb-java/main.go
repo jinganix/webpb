@@ -16,7 +16,7 @@ func main() {
 		generator := javagen.NewGenerator()
 		var files []*pluginpb.CodeGeneratorResponse_File
 		for _, fd := range ctx.TargetDescriptors {
-			generated, err := generator.Generate(fd)
+			generated, err := generator.Generate(fd, ctx.Descriptors)
 			if err != nil {
 				return nil, err
 			}

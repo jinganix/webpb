@@ -7,13 +7,12 @@ import (
 )
 
 // GetAutoAliases returns auto-generated alias names for message fields.
-func GetAutoAliases(msg protoreflect.MessageDescriptor) map[string]string {
+func GetAutoAliases(all []protoreflect.FileDescriptor, msg protoreflect.MessageDescriptor) map[string]string {
 	messages := append(GetExtendedMessages(msg), msg)
 	names := make(map[string]struct{})
 	for _, messageDesc := range messages {
-		fields := messageDesc.Fields()
-		for i := 0; i < fields.Len(); i++ {
-			names[string(fields.Get(i).Name())] = struct{}{}
+		for _, field := range GetMemberFields(all, messageDesc) {
+			names[string(field.Name())] = struct{}{}
 		}
 	}
 
@@ -21,10 +20,9 @@ func GetAutoAliases(msg protoreflect.MessageDescriptor) map[string]string {
 	usedAliases := make(map[string]struct{})
 	offset := 0
 	for _, messageDesc := range messages {
-		fields := messageDesc.Fields()
+		fields := GetMemberFields(all, messageDesc)
 		maxIndex := offset
-		for i := 0; i < fields.Len(); i++ {
-			field := fields.Get(i)
+		for _, field := range fields {
 			index := offset + int(field.Number()) - 1
 			alias := ToBase52(index)
 			for {
@@ -53,7 +51,7 @@ func GetAutoAliases(msg protoreflect.MessageDescriptor) map[string]string {
 }
 
 // CheckAliasReserve returns an error when alias_reserve is not greater than the max field number.
-func CheckAliasReserve(msg protoreflect.MessageDescriptor) error {
+func CheckAliasReserve(all []protoreflect.FileDescriptor, msg protoreflect.MessageDescriptor) error {
 	messages := append(GetExtendedMessages(msg), msg)
 	for _, messageDesc := range messages {
 		reserve := GetMessageOpts(messageDesc, HasMessageOpt).GetOpt().GetAliasReserve()
@@ -61,9 +59,8 @@ func CheckAliasReserve(msg protoreflect.MessageDescriptor) error {
 			continue
 		}
 		maxNumber := protoreflect.FieldNumber(0)
-		fields := messageDesc.Fields()
-		for i := 0; i < fields.Len(); i++ {
-			if number := fields.Get(i).Number(); number > maxNumber {
+		for _, field := range GetMemberFields(all, messageDesc) {
+			if number := field.Number(); number > maxNumber {
 				maxNumber = number
 			}
 		}

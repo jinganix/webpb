@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package AugmentNotOpenProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message ClosedUserPb {
+  int64 id = 1;
+}
+
+message AugmentClosedUserPb {
+  option (m_opts).opt = {augment_of: "ClosedUserPb"};
+
+  int64 staffId = 1000;
+}

@@ -227,10 +227,10 @@ func TestCheckDuplicatedFields(t *testing.T) {
 	if msg == nil {
 		t.Fatal("missing Test message")
 	}
-	if fields := core.GetAllFields(msg); len(fields) == 0 {
+	if fields := core.GetAllFields(ctx.Descriptors, msg); len(fields) == 0 {
 		t.Fatal("expected fields")
 	}
-	core.CheckDuplicatedFields(msg)
+	core.CheckDuplicatedFields(ctx.Descriptors, msg)
 }
 
 func TestValidationForAllMessagePaths(t *testing.T) {
