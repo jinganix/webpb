@@ -31,7 +31,7 @@ func NewGenerator() *Generator {
 }
 
 // Generate generates Java files for a protobuf file.
-func (g *Generator) Generate(fd protoreflect.FileDescriptor) (map[string]string, error) {
+func (g *Generator) Generate(fd protoreflect.FileDescriptor, allFiles []protoreflect.FileDescriptor) (map[string]string, error) {
 	if _, err := sharedJavaEngine(); err != nil {
 		return nil, err
 	}
@@ -43,13 +43,16 @@ func (g *Generator) Generate(fd protoreflect.FileDescriptor) (map[string]string,
 	messages := fd.Messages()
 	for i := 0; i < messages.Len(); i++ {
 		descriptor := messages.Get(i)
-		msgGen, err := NewMessageGenerator(fd)
+		msgGen, err := NewMessageGenerator(fd, allFiles)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse: %s: %w", fd.Path(), err)
 		}
 		content, err := msgGen.Generate(descriptor)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse: %s message %s: %w", fd.Path(), descriptor.Name(), err)
+		}
+		if content == "" {
+			continue
 		}
 		fileMap[javaFilename(javaPackage, string(descriptor.Name()))] = content
 	}

@@ -207,34 +207,50 @@ func GetExtendedMessages(msg protoreflect.MessageDescriptor) []protoreflect.Mess
 	}
 }
 
-// CheckDuplicatedFields returns an error when extended fields have duplicate names.
-func CheckDuplicatedFields(msg protoreflect.MessageDescriptor) error {
-	fields := GetAllFields(msg)
-	seen := make(map[string]struct{})
+// CheckDuplicatedFields returns an error when extended/augment fields have duplicate names,
+// or when the generated message itself (own + augment fields) reuses a field number.
+func CheckDuplicatedFields(all []protoreflect.FileDescriptor, msg protoreflect.MessageDescriptor) error {
+	fields := GetAllFields(all, msg)
+	seenNames := make(map[string]protoreflect.FieldDescriptor)
 	for _, field := range fields {
 		name := string(field.Name())
-		if _, ok := seen[name]; ok {
-			return fmt.Errorf("Duplicated field name `%s.%s` in %s when extends", msg.Name(), name, field.Parent().(protoreflect.MessageDescriptor).ParentFile().Path())
+		if existing, ok := seenNames[name]; ok {
+			return fmt.Errorf(
+				"Duplicated field name `%s.%s` (also in `%s`) in %s when extends/augment",
+				msg.Name(),
+				name,
+				existing.Parent().(protoreflect.MessageDescriptor).FullName(),
+				field.Parent().(protoreflect.MessageDescriptor).ParentFile().Path(),
+			)
 		}
-		seen[name] = struct{}{}
+		seenNames[name] = field
+	}
+
+	seenNumbers := make(map[protoreflect.FieldNumber]protoreflect.FieldDescriptor)
+	for _, field := range GetMemberFields(all, msg) {
+		if existing, ok := seenNumbers[field.Number()]; ok {
+			return fmt.Errorf(
+				"Duplicated field number `%s.%s`=%d (also `%s.%s`) when augment",
+				msg.Name(),
+				field.Name(),
+				field.Number(),
+				existing.Parent().(protoreflect.MessageDescriptor).Name(),
+				existing.Name(),
+			)
+		}
+		seenNumbers[field.Number()] = field
 	}
 	return nil
 }
 
-// GetAllFields returns fields from the message and its extend chain.
-func GetAllFields(msg protoreflect.MessageDescriptor) []protoreflect.FieldDescriptor {
+// GetAllFields returns fields from the message, its extend chain, and augment fragments.
+func GetAllFields(all []protoreflect.FileDescriptor, msg protoreflect.MessageDescriptor) []protoreflect.FieldDescriptor {
 	extended := GetExtendedMessages(msg)
 	var result []protoreflect.FieldDescriptor
 	for _, d := range extended {
-		fields := d.Fields()
-		for i := 0; i < fields.Len(); i++ {
-			result = append(result, fields.Get(i))
-		}
+		result = append(result, GetMemberFields(all, d)...)
 	}
-	fields := msg.Fields()
-	for i := 0; i < fields.Len(); i++ {
-		result = append(result, fields.Get(i))
-	}
+	result = append(result, GetMemberFields(all, msg)...)
 	return result
 }
 

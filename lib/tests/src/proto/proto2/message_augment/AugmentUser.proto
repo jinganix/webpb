@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package UserAugmentProto;
+
+option java_package = "augment.test.user";
+
+import "webpb/WebpbExtend.proto";
+import "User.proto";
+
+message AugmentUserPb {
+  option (m_opts).opt = {augment_of: "UserPb"};
+
+  optional int64 staffId = 1000;
+  optional string displayName = 1001;
+}

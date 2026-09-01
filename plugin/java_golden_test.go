@@ -26,7 +26,7 @@ func TestJavaGolden(t *testing.T) {
 			}
 			generated := map[string]string{}
 			for _, fd := range ctx.TargetDescriptors {
-				files, err := generator.Generate(fd)
+				files, err := generator.Generate(fd, ctx.Descriptors)
 				if err != nil {
 					t.Fatalf("generate %s: %v", fd.Path(), err)
 				}
@@ -62,7 +62,7 @@ func TestJavaGoldenErrors(t *testing.T) {
 				t.Fatalf("create context: %v", err)
 			}
 			for _, fd := range ctx.TargetDescriptors {
-				_, err := generator.Generate(fd)
+				_, err := generator.Generate(fd, ctx.Descriptors)
 				if err == nil {
 					t.Fatalf("expected error for %s", fd.Path())
 				}

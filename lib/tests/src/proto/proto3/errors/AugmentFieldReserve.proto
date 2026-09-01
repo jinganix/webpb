@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package AugmentFieldReserveProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message ReservedUserPb {
+  option (m_opts).opt = {
+    open: true
+    field_reserve: 999
+  };
+
+  int64 id = 1;
+}
+
+message AugmentReservedUserPb {
+  option (m_opts).opt = {augment_of: "ReservedUserPb"};
+
+  int64 staffId = 10;
+}

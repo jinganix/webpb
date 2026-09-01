@@ -34,6 +34,7 @@
 | `auto_alias` | Auto-alias at webpb / file / message / field levels and extends hierarchy |
 | `enumeration` | Const enum defaults and map-valued enums |
 | `message_extends` | `extends`, `sub_type`, `sub_values`, cross-file references |
+| `message_augment` | `augment_of` / `open` / `field_reserve` field merge |
 | `imports` | Extends types with empty `java_package` |
 | `errors` | Invalid annotations, imports, extends targets, duplicated fields, bad Java imports |
 

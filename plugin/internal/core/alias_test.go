@@ -16,19 +16,19 @@ func TestGetAutoAliasesUsesFieldNumber(t *testing.T) {
 	if level1 == nil {
 		t.Fatal("Level1 not found")
 	}
-	aliases := core.GetAutoAliases(level1)
+	aliases := core.GetAutoAliases(ctx.Descriptors, level1)
 	if aliases["foo_3"] != "c" || aliases["foo_4"] != "d" {
 		t.Fatalf("Level1 aliases = %v, want foo_3=c foo_4=d", aliases)
 	}
 
 	level2 := core.ResolveMessage(ctx.Descriptors, "ExtendsProto.Level2")
-	aliases = core.GetAutoAliases(level2)
+	aliases = core.GetAutoAliases(ctx.Descriptors, level2)
 	if aliases["foo_2"] != "b" {
 		t.Fatalf("Level2 alias = %q, want b", aliases["foo_2"])
 	}
 
 	level3 := core.ResolveMessage(ctx.Descriptors, "ExtendsProto.Level3")
-	aliases = core.GetAutoAliases(level3)
+	aliases = core.GetAutoAliases(ctx.Descriptors, level3)
 	if aliases["foo_1"] != "a" {
 		t.Fatalf("Level3 alias = %q, want a", aliases["foo_1"])
 	}
@@ -43,10 +43,10 @@ func TestGetAutoAliasesAliasReserve(t *testing.T) {
 	if child == nil {
 		t.Fatal("AliasReserveChild not found")
 	}
-	if err := core.CheckAliasReserve(child); err != nil {
+	if err := core.CheckAliasReserve(ctx.Descriptors, child); err != nil {
 		t.Fatalf("check alias reserve: %v", err)
 	}
-	aliases := core.GetAutoAliases(child)
+	aliases := core.GetAutoAliases(ctx.Descriptors, child)
 	if aliases["foo_2"] != core.ToBase52(5) {
 		t.Fatalf("AliasReserveChild alias = %q, want %q", aliases["foo_2"], core.ToBase52(5))
 	}
@@ -61,7 +61,7 @@ func TestCheckAliasReserveRejectsInvalidReserve(t *testing.T) {
 	if msg == nil {
 		t.Fatal("InvalidAliasReserve not found")
 	}
-	if err := core.CheckAliasReserve(msg); err == nil {
+	if err := core.CheckAliasReserve(ctx.Descriptors, msg); err == nil {
 		t.Fatal("expected alias reserve validation error")
 	}
 }

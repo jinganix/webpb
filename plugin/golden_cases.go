@@ -6,6 +6,7 @@ func fixtureCases() []string {
 		"auto_alias",
 		"core_codegen",
 		"enumeration",
+		"message_augment",
 		"message_extends",
 		"generator_options",
 		"imports",

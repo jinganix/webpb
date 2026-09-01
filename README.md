@@ -156,9 +156,30 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `opt` | `sub_type` | Subtype discriminator for polymorphic messages |
 | `opt` | `sub_values` | Allowed subtype values |
 | `opt` | `alias_reserve` | Reserved alias index for child messages; must be greater than this message's max field id. Child alias index is `max(ancestor max index, alias_reserve) + field id - 1` |
+| `opt` | `augment_of` | Merge this message's fields into the named target message; this message is not generated as its own type |
+| `opt` | `open` | Allow other messages to append fields via `augment_of` |
+| `opt` | `field_reserve` | Host augment fields must use field numbers greater than this value |
 | `java` | `annotation` | Class-level Java annotations |
 | `java` | `field_annotation` | Default field annotations for all fields in the message |
 | `ts` | `auto_alias` | Override file-level `auto_alias` for this message |
+
+#### Message augment (host field extensions)
+
+Library authors mark a baseline message with `open` and `field_reserve`. Hosts add fields via a **differently named** message with `augment_of`. Fields are merged into the target type at codegen time (flat JSON); the augment message itself is not generated as a standalone type.
+
+```protobuf
+// kit
+message UserPb {
+  option (m_opts).opt = {open: true, field_reserve: 999};
+  required int64 id = 1;
+}
+
+// host
+message AugmentUserPb {
+  option (m_opts).opt = {augment_of: "UserPb"};
+  optional int64 staffId = 1000;
+}
+```
 
 ### Field — `(opts)`
 

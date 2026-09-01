@@ -156,9 +156,30 @@ option (m_opts).ts = {auto_alias: true};
 | `opt` | `sub_type` | 多态消息的子类型鉴别字段 |
 | `opt` | `sub_values` | 允许的子类型值 |
 | `opt` | `alias_reserve` | 为子消息预留的 alias 编号上限，必须大于本消息最大 field id；子消息字段 alias 序号为 `max(祖先已用最大序号, alias_reserve) + field id - 1` |
+| `opt` | `augment_of` | 将本 message 的字段合并进目标 message；本 message 不单独生成类型 |
+| `opt` | `open` | 允许其它 message 通过 `augment_of` 向本 message 追加字段 |
+| `opt` | `field_reserve` | 宿主 augment 字段号必须大于该值 |
 | `java` | `annotation` | 类级 Java 注解 |
 | `java` | `field_annotation` | 该消息所有字段的默认字段注解 |
 | `ts` | `auto_alias` | 覆盖文件级 `auto_alias` |
+
+#### Message augment（宿主扩展字段）
+
+库作者在基线 message 上声明 `open` 与 `field_reserve`；宿主用**不同名** message + `augment_of` 追加字段。编译期合并进目标类型，JSON 仍扁平；augment message 本身不生成独立类。
+
+```protobuf
+// kit
+message UserPb {
+  option (m_opts).opt = {open: true, field_reserve: 999};
+  required int64 id = 1;
+}
+
+// host
+message AugmentUserPb {
+  option (m_opts).opt = {augment_of: "UserPb"};
+  optional int64 staffId = 1000;
+}
+```
 
 ### 字段 — `(opts)`
 

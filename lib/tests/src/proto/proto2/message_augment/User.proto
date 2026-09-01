@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package UserAugmentProto;
+
+option java_package = "augment.test.user";
+
+import "webpb/WebpbExtend.proto";
+
+message UserPb {
+  option (m_opts).opt = {
+    open: true
+    field_reserve: 999
+  };
+
+  required int64 id = 1;
+  required string username = 2;
+}
+
+message UserDetailsPb {
+  option (m_opts).opt = {extends: "UserPb"};
+
+  repeated int64 roleIds = 5;
+}

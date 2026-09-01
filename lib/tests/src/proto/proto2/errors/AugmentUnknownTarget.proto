@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package AugmentUnknownTargetProto;
+
+option java_package = "error.test";
+
+import "webpb/WebpbExtend.proto";
+
+message AugmentMissingTargetPb {
+  option (m_opts).opt = {augment_of: "MissingUserPb"};
+
+  optional int64 staffId = 1000;
+}

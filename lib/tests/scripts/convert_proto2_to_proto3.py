@@ -19,6 +19,7 @@ CASES = [
     "errors",
     "generator_options",
     "imports",
+    "message_augment",
     "message_extends",
 ]
 

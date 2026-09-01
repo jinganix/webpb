@@ -87,6 +87,9 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 		if err != nil {
 			return nil, err
 		}
+		if content == "" {
+			continue
+		}
 		messages = append(messages, content)
 		opt := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
 		if opt.GetSubType() != "" {
