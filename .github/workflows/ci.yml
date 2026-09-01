@@ -58,7 +58,7 @@ jobs:
           java-version: 25
 
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: plugin/go.mod
           cache-dependency-path: plugin/go.mod
@@ -147,7 +147,7 @@ jobs:
           java-version: 25
 
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: plugin/go.mod
           cache-dependency-path: plugin/go.mod
@@ -307,7 +307,7 @@ jobs:
 
       - name: Setup Go
         if: "${{ endsWith(env.current_version, '-SNAPSHOT') }}"
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: plugin/go.mod
           cache-dependency-path: plugin/go.mod
