@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package TsStringValuesProto;
+
+option java_package = "constant.tsstringvalues";
+
+import "webpb/WebpbExtend.proto";
+
+option (f_opts).ts = {
+  default_const_enum: true
+  enum_values_literal: true
+  enum_by_name: true
+  enum_helpers: true
+};
+
+enum TokenType {
+  BEARER = 0 [(v_opts).opt = {value: 'Bearer'}];
+  ACCESS = 1 [(v_opts).opt = {value: 'Access'}];
+}

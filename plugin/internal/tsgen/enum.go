@@ -126,6 +126,7 @@ func (g *EnumGenerator) enumTemplateData(descriptor protoreflect.EnumDescriptor)
 		"aliasPrefix":    aliasPrefix,
 		"autoAlias":      g.isEnumAutoAlias(descriptor),
 		"valuesLiteral":  g.isEnumValuesLiteral(descriptor),
+		"stringValue":    core.IsStringValue(descriptor),
 		"byName":         g.isEnumByName(descriptor),
 		"byValue":        g.isEnumByValue(descriptor),
 		"helpers":        g.isEnumHelpers(descriptor),

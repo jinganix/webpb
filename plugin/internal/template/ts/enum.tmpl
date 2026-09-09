@@ -7,7 +7,7 @@ export {{.primaryKeyword}} {{.className}} {
 export const {{.className}}Values{{if .valuesLiteral}}: readonly {{.className}}[]{{end}} = [
 {{- range .enums}}
 {{- if $.valuesLiteral}}
-  {{.value}},
+  {{.value}}{{if $.stringValue}} as {{$.className}}{{end}},
 {{- else}}
   {{$.className}}.{{.name}},
 {{- end}}
@@ -24,7 +24,7 @@ export {{.aliasKeyword}} {{.aliasPrefix}}{{.className}} {
 export const {{.aliasPrefix}}{{.className}}Values{{if $.valuesLiteral}}: readonly {{.aliasPrefix}}{{.className}}[]{{end}} = [
 {{- range .enums}}
 {{- if $.valuesLiteral}}
-  {{.value}},
+  {{.value}}{{if $.stringValue}} as {{$.aliasPrefix}}{{$.className}}{{end}},
 {{- else}}
   {{$.aliasPrefix}}{{$.className}}.{{.name}},
 {{- end}}
