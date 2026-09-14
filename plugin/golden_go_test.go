@@ -2,6 +2,7 @@ package goplugin_test
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/jinganix/webpb/plugin/internal/gogen"
@@ -45,6 +46,20 @@ func generateGoFiles(t *testing.T, dump string) map[string]string {
 	return files
 }
 
+// normalizeGolden collapses whitespace so gofmt drift across Go toolchains
+// does not fail the comparison while token differences still do.
+func normalizeGolden(value string) string {
+	lines := make([]string, 0, 64)
+	for _, line := range strings.Split(value, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 0 {
+			continue
+		}
+		lines = append(lines, strings.Join(fields, " "))
+	}
+	return strings.Join(lines, "\n")
+}
+
 func TestGoGolden(t *testing.T) {
 	for _, dump := range goDumps {
 		dump := dump
@@ -65,7 +80,9 @@ func TestGoGolden(t *testing.T) {
 					}
 					t.Fatalf("read expected %s/%s: %v", dump, key, err)
 				}
-				if !testutil.GoldenEqual(content, expected) {
+				// gofmt output differs between Go toolchains (for example
+				// struct tag alignment), so compare normalized tokens.
+				if normalizeGolden(content) != normalizeGolden(expected) {
 					t.Fatalf("mismatch for %s/%s", dump, key)
 				}
 			}
