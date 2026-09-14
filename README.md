@@ -423,13 +423,13 @@ Apply the [protobuf Gradle plugin](https://github.com/google/protobuf-gradle-plu
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.java") version "0.0.36"
+  id("io.github.jinganix.webpb.java") version "0.0.38"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.36")
-  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.36")
-  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.36")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.38")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.38")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.38")
   // your .proto module or files
   protobuf(project(":your-proto-module"))
 }
@@ -440,11 +440,11 @@ dependencies {
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.ts") version "0.0.36"
+  id("io.github.jinganix.webpb.ts") version "0.0.38"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.36")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.38")
 }
 ```
 
@@ -452,7 +452,7 @@ Optional configuration:
 
 ```kotlin
 webpb {
-  webpbVersion = "0.0.36"      // defaults to the Gradle plugin version
+  webpbVersion = "0.0.38"      // defaults to the Gradle plugin version
   protobufVersion = "4.36.1"   // com.google.protobuf:protoc version
   cleanOutput = false          // default true: delete output dir before generation
   localPluginPath = "/path/to/webpb-protoc-java" // skip Maven resolution
@@ -470,7 +470,7 @@ protobuf {
   }
   plugins {
     id("ts") {
-      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.36:all@jar"
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.38:all@jar"
     }
   }
   generateProtoTasks {
@@ -488,7 +488,7 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
 
 ```xml
 <properties>
-  <webpb.version>0.0.36</webpb.version>
+  <webpb.version>0.0.38</webpb.version>
   <protobuf.version>4.36.1</protobuf.version>
 </properties>
 
