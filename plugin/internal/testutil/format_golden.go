@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"fmt"
+	goformat "go/format"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +18,8 @@ const (
 // under the staging directory. Keys are relative paths (e.g. "core_codegen/test/Test.java").
 func FormatGoldenFiles(lang string, files map[string]string) (map[string]string, error) {
 	switch lang {
+	case "go":
+		return formatGoGoldenFiles(files)
 	case "java":
 		return formatJavaGoldenFiles(files)
 	case "ts":
@@ -24,6 +27,18 @@ func FormatGoldenFiles(lang string, files map[string]string) (map[string]string,
 	default:
 		return nil, fmt.Errorf("unsupported golden language %q", lang)
 	}
+}
+
+func formatGoGoldenFiles(files map[string]string) (map[string]string, error) {
+	out := make(map[string]string, len(files))
+	for key, content := range files {
+		formatted, err := goformat.Source([]byte(content))
+		if err != nil {
+			return nil, fmt.Errorf("gofmt %s: %w", key, err)
+		}
+		out[key] = NormalizeEOL(string(formatted))
+	}
+	return out, nil
 }
 
 func formatJavaGoldenFiles(files map[string]string) (map[string]string, error) {

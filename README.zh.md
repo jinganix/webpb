@@ -96,6 +96,45 @@ this.httpService.request(
 );
 ```
 
+### Go
+
+Go 插件（`webpb-protoc-go`）生成结构体、枚举、路由元数据与 `webpb` wire tag；
+[`runtime/go`](runtime/go) 通过反射在消息与别名形式之间转换：
+
+```shell
+go build -o bin/webpb-protoc-go ./cmd/webpb-go
+protoc -I proto --plugin=protoc-gen-go=./bin/webpb-protoc-go \
+  --go_out=gen --go_opt=package=demo \
+  demo/demo.proto
+```
+
+```go
+message := demo.NewDemoRequest()   // 应用 proto2 默认值
+message.Id = "42"
+alias := webpb.ToAlias(message)    // 交给任意 CBOR/JSON 编解码器
+target := demo.NewDemoRequest()
+_ = webpb.Populate(alias, target)  // 解码
+```
+
+含 `{field}` 占位符的路径由生成的 `WebpbPath()` 渲染；`webpb.Query`、
+`webpb.Getter`、`webpb.MapValues` 与 TypeScript runtime 行为一致。
+
+Go 的全局默认值可作为插件参数传入，无需逐个修改 proto（例如让 wire 使用 webpb 别名）：
+
+```shell
+protoc -I proto --plugin=protoc-gen-go=./bin/webpb-protoc-go \
+  --go_out=gen --go_opt=package=demo --go_opt=auto_alias=true \
+  demo/demo.proto
+```
+
+| 参数 | 作用 |
+|------|------|
+| `auto_alias=true` | 所有文件按 proto 字段名派生 wire key |
+| `enum_auto_alias=true` | 所有枚举生成 `ConstX` 别名枚举 |
+| `int64_as_string=true` | `int64` / `uint64` 字段生成为 Go `string` |
+| `package=<name>` | 默认 Go 包名（可被 `go.package` / `go_package` 覆盖） |
+| `module=<path>` | 生成文档中使用的 import 前缀 |
+
 ### 全局选项（`WebpbOptions.proto`）
 
 项目级默认配置放在共享的 `WebpbOptions.proto` 中，由每个 proto 文件 import。示例中为 Java 声明校验注解 import，并设置 TS 默认值：
@@ -143,6 +182,11 @@ option (m_opts).ts = {auto_alias: true};
 | `ts` | `enum_by_value` | 生成 `XByValue` 反向映射（数 → 名）；默认 `false` |
 | `ts` | `enum_helpers` | 在存在 `by_name` / `by_value` 映射时生成 `xFromName` / `xToName` 辅助函数；默认 `false` |
 | `ts` | `enum_emit_mode` | 枚举输出形态：`ts`（默认）、`js_dts`、`ts_and_js_dts` |
+| `go` | `import` | 额外的 Go import |
+| `go` | `int64_as_string` | 将 `int64` / `uint64` 字段序列化为 Go `string` |
+| `go` | `auto_alias` | 由 proto 字段名派生 wire key（别名形式，如 `a`、`b`…） |
+| `go` | `enum_auto_alias` | 生成 `ConstX` 别名枚举类型及 `Alias()` / `Value()` 转换 |
+| `go` | `package` | 覆盖生成的 Go 包名 |
 
 ### 消息 — `(m_opts)`
 
@@ -193,6 +237,10 @@ message AugmentUserPb {
 | `ts` | `as_string` | 将数值字段序列化为字符串 |
 | `ts` | `alias` | JSON 属性名覆盖 |
 | `ts` | `auto_alias` | 覆盖该字段的 alias 行为 |
+| `go` | `as_string` | 将数值字段序列化为 Go `string` |
+| `go` | `alias` | wire key 覆盖 |
+| `go` | `auto_alias` | 覆盖该字段的 alias 行为 |
+| `go` | `omitted` | 生成的 Go struct 中省略该字段 |
 
 重复字段默认为 `List<T>`。可通过 Java 字段选项修改集合类型：
 
@@ -210,6 +258,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `java` | `implements` | 枚举实现的 Java 接口 |
 | `ts` | `default_const_enum` | 覆盖文件级 const enum 行为 |
 | `ts` | `enum_auto_alias` | 覆盖文件级 `enum_auto_alias` |
+| `go` | `auto_alias` | 覆盖文件级 `go.enum_auto_alias` |
 | `ts` | `enum_values_literal` | 覆盖文件级 `enum_values_literal` |
 | `ts` | `enum_by_name` | 覆盖文件级 `enum_by_name` |
 | `ts` | `enum_by_value` | 覆盖文件级 `enum_by_value` |
