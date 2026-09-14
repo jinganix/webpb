@@ -83,6 +83,7 @@ jobs:
           fi
           mkdir -p bin
           go build -o "bin/webpb-protoc-dump${ext}" ./cmd/webpb-dump
+          go build -o "bin/webpb-protoc-go${ext}" ./cmd/webpb-go
           go build -o "bin/webpb-protoc-java${ext}" ./cmd/webpb-java
           go build -o "bin/webpb-protoc-ts${ext}" ./cmd/webpb-ts
 
@@ -171,6 +172,7 @@ jobs:
           fi
           mkdir -p bin
           go build -o "bin/webpb-protoc-dump${ext}" ./cmd/webpb-dump
+          go build -o "bin/webpb-protoc-go${ext}" ./cmd/webpb-go
           go build -o "bin/webpb-protoc-java${ext}" ./cmd/webpb-java
           go build -o "bin/webpb-protoc-ts${ext}" ./cmd/webpb-ts
 
