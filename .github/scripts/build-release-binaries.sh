@@ -12,7 +12,7 @@ platforms=(
   "linux:amd64:linux-amd64"
   "windows:amd64:windows-amd64"
 )
-plugins=(dump java ts)
+plugins=(dump go java ts)
 
 pushd "${plugin_dir}" >/dev/null
 

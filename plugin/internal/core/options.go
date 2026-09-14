@@ -109,6 +109,11 @@ func resolveEnumValueOpts(opts proto.Message, pred func(*webpb.EnumValueOpts) bo
 
 func hasFileJava(opts *webpb.FileOpts) bool   { return opts.GetJava() != nil }
 func hasFileTs(opts *webpb.FileOpts) bool    { return opts.GetTs() != nil }
+func hasFileGo(opts *webpb.FileOpts) bool    { return opts.GetGo() != nil }
+func hasMessageGo(opts *webpb.MessageOpts) bool { return opts.GetGo() != nil }
+func hasEnumGo(opts *webpb.EnumOpts) bool    { return opts.GetGo() != nil }
+func hasFieldGo(opts *webpb.FieldOpts) bool  { return opts.GetGo() != nil }
+func hasEnumValueGo(opts *webpb.EnumValueOpts) bool { return opts.GetGo() != nil }
 func hasMessageOpt(opts *webpb.MessageOpts) bool  { return opts.GetOpt() != nil }
 func hasMessageJava(opts *webpb.MessageOpts) bool { return opts.GetJava() != nil }
 func hasMessageTs(opts *webpb.MessageOpts) bool   { return opts.GetTs() != nil }
@@ -266,6 +271,11 @@ func fileDependencies(fd protoreflect.FileDescriptor) []protoreflect.FileDescrip
 var (
 	HasFileJava     = hasFileJava
 	HasFileTs       = hasFileTs
+	HasFileGo       = hasFileGo
+	HasMessageGo    = hasMessageGo
+	HasEnumGo       = hasEnumGo
+	HasFieldGo      = hasFieldGo
+	HasEnumValueGo  = hasEnumValueGo
 	HasMessageOpt   = hasMessageOpt
 	HasMessageJava  = hasMessageJava
 	HasMessageTs    = hasMessageTs

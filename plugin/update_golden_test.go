@@ -19,6 +19,32 @@ var updateDumps = append(
 	append(proto3Dumps(), "proto3_errors")...,
 )
 
+func TestUpdateGoGolden(t *testing.T) {
+	root := filepath.Join(testutil.RepoRoot(), "plugin", "testdata", "go")
+	for _, dump := range updateDumps {
+		dump := dump
+		t.Run(dump, func(t *testing.T) {
+			files := generateGoFiles(t, dump)
+			if len(files) == 0 {
+				return
+			}
+			formatted, err := testutil.FormatGoldenFiles("go", files)
+			if err != nil {
+				t.Fatalf("format golden: %v", err)
+			}
+			for key, content := range formatted {
+				out := filepath.Join(root, dump, key)
+				if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
+					t.Fatalf("mkdir: %v", err)
+				}
+				if err := os.WriteFile(out, []byte(content), 0o644); err != nil {
+					t.Fatalf("write %s: %v", out, err)
+				}
+			}
+		})
+	}
+}
+
 func TestUpdateJavaGolden(t *testing.T) {
 	generator := javagen.NewGenerator()
 	root := filepath.Join(testutil.RepoRoot(), "plugin", "testdata", "java")

@@ -96,6 +96,48 @@ this.httpService.request(
 );
 ```
 
+### Go
+
+The Go plugin (`webpb-protoc-go`) generates plain structs, enums, route metadata,
+and `webpb` wire tags. The [`runtime/go`](runtime/go) module converts messages to
+and from the alias form with reflection:
+
+```shell
+go build -o bin/webpb-protoc-go ./cmd/webpb-go
+protoc -I proto --plugin=protoc-gen-go=./bin/webpb-protoc-go \
+  --go_out=gen --go_opt=package=demo \
+  demo/demo.proto
+```
+
+```go
+message := demo.NewDemoRequest()   // proto2 defaults applied
+message.Id = "42"
+alias := webpb.ToAlias(message)    // encode with any CBOR/JSON codec
+target := demo.NewDemoRequest()
+_ = webpb.Populate(alias, target)  // decode
+```
+
+Paths with `{field}` placeholders are rendered by the generated `WebpbPath()`
+method; `webpb.Query`, `webpb.Getter`, and `webpb.MapValues` mirror the
+TypeScript runtime helpers.
+
+Global Go defaults can be passed as plugin parameters instead of editing every
+proto, for example to match a wire format that uses webpb aliases:
+
+```shell
+protoc -I proto --plugin=protoc-gen-go=./bin/webpb-protoc-go \
+  --go_out=gen --go_opt=package=demo --go_opt=auto_alias=true \
+  demo/demo.proto
+```
+
+| Parameter | Effect |
+|-----------|--------|
+| `auto_alias=true` | Derive wire keys from proto field names for every file |
+| `enum_auto_alias=true` | Emit the `ConstX` alias enum for every enum |
+| `int64_as_string=true` | Render `int64` / `uint64` fields as Go `string` |
+| `package=<name>` | Default Go package (overridden by `go.package` / `go_package`) |
+| `module=<path>` | Import prefix used in generated documentation |
+
 ### Global options (`WebpbOptions.proto`)
 
 Per-project defaults live in a shared `WebpbOptions.proto` imported by every file. The sample declares Java imports for validation annotations and TS defaults:
@@ -143,6 +185,11 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `ts` | `enum_by_value` | Emit `XByValue` reverse map (number → name); default `false` |
 | `ts` | `enum_helpers` | Emit `xFromName` / `xToName` helpers when `by_name` / `by_value` maps exist; default `false` |
 | `ts` | `enum_emit_mode` | Enum output shape: `ts` (default), `js_dts`, or `ts_and_js_dts` |
+| `go` | `import` | Extra Go imports |
+| `go` | `int64_as_string` | Serialize `int64` / `uint64` fields as Go `string` |
+| `go` | `auto_alias` | Derive wire keys from proto field names (alias form, e.g. `a`, `b`, …) |
+| `go` | `enum_auto_alias` | Emit a `ConstX` alias enum type with `Alias()` / `Value()` conversions |
+| `go` | `package` | Override the generated Go package name |
 
 ### Message — `(m_opts)`
 
@@ -162,6 +209,8 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `java` | `annotation` | Class-level Java annotations |
 | `java` | `field_annotation` | Default field annotations for all fields in the message |
 | `ts` | `auto_alias` | Override file-level `auto_alias` for this message |
+| `go` | `auto_alias` | Override file-level `go.auto_alias` for this message |
+| `go` | `implements_interface` | Emit a Go interface this message implements (polymorphism) |
 
 #### Message augment (host field extensions)
 
@@ -193,6 +242,10 @@ message AugmentUserPb {
 | `ts` | `as_string` | Serialize numeric field as string |
 | `ts` | `alias` | JSON property name override |
 | `ts` | `auto_alias` | Override alias behavior for this field |
+| `go` | `as_string` | Serialize numeric field as Go `string` |
+| `go` | `alias` | Wire key override |
+| `go` | `auto_alias` | Override alias behavior for this field |
+| `go` | `omitted` | Exclude the field from generated Go structs |
 
 Repeated fields default to `List<T>`. Use Java field options to change the collection type:
 
@@ -210,6 +263,7 @@ repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 | `java` | `implements` | Java interfaces for the enum |
 | `ts` | `default_const_enum` | Override file-level const-enum behavior |
 | `ts` | `enum_auto_alias` | Override file-level `enum_auto_alias` |
+| `go` | `auto_alias` | Override file-level `go.enum_auto_alias` |
 | `ts` | `enum_values_literal` | Override file-level `enum_values_literal` |
 | `ts` | `enum_by_name` | Override file-level `enum_by_name` |
 | `ts` | `enum_by_value` | Override file-level `enum_by_value` |
