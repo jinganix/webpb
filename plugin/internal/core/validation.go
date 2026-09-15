@@ -308,15 +308,47 @@ func renderTemplate(template string, values map[string]string) string {
 	out = regexp.MustCompile(`\s*,\s*\)`).ReplaceAllString(out, ")")
 	out = regexp.MustCompile(`\s*,\s*\]`).ReplaceAllString(out, "]")
 	out = regexp.MustCompile(`,\s*,`).ReplaceAllString(out, ",")
-	// Empty regex flags cleanup for TS /{{value}}/{{flags}} -> /{{value}}/
-	out = strings.ReplaceAll(out, "//", "/")
-	out = regexp.MustCompile(`/(\s*\))`).ReplaceAllString(out, "$1")
+	// Empty regex flags cleanup for TS /{{value}}/{{flags}} -> /{{value}}/ :
+	// only the leftover `//)` collapses; a blanket `//` -> `/` rule would
+	// corrupt patterns containing `//` (e.g. URLs) and eat valid slashes.
+	out = strings.ReplaceAll(out, "//)", "/)")
 	out = strings.TrimSpace(out)
 	return out
 }
 
-func quoteJavaString(value string) string {
-	return strconv.Quote(value)
+// escapeJavaStringContent escapes a descriptor string value for embedding in
+// a Java string literal (without the surrounding quotes), so the regex
+// engine receives exactly the descriptor value. A raw substitution would let
+// Java's own literal unescaping eat one level: a descriptor `\\d` would reach
+// the engine as `\d`, diverging from the TS validation object and the
+// `@Matches(/.../)` decorator, which both deliver the descriptor value.
+func escapeJavaStringContent(value string) string {
+	var b strings.Builder
+	for _, r := range value {
+		switch r {
+		case '\\':
+			b.WriteString(`\\`)
+		case '"':
+			b.WriteString(`\"`)
+		case '\n':
+			b.WriteString(`\n`)
+		case '\r':
+			b.WriteString(`\r`)
+		case '\t':
+			b.WriteString(`\t`)
+		case '\b':
+			b.WriteString(`\b`)
+		case '\f':
+			b.WriteString(`\f`)
+		default:
+			if strconv.IsPrint(r) {
+				b.WriteRune(r)
+			} else {
+				fmt.Fprintf(&b, `\u%04x`, r)
+			}
+		}
+	}
+	return b.String()
 }
 
 // isFloatKind reports whether numeric bounds should use DecimalMin/DecimalMax.
@@ -364,7 +396,7 @@ func RenderJavaFieldValidation(field protoreflect.FieldDescriptor, valid *webpb.
 		out = append(out, renderTemplate(template, map[string]string{"value": valid.GetMax()}))
 	}
 	if hasPattern(valid) {
-		values := map[string]string{"value": valid.GetPattern()}
+		values := map[string]string{"value": escapeJavaStringContent(valid.GetPattern())}
 		javaFlags := javaPatternFlags(valid.GetPatternFlags())
 		if javaFlags != "" {
 			values["flags"] = javaFlags
@@ -572,6 +604,5 @@ func ValidateFieldValidation(field protoreflect.FieldDescriptor, valid *webpb.Fi
 			return fmt.Errorf("invalid validation pattern for field %s: %w", field.Name(), err)
 		}
 	}
-	_ = quoteJavaString
 	return nil
 }

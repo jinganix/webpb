@@ -77,6 +77,10 @@ message ValidationShowcase {
   optional int32 age = 4 [(opts).opt = {valid: {min: "0", max: "150"}}];
   repeated string tags = 5 [(opts).opt = {valid: {min_len: 1, max_len: 5}}];
   optional AliasPayloadPb payload = 6 [(opts).opt = {valid: {valid: true}}];
+  // Backslash pattern: every renderer must deliver the descriptor value to
+  // the regex engine (Java needs one extra source-level escape; TS object
+  // and decorator carry it as-is).
+  optional string semver = 8 [(opts).opt = {valid: {pattern: "^\\d+\\.\\d+\\.\\d+$"}}];
   // Legacy per-language escape hatch, still supported and merged afterwards.
   required string legacy = 7 [(opts).java = {annotation: '@NotBlank'}];
 }
