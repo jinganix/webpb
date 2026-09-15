@@ -55,22 +55,30 @@ message QueryParamResponse {
   required string tag = 1;
 }
 
-// Demonstrates (opts).opt.valid validation (new style) alongside the legacy
-// (opts).java.annotation escape hatch. Both render into Java annotations,
-// TS decorators and Go validator tags through the WebpbOptions mapping.
+// Demonstrates (opts).java.annotation validation.
 message ValidationRequest {
   option (m_opts).opt = {
     method: "POST"
     path: "/options/validation"
   };
 
+  required string code = 1 [(opts).java = {annotation: '@NotBlank'}];
+}
+
+// Showcases the language-agnostic (opts).opt.valid constraints alongside
+// the legacy (opts).java.annotation escape hatch. Both render into Java
+// annotations, TS validation objects and Go validator tags through the
+// WebpbOptions mapping. No HTTP route: codegen-only, covered by the
+// plugin unit tests and the sample build (generated code must compile).
+message ValidationShowcase {
   required string code = 1 [(opts).opt = {valid: {required: true, not_blank: true, min_len: 1, max_len: 64}}];
   optional string email = 2 [(opts).opt = {valid: {email: true}}];
   optional string nickname = 3 [(opts).opt = {valid: {pattern: "^[a-z0-9_]+$", pattern_flags: "i"}}];
   optional int32 age = 4 [(opts).opt = {valid: {min: "0", max: "150"}}];
   repeated string tags = 5 [(opts).opt = {valid: {min_len: 1, max_len: 5}}];
+  optional AliasPayloadPb payload = 6 [(opts).opt = {valid: {valid: true}}];
   // Legacy per-language escape hatch, still supported and merged afterwards.
-  required string legacy = 6 [(opts).java = {annotation: '@NotBlank'}];
+  required string legacy = 7 [(opts).java = {annotation: '@NotBlank'}];
 }
 
 message ValidationResponse {
