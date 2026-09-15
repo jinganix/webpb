@@ -109,6 +109,35 @@ func TestRenderJavaPatternFlags(t *testing.T) {
 	}
 }
 
+func TestRenderJavaPatternEscapesDescriptorValue(t *testing.T) {
+	// Descriptor value (single backslashes): the regex engine must receive
+	// exactly this string from every renderer. Java needs one extra level in
+	// the source file; the TS validation object (strconv.Quote) and the
+	// `@Matches(/.../)` decorator already deliver it.
+	_, field := loadTestField(t, "PrimitiveTypes", "uint32_field")
+	javaMapping := &webpb.JavaValidationMapping{
+		PatternTemplate: proto.String(core.DefaultJavaPatternTemplate),
+	}
+	valid := validOf(func(v *webpb.FieldValidation) {
+		v.Pattern = proto.String(`^\d+\.\d+$`)
+	})
+	got := core.RenderJavaFieldValidation(field, valid, javaMapping)
+	if len(got) != 1 || !strings.Contains(got[0], `regexp = "^\\d+\\.\\d+$"`) {
+		t.Fatalf("java must escape descriptor backslashes, got: %v", got)
+	}
+
+	tsGot := core.FormatTsValidationRule(core.TsValidationRule(valid))
+	if !strings.Contains(tsGot, `pattern: "^\\d+\\.\\d+$"`) {
+		t.Fatalf("ts validation object must quote descriptor backslashes, got: %q", tsGot)
+	}
+	fd, _ := loadTestField(t, "PrimitiveTypes", "uint32_field")
+	tsMapping := core.ResolveTsValidationMapping(fd)
+	decGot := core.RenderTsFieldValidation(field, valid, tsMapping)
+	if !strings.Contains(strings.Join(decGot, " "), `/^\d+\.\d+$/)`) {
+		t.Fatalf("ts decorator must carry the raw descriptor value, got: %v", decGot)
+	}
+}
+
 func TestRenderTsStringVsCollection(t *testing.T) {
 	_, single := loadTestField(t, "PrimitiveTypes", "uint32_field")
 	_, repeated := loadTestField(t, "PrimitiveTypes", "repeated_float")
