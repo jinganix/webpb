@@ -27,6 +27,26 @@ message JavaFileOpts {
   repeated string annotation = 1003;
   repeated string field_annotation = 1004;
   repeated string repeatable_annotation = 1005;
+  // Maps language-agnostic (opts).opt.valid constraints to Java annotations.
+  // File-level value overrides the shared WebpbOptions.proto defaults;
+  // unset templates fall back to the generator built-ins (jakarta.validation).
+  // Placeholders: {{value}} for single-value constraints,
+  // {{min}}/{{max}} for the size interval, {{flags}} for pattern flags.
+  optional JavaValidationMapping validation = 1006;
+}
+
+// Template set for rendering FieldValidation into Java annotations.
+// Example: size_template = "@Size(min = {{min}}, max = {{max}})"
+// renders {min_len: 1} as "@Size(min = 1)".
+message JavaValidationMapping {
+  optional string required_template = 1;
+  optional string not_blank_template = 2;
+  optional string size_template = 3;
+  optional string min_template = 4;
+  optional string max_template = 5;
+  optional string pattern_template = 6;
+  optional string email_template = 7;
+  optional string valid_template = 8;
 }
 
 message TsFileOpts {
@@ -40,6 +60,39 @@ message TsFileOpts {
   optional bool enum_by_value = 1007;
   optional bool enum_helpers = 1008;
   optional string enum_emit_mode = 1009;
+  // Maps language-agnostic (opts).opt.valid constraints to TS decorators
+  // (class-validator style by default). Same override chain as Java.
+  // Placeholders: {{value}}, {{min}}/{{max}}, {{flags}}.
+  optional TsValidationMapping validation = 1010;
+  // Emit a framework-neutral validation descriptor per message:
+  //   export const XxxValidation = { field: { minLen: 1, ... } } as const;
+  // Usage sites bridge it to zod / class-validator / form libs themselves,
+  // so generated code stays dependency-free (no zod/class-validator import,
+  // no experimentalDecorators). Only constraints actually declared are
+  // included; fields without constraints are omitted.
+  optional bool validation_object = 1011 [default = false];
+  // Emit class-validator decorators from `validation` templates. Default
+  // false: decorators require experimentalDecorators plus the
+  // class-validator dependency at the usage site.
+  optional bool validation_decorators = 1012 [default = false];
+}
+
+// Template set for rendering FieldValidation into TS decorators.
+// String length uses length/min_length/max_length; repeated/map size uses
+// array_min_size/array_max_size. The generator picks by field cardinality.
+message TsValidationMapping {
+  optional string required_template = 1;
+  optional string not_blank_template = 2;
+  optional string length_template = 3;
+  optional string min_length_template = 4;
+  optional string max_length_template = 5;
+  optional string array_min_size_template = 6;
+  optional string array_max_size_template = 7;
+  optional string min_template = 8;
+  optional string max_template = 9;
+  optional string pattern_template = 10;
+  optional string email_template = 11;
+  optional string valid_template = 12;
 }
 
 message GoFileOpts {
@@ -49,6 +102,23 @@ message GoFileOpts {
   optional bool enum_auto_alias = 1003;
   // Overrides the generated Go package name (defaults to the plugin parameter).
   optional string package = 1004;
+  // Maps language-agnostic (opts).opt.valid constraints to
+  // go-playground/validator tag fragments joined by comma
+  // into `validate:"..."`. Placeholders: {{value}}.
+  optional GoValidationMapping validation = 1005;
+}
+
+// Template set for rendering FieldValidation into Go validator tag fragments.
+message GoValidationMapping {
+  optional string required_template = 1;
+  optional string not_blank_template = 2;
+  optional string min_len_template = 3;
+  optional string max_len_template = 4;
+  optional string min_template = 5;
+  optional string max_template = 6;
+  optional string pattern_template = 7;
+  optional string email_template = 8;
+  optional string valid_template = 9;
 }
 
 // message options
@@ -146,6 +216,35 @@ message FieldOpts {
 message OptFieldOpts {
   optional bool omitted = 1000;
   optional bool in_query = 1001;
+  // Language-agnostic validation constraints. The generators render them
+  // into per-language annotations/decorators/tags using the
+  // Java/Ts/GoValidationMapping templates. Explicit proto presence
+  // (e.g. `required` keyword, proto2 required vs proto3 optional) does not
+  // imply validation; set valid.required explicitly when needed.
+  optional FieldValidation valid = 1002;
+}
+
+// Language-agnostic field validation. min_len/max_len cover both string
+// length and repeated/map size (merged by design); the generators pick the
+// target spelling (@Size vs @Length/@ArrayMinSize vs min=/max=) from context.
+message FieldValidation {
+  optional bool required = 1;
+  optional bool not_blank = 2;
+  optional int64 min_len = 3;
+  optional int64 max_len = 4;
+  // Numeric bounds as strings so int64 and double share one schema
+  // without precision loss; the Java generator picks @Min/@Max for
+  // integral fields and @DecimalMin/@DecimalMax for floating point ones.
+  optional string min = 5;
+  optional string max = 6;
+  // Regular expression without surrounding slashes.
+  optional string pattern = 7;
+  // Regex flags, e.g. "i" or "CASE_INSENSITIVE". Rendered via the
+  // {{flags}} placeholder of the per-language pattern template.
+  optional string pattern_flags = 8;
+  optional bool email = 9;
+  // Cascaded validation for message / repeated message fields.
+  optional bool valid = 10;
 }
 
 message JavaFieldOpts {

@@ -140,17 +140,23 @@ protoc -I proto --plugin=protoc-gen-go=./bin/webpb-protoc-go \
 
 ### Global options (`WebpbOptions.proto`)
 
-Per-project defaults live in a shared `WebpbOptions.proto` imported by every file. The sample declares Java imports for validation annotations and TS defaults:
+Per-project defaults live in a shared `WebpbOptions.proto` imported by every file. The sample declares Java imports for validation annotations, the validation template mapping, and TS defaults:
 
 ```protobuf
 option (f_opts).java = {
   import: 'jakarta.validation.Valid'
   import: 'jakarta.validation.constraints.NotNull'
   // ...
+  validation: {
+    required_template: '@NotNull'
+    size_template: '@Size(min = {{min}}, max = {{max}})'
+    // ...
+  }
 };
 
 option (f_opts).ts = {
   int64_as_string: false
+  validation_object: true
 };
 ```
 
@@ -175,6 +181,7 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `java` | `annotation` | Class-level annotations on every generated type |
 | `java` | `field_annotation` | Field annotations; supports `{{_ALIAS_}}`, `{{_FIELD_NAME_}}` |
 | `java` | `repeatable_annotation` | Fully qualified annotation types allowed to repeat |
+| `java` | `validation` | Map `(opts).opt.valid` constraints to Java annotations (templates with `{{value}}` / `{{min}}` / `{{max}}` / `{{flags}}`) |
 | `ts` | `import` | Extra TypeScript imports |
 | `ts` | `int64_as_string` | Serialize `int64` as string in JSON |
 | `ts` | `auto_alias` | Derive JSON field names from proto field names |
@@ -190,6 +197,10 @@ Options are attached at file, message, enum, field, or enum-value level. Import 
 | `go` | `auto_alias` | Derive wire keys from proto field names (alias form, e.g. `a`, `b`, …) |
 | `go` | `enum_auto_alias` | Emit a `ConstX` alias enum type with `Alias()` / `Value()` conversions |
 | `go` | `package` | Override the generated Go package name |
+| `ts` | `validation_object` | Emit a framework-neutral `<Message>Validation` descriptor object per message (default `false`) |
+| `ts` | `validation_decorators` | Emit class-validator decorators from `validation` templates (default `false`; needs `experimentalDecorators` + the `class-validator` dep) |
+| `ts` | `validation` | Map `(opts).opt.valid` constraints to TS decorators (class-validator style by default; only used when `validation_decorators` is on) |
+| `go` | `validation` | Map `(opts).opt.valid` constraints to validator tag fragments (joined into `validate:"..."`) |
 
 ### Message — `(m_opts)`
 
@@ -236,7 +247,8 @@ message AugmentUserPb {
 |-------|-------|-------------|
 | `opt` | `omitted` | Exclude field from generated API surface |
 | `opt` | `in_query` | Bind field to query string (for GET / path templates) |
-| `java` | `annotation` | Java field annotations (e.g. `@NotNull`, `@Pattern(...)`) |
+| `opt` | `valid` | Language-agnostic validation: `required`, `not_blank`, `min_len`/`max_len` (one pair covering string length and collection size), `min`/`max`, `pattern` + `pattern_flags`, `email`, `valid` (cascaded `@Valid`); rendered via the file-level `validation` mapping |
+| `java` | `annotation` | Java field annotations (e.g. `@NotNull`, `@Pattern(...)`) — legacy per-language escape hatch, merged after `valid` |
 | `java` | `as_set` | Generate repeated fields as `Set<T>` instead of `List<T>` |
 | `java` | `as_collection` | Generate repeated fields as `Collection<T>` instead of `List<T>` |
 | `ts` | `as_string` | Serialize numeric field as string |
@@ -253,6 +265,72 @@ Repeated fields default to `List<T>`. Use Java field options to change the colle
 repeated string tags = 1 [(opts).java = {as_set: true}];
 repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 ```
+
+#### Validation (`(opts).opt.valid` + mapping)
+
+Business protos declare constraints once; `WebpbOptions.proto` maps each constraint to a per-language template. File-level `(f_opts).*.validation` overrides individual templates; unset templates fall back to built-ins (jakarta.validation / class-validator / validator tags). Explicit proto presence (`required` keyword, proto2 vs proto3) does not imply validation — set `valid.required` explicitly. Numeric `min`/`max` are strings so a single pair covers `int64` and `double` without precision loss; each generator interprets them for the target field type.
+
+```protobuf
+// WebpbOptions.proto (global mapping, excerpt)
+option (f_opts).java = {
+  validation: {
+    required_template: '@NotNull'
+    size_template: '@Size(min = {{min}}, max = {{max}})'
+    pattern_template: '@Pattern(regexp = "{{value}}")'
+    email_template: '@Email'
+    valid_template: '@Valid'
+  }
+};
+
+// business.proto (single declaration, all languages)
+required string code = 1 [(opts).opt = {valid: {required: true, not_blank: true, min_len: 1, max_len: 64}}];
+optional string email = 2 [(opts).opt = {valid: {email: true}}];
+optional string nickname = 3 [(opts).opt = {valid: {pattern: "^[a-z0-9_]+$", pattern_flags: "i"}}];
+optional int32 age = 4 [(opts).opt = {valid: {min: "0", max: "150"}}];
+repeated string tags = 5 [(opts).opt = {valid: {min_len: 1, max_len: 5}}];
+repeated Item items = 6 [(opts).opt = {valid: {required: true, min_len: 1, valid: true}}];
+```
+
+This renders Java `@NotNull @Size(min = 1, max = 64)` and Go `validate:"required,min=1,max=64"` (`dive` for collections). Numeric `min`/`max` use `@Min`/`@Max` for integral fields and `@DecimalMin`/`@DecimalMax` for floating point ones. Go has no built-in regexp tag, so `pattern` needs a custom `go.validation.pattern_template` for your regexp engine.
+
+TypeScript emits a framework-neutral descriptor object instead of a fixed validator (no new dependencies). With `(f_opts).ts.validation_object: true`:
+
+```ts
+export const ValidationRequestValidation = {
+  code: { required: true, notBlank: true, minLen: 1, maxLen: 64 },
+  email: { email: true },
+  nickname: { pattern: "^[a-z0-9_]+$", patternFlags: "i" },
+  age: { min: 0, max: 150 },
+  tags: { minLen: 1, maxLen: 5 },
+  items: { required: true, minLen: 1, valid: true },
+} as const;
+```
+
+Only declared constraints are included; fields without constraints are omitted. The rule shape is typed as `WebpbValidationRule` (exported from the `webpb` runtime). Each usage site bridges it to its own stack — e.g. zod with `react-hook-form`:
+
+```ts
+import { z } from "zod";
+import type { WebpbValidationRule } from "webpb";
+
+function applyRule(base: z.ZodTypeAny, rule: WebpbValidationRule): z.ZodTypeAny {
+  let s: any = base;
+  if (rule.minLen !== undefined) s = s.min(rule.minLen);
+  if (rule.maxLen !== undefined) s = s.max(rule.maxLen);
+  if (rule.min !== undefined) s = s.gte(Number(rule.min));
+  if (rule.max !== undefined) s = s.lte(Number(rule.max));
+  if (rule.pattern !== undefined) s = s.regex(new RegExp(rule.pattern, rule.patternFlags));
+  if (rule.email) s = s.email();
+  if (rule.notBlank) s = s.regex(/\S/);
+  return s;
+}
+
+const schema = z.object({
+  code: applyRule(z.string(), ValidationRequestValidation.code),
+  age: applyRule(z.number(), ValidationRequestValidation.age).nullable().optional(),
+});
+```
+
+Class-validator decorators remain available via `(f_opts).ts.validation_decorators: true` (then `@Length(1, 64)`, `@ArrayMinSize`/`@ArrayMaxSize` for collections, `@ValidateNested({ each: true })` for repeated messages are emitted and the `class-validator` import is added automatically).
 
 ### Enum — `(e_opts)`
 

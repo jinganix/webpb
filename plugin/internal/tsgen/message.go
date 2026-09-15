@@ -88,9 +88,28 @@ func (g *MessageGenerator) generate(supplier func() map[string]any, tmpl string,
 	return re.ReplaceAllString(content, indent+"$1"), nil
 }
 
+// validationConstBlock renders the framework-neutral `<Class>Validation`
+// descriptor object, or "" when no field declares constraints.
+func validationConstBlock(className string, fields []map[string]any) string {
+	var lines []string
+	for _, field := range fields {
+		rule, _ := field["validation"].(string)
+		if rule == "" {
+			continue
+		}
+		name, _ := field["name"].(string)
+		lines = append(lines, "  "+name+": "+rule+",")
+	}
+	if len(lines) == 0 {
+		return ""
+	}
+	return "export const " + className + "Validation = {\n" + strings.Join(lines, "\n") + "\n} as const;"
+}
+
 func (g *MessageGenerator) getMessageData(descriptor protoreflect.MessageDescriptor, level int) map[string]any {
 	opts := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
 	extend := g.getExtend(descriptor)
+	fields := g.getFields(descriptor)
 	return map[string]any{
 		"extendI":       ToInterfaceName(extend),
 		"extend":        extend,
@@ -98,7 +117,8 @@ func (g *MessageGenerator) getMessageData(descriptor protoreflect.MessageDescrip
 		"method":        opts.GetMethod(),
 		"context":       core.Normalize(opts.GetContext()),
 		"path":          g.getPath(descriptor, core.Normalize(opts.GetPath())),
-		"fields":        g.getFields(descriptor),
+		"fields":        fields,
+		"validationConst": validationConstBlock(string(descriptor.Name()), fields),
 		"nestedMsgs":    g.getNestedMessages(descriptor, level+1),
 		"omitted":       g.getOmitted(descriptor),
 		"hasAlias":      g.hasAlias(map[protoreflect.MessageDescriptor]struct{}{}, descriptor),
@@ -304,12 +324,36 @@ func (g *MessageGenerator) getter(value string) string {
 
 func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) []map[string]any {
 	var fields []map[string]any
+	fd := descriptor.ParentFile()
+	mapping := core.ResolveTsValidationMapping(fd)
+	decoratorsEnabled := core.ResolveTsValidationDecoratorsEnabled(fd)
+	objectEnabled := core.ResolveTsValidationObjectEnabled(fd)
 	appendField := func(field protoreflect.FieldDescriptor) {
+		var decorators []string
+		if valid := core.GetFieldValidation(field); valid != nil {
+			if err := core.ValidateFieldValidation(field, valid); err != nil {
+				panic(err)
+			}
+			if decoratorsEnabled {
+				decorators = core.RenderTsFieldValidation(field, valid, mapping)
+			}
+		}
+		var validationRule string
+		if objectEnabled {
+			if rule := core.TsValidationRule(core.GetFieldValidation(field)); rule != nil {
+				validationRule = core.FormatTsValidationRule(rule)
+			}
+		}
+		if len(decorators) > 0 {
+			g.imports.AddRawImport(`import { ` + strings.Join(tsDecoratorNames(decorators), ", ") + ` } from "class-validator";`)
+		}
 		data := map[string]any{
 			"type":       g.getFieldType(field),
 			"name":       string(field.Name()),
 			"optional":   field.Cardinality() != protoreflect.Required && field.Cardinality() != protoreflect.Repeated,
 			"collection": "none",
+			"decorators": decorators,
+			"validation": validationRule,
 		}
 		if field.IsMap() {
 			data["collection"] = "map"
@@ -394,6 +438,26 @@ func (g *MessageGenerator) toType(field protoreflect.FieldDescriptor, toI bool) 
 		typeName = ToInterfaceName(fullName)
 	}
 	return g.imports.ImportType(typeName)
+}
+
+var tsDecoratorNamePattern = regexp.MustCompile(`^@([A-Za-z0-9_]+)`)
+
+func tsDecoratorNames(decorators []string) []string {
+	seen := map[string]struct{}{}
+	var out []string
+	for _, d := range decorators {
+		m := tsDecoratorNamePattern.FindStringSubmatch(strings.TrimSpace(d))
+		if len(m) != 2 {
+			continue
+		}
+		if _, ok := seen[m[1]]; ok {
+			continue
+		}
+		seen[m[1]] = struct{}{}
+		out = append(out, m[1])
+	}
+	sort.Strings(out)
+	return out
 }
 
 func (g *MessageGenerator) getNestedMessages(descriptor protoreflect.MessageDescriptor, level int) []string {

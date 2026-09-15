@@ -93,7 +93,7 @@ class StoreControllerTest {
     // When / Then
     mvc.perform(request(new StoreListRequest(new PageablePb(true, 2, 11, null))))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors.['pageable.size']", is("must be between 1 and 10")));
+        .andExpect(jsonPath("$.errors.['pageable.size']", is("must be less than or equal to 10")));
   }
 
   @Test

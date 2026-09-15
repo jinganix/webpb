@@ -137,17 +137,23 @@ protoc -I proto --plugin=protoc-gen-go=./bin/webpb-protoc-go \
 
 ### 全局选项（`WebpbOptions.proto`）
 
-项目级默认配置放在共享的 `WebpbOptions.proto` 中，由每个 proto 文件 import。示例中为 Java 声明校验注解 import，并设置 TS 默认值：
+项目级默认配置放在共享的 `WebpbOptions.proto` 中，由每个 proto 文件 import。示例中为 Java 声明校验注解 import 与校验模板映射，并设置 TS 默认值：
 
 ```protobuf
 option (f_opts).java = {
   import: 'jakarta.validation.Valid'
   import: 'jakarta.validation.constraints.NotNull'
   // ...
+  validation: {
+    required_template: '@NotNull'
+    size_template: '@Size(min = {{min}}, max = {{max}})'
+    // ...
+  }
 };
 
 option (f_opts).ts = {
   int64_as_string: false
+  validation_object: true
 };
 ```
 
@@ -172,6 +178,7 @@ option (m_opts).ts = {auto_alias: true};
 | `java` | `annotation` | 每个生成类型的类级注解 |
 | `java` | `field_annotation` | 字段注解；支持 `{{_ALIAS_}}`、`{{_FIELD_NAME_}}` |
 | `java` | `repeatable_annotation` | 允许重复出现的注解全限定名 |
+| `java` | `validation` | 将 `(opts).opt.valid` 约束映射为 Java 注解（模板支持 `{{value}}` / `{{min}}` / `{{max}}` / `{{flags}}`） |
 | `ts` | `import` | 追加 TypeScript import |
 | `ts` | `int64_as_string` | JSON 中将 `int64` 序列化为字符串 |
 | `ts` | `auto_alias` | 由 proto 字段名推导 JSON 字段名 |
@@ -187,6 +194,10 @@ option (m_opts).ts = {auto_alias: true};
 | `go` | `auto_alias` | 由 proto 字段名派生 wire key（别名形式，如 `a`、`b`…） |
 | `go` | `enum_auto_alias` | 生成 `ConstX` 别名枚举类型及 `Alias()` / `Value()` 转换 |
 | `go` | `package` | 覆盖生成的 Go 包名 |
+| `ts` | `validation_object` | 为每个 message 生成框架无关的 `<Message>Validation` 描述对象（默认 `false`） |
+| `ts` | `validation_decorators` | 按 `validation` 模板输出 class-validator 装饰器（默认 `false`；需要 `experimentalDecorators` + `class-validator` 依赖） |
+| `ts` | `validation` | 将 `(opts).opt.valid` 约束映射为 TS 装饰器（默认 class-validator 风格；仅 `validation_decorators` 开启时生效） |
+| `go` | `validation` | 将 `(opts).opt.valid` 约束映射为 validator tag 片段（拼接为 `validate:"..."`） |
 
 ### 消息 — `(m_opts)`
 
@@ -231,7 +242,8 @@ message AugmentUserPb {
 |------|------|------|
 | `opt` | `omitted` | 从生成 API 中排除该字段 |
 | `opt` | `in_query` | 绑定到查询字符串（用于 GET / 路径模板） |
-| `java` | `annotation` | Java 字段注解（如 `@NotNull`、`@Pattern(...)`） |
+| `opt` | `valid` | 语言无关校验：`required`、`not_blank`、`min_len`/`max_len`（一组同时表达字符串长度与集合大小）、`min`/`max`、`pattern` + `pattern_flags`、`email`、`valid`（级联 `@Valid`）；经由文件级 `validation` 映射渲染 |
+| `java` | `annotation` | Java 字段注解（如 `@NotNull`、`@Pattern(...)`）——旧的分语言逃生舱，在 `valid` 之后合并输出 |
 | `java` | `as_set` | 重复字段生成为 `Set<T>` 而非 `List<T>` |
 | `java` | `as_collection` | 重复字段生成为 `Collection<T>` 而非 `List<T>` |
 | `ts` | `as_string` | 将数值字段序列化为字符串 |
@@ -248,6 +260,72 @@ message AugmentUserPb {
 repeated string tags = 1 [(opts).java = {as_set: true}];
 repeated int32 ids = 2 [(opts).java = {as_collection: true}];
 ```
+
+#### 校验（`(opts).opt.valid` + 映射）
+
+业务 proto 只声明一次约束，`WebpbOptions.proto` 负责映射到各语言模板。文件级 `(f_opts).*.validation` 可覆盖单个模板，未设置的模板回落到内置默认值（jakarta.validation / class-validator / validator tag）。显式的 proto presence（`required` 关键字、proto2 vs proto3）不隐含校验语义，需要时仍显式声明 `valid.required`。数值 `min`/`max` 为字符串，使一组字段同时兼容 `int64` 与 `double` 且无精度损失，各生成器按目标字段类型自行解释。
+
+```protobuf
+// WebpbOptions.proto（全局映射，摘录）
+option (f_opts).java = {
+  validation: {
+    required_template: '@NotNull'
+    size_template: '@Size(min = {{min}}, max = {{max}})'
+    pattern_template: '@Pattern(regexp = "{{value}}")'
+    email_template: '@Email'
+    valid_template: '@Valid'
+  }
+};
+
+// business.proto（一次声明，多语言生效）
+required string code = 1 [(opts).opt = {valid: {required: true, not_blank: true, min_len: 1, max_len: 64}}];
+optional string email = 2 [(opts).opt = {valid: {email: true}}];
+optional string nickname = 3 [(opts).opt = {valid: {pattern: "^[a-z0-9_]+$", pattern_flags: "i"}}];
+optional int32 age = 4 [(opts).opt = {valid: {min: "0", max: "150"}}];
+repeated string tags = 5 [(opts).opt = {valid: {min_len: 1, max_len: 5}}];
+repeated Item items = 6 [(opts).opt = {valid: {required: true, min_len: 1, valid: true}}];
+```
+
+生成 Java `@NotNull @Size(min = 1, max = 64)`，Go `validate:"required,min=1,max=64"`（集合追加 `dive`）。数值 `min`/`max` 对整型用 `@Min`/`@Max`，浮点用 `@DecimalMin`/`@DecimalMax`。Go validator 无内置正则 tag，`pattern` 需自定义 `go.validation.pattern_template`。
+
+TypeScript 生成框架无关的描述对象而非绑定固定校验库（零新增依赖）。开启 `(f_opts).ts.validation_object: true` 后：
+
+```ts
+export const ValidationRequestValidation = {
+  code: { required: true, notBlank: true, minLen: 1, maxLen: 64 },
+  email: { email: true },
+  nickname: { pattern: "^[a-z0-9_]+$", patternFlags: "i" },
+  age: { min: 0, max: 150 },
+  tags: { minLen: 1, maxLen: 5 },
+  items: { required: true, minLen: 1, valid: true },
+} as const;
+```
+
+只包含声明过的约束，未声明约束的字段直接省略。规则形态由 `webpb` runtime 导出的 `WebpbValidationRule` 类型描述。各使用方自行桥接到自家技术栈，例如 zod + `react-hook-form`：
+
+```ts
+import { z } from "zod";
+import type { WebpbValidationRule } from "webpb";
+
+function applyRule(base: z.ZodTypeAny, rule: WebpbValidationRule): z.ZodTypeAny {
+  let s: any = base;
+  if (rule.minLen !== undefined) s = s.min(rule.minLen);
+  if (rule.maxLen !== undefined) s = s.max(rule.maxLen);
+  if (rule.min !== undefined) s = s.gte(Number(rule.min));
+  if (rule.max !== undefined) s = s.lte(Number(rule.max));
+  if (rule.pattern !== undefined) s = s.regex(new RegExp(rule.pattern, rule.patternFlags));
+  if (rule.email) s = s.email();
+  if (rule.notBlank) s = s.regex(/\S/);
+  return s;
+}
+
+const schema = z.object({
+  code: applyRule(z.string(), ValidationRequestValidation.code),
+  age: applyRule(z.number(), ValidationRequestValidation.age).nullable().optional(),
+});
+```
+
+class-validator 装饰器仍可通过 `(f_opts).ts.validation_decorators: true` 开启（输出 `@Length(1, 64)`，集合用 `@ArrayMinSize`/`@ArrayMaxSize`，重复消息用 `@ValidateNested({ each: true })`，并自动追加 `class-validator` import）。
 
 ### 枚举 — `(e_opts)`
 

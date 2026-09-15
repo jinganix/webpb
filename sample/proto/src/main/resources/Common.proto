@@ -13,8 +13,12 @@ message PageablePb {
   option (m_opts).java = {annotation: '@Generated'};
 
   optional bool pagination = 1;
-  optional int32 page = 2 [(opts).java = {annotation: '@Range(min = 1, max = 1000)'}];
-  optional int32 size = 3 [(opts).java = {annotation: '@Range(min = 1, max = 10)'}];
+  // New style: language-agnostic constraints, rendered via
+  // WebpbOptions.proto mapping (Java @Range, TS @Min/@Max, Go gte=/lte=).
+  // Explicit proto presence does not imply validation; required/min/max
+  // must still be declared here when needed.
+  optional int32 page = 2 [(opts).opt = {valid: {min: "1", max: "1000"}}];
+  optional int32 size = 3 [(opts).opt = {valid: {min: "1", max: "10"}}];
   optional string sort = 4;
 }
 
