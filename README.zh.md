@@ -496,13 +496,13 @@ import "webpb/WebpbExtend.proto";
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.java") version "0.0.38"
+  id("io.github.jinganix.webpb.java") version "0.0.39"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.38")
-  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.38")
-  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.38")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.39")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.39")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.39")
   protobuf(project(":your-proto-module"))
 }
 ```
@@ -512,11 +512,11 @@ dependencies {
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.ts") version "0.0.38"
+  id("io.github.jinganix.webpb.ts") version "0.0.39"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.38")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.39")
 }
 ```
 
@@ -524,7 +524,7 @@ dependencies {
 
 ```kotlin
 webpb {
-  webpbVersion = "0.0.38"      // 默认与 Gradle 插件版本一致
+  webpbVersion = "0.0.39"      // 默认与 Gradle 插件版本一致
   protobufVersion = "4.36.1"   // com.google.protobuf:protoc 版本
   cleanOutput = false          // 默认 true：生成前删除输出目录
   localPluginPath = "/path/to/webpb-protoc-java" // 跳过 Maven 解析
@@ -542,7 +542,7 @@ protobuf {
   }
   plugins {
     id("ts") {
-      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.38:all@jar"
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.39:all@jar"
     }
   }
   generateProtoTasks {
@@ -560,7 +560,7 @@ protobuf {
 
 ```xml
 <properties>
-  <webpb.version>0.0.38</webpb.version>
+  <webpb.version>0.0.39</webpb.version>
   <protobuf.version>4.36.1</protobuf.version>
 </properties>
 
