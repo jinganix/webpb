@@ -10,6 +10,9 @@ export interface I{{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.su
 
 export class {{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.sub_type}}>{{end}}{{if .extend}} extends {{.extend}}{{if and (hasContent .sub_values) .extend}}<{{- range $i, $sv := .sub_values}}{{$sv}}{{if not (last $i $.sub_values)}} | {{end}}{{end}}>{{end}}{{end}} implements I{{.className}}{{if .sub_type}}<T>{{end}}, Webpb.WebpbMessage {
 {{- range .fields}}
+  {{- range .decorators}}
+  {{.}}
+  {{- end}}
   {{- if and $.sub_type (eq $.sub_type_prop .name)}}
   {{.name}}{{if not .default}}{{if .optional}}?{{else}}!{{end}}{{end}}: T{{if .default}} = {{.default}}{{end}};
   {{- else}}
@@ -138,7 +141,9 @@ export class {{.className}}{{if .sub_type}}<T extends {{.sub_type}} = {{.sub_typ
     return this;
 {{- end}}
   }
-}{{- if hasContent .nestedMsgs}}
+}{{- if hasContent .validationConst}}
+
+{{.validationConst}}{{- end}}{{- if hasContent .nestedMsgs}}
 
 export namespace {{.className}} {
 {{- range $i, $nested := .nestedMsgs}}

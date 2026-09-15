@@ -20,6 +20,32 @@ func TestSplitAnnotationPairsIgnoresCommaInQuotedString(t *testing.T) {
 	}
 }
 
+func TestParseAnnotationWithNumericLiterals(t *testing.T) {
+	lookup, err := GetLookup(nil)
+	if err != nil {
+		t.Fatalf("lookup: %v", err)
+	}
+	for _, path := range []string{
+		"jakarta.validation.constraints.Min",
+		"jakarta.validation.constraints.Max",
+		"jakarta.validation.constraints.Size",
+	} {
+		importPath, err := NewImportPath(path)
+		if err != nil {
+			t.Fatalf("import path: %v", err)
+		}
+		lookup = append(lookup, importPath)
+	}
+	imports := NewImports("test", lookup, nil)
+	parser := &annotationParser{imports: imports}
+	// Decimal values must not be treated as type references.
+	for _, input := range []string{"@Min(0)", "@Max(150)", "@Size(min = 1, max = 64)"} {
+		if _, err := parser.parseAnnotation(input); err != nil {
+			t.Fatalf("parse %q: %v", input, err)
+		}
+	}
+}
+
 func TestParseClassOrInterfaceType(t *testing.T) {
 	lookup, err := GetLookup(nil)
 	if err != nil {

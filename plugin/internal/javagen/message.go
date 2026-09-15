@@ -319,6 +319,9 @@ func fieldAnnotationRequestsValid(field protoreflect.FieldDescriptor) bool {
 			return true
 		}
 	}
+	if core.GetFieldValidation(field).GetValid() {
+		return true
+	}
 	return false
 }
 
@@ -341,6 +344,13 @@ func (g *MessageGenerator) getFieldAnnotations(descriptor protoreflect.MessageDe
 			anno = strings.ReplaceAll(anno, "{{_FIELD_NAME_}}", string(field.Name()))
 			annotations = append(annotations, anno)
 		}
+	}
+	if valid := core.GetFieldValidation(field); valid != nil {
+		if err := core.ValidateFieldValidation(field, valid); err != nil {
+			return nil, err
+		}
+		mapping := core.ResolveJavaValidationMapping(g.fileDescriptor)
+		annotations = append(annotations, core.RenderJavaFieldValidation(field, valid, mapping)...)
 	}
 	if core.GetFieldOpts(field, core.HasFieldOpt).GetOpt().GetInQuery() {
 		annotations = append(annotations, "@"+core.RuntimePackage+".common.InQuery")

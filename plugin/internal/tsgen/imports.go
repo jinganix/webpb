@@ -156,6 +156,60 @@ func (i *Imports) addTypeImport(path, name string, order int) {
 	})
 }
 
+// AddRawImport appends a raw import line (e.g. class-validator decorators).
+// class-validator named imports are merged into a single line.
+func (i *Imports) AddRawImport(line string) {
+	if strings.HasPrefix(line, "import {") && strings.Contains(line, "class-validator") {
+		names := parseValidatorNames(line)
+		for idx, existing := range i.imports {
+			if !strings.Contains(existing, "class-validator") {
+				continue
+			}
+			merged := mergeValidatorNames(existing, names)
+			i.imports[idx] = merged
+			sort.Strings(i.imports)
+			return
+		}
+	}
+	for _, existing := range i.imports {
+		if existing == line {
+			return
+		}
+	}
+	i.imports = append(i.imports, line)
+	sort.Strings(i.imports)
+}
+
+func parseValidatorNames(line string) []string {
+	start := strings.Index(line, "{")
+	end := strings.Index(line, "}")
+	if start < 0 || end < 0 || end <= start {
+		return nil
+	}
+	var out []string
+	for _, part := range strings.Split(line[start+1:end], ",") {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			out = append(out, part)
+		}
+	}
+	return out
+}
+
+func mergeValidatorNames(existing string, names []string) string {
+	seen := map[string]struct{}{}
+	var all []string
+	for _, n := range append(parseValidatorNames(existing), names...) {
+		if _, ok := seen[n]; ok {
+			continue
+		}
+		seen[n] = struct{}{}
+		all = append(all, n)
+	}
+	sort.Strings(all)
+	return `import { ` + strings.Join(all, ", ") + ` } from "class-validator";`
+}
+
 // ToList returns import statements.
 func (i *Imports) ToList() []string {
 	sortedTypeImports := append([]TypeImport{}, i.typeImports...)

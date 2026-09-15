@@ -134,10 +134,39 @@ func (p *annotationParser) parseAnnotation(s string) (string, error) {
 }
 
 func (p *annotationParser) importAnnotationValue(value string) (string, error) {
-	if strings.Contains(value, ".") && !strings.HasPrefix(value, "\"") {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" || strings.HasPrefix(trimmed, "\"") || strings.HasPrefix(trimmed, "'") {
+		return value, nil
+	}
+	if isJavaNumericLiteral(trimmed) {
+		return value, nil
+	}
+	if strings.Contains(trimmed, ".") {
 		return p.imports.importName(value)
 	}
 	return value, nil
+}
+
+// isJavaNumericLiteral reports whether a value is a numeric literal
+// (e.g. 1, -3, 0.5, 1L, 2.0f) rather than a type reference.
+func isJavaNumericLiteral(value string) bool {
+	stripped := strings.TrimRight(strings.TrimSpace(value), "LlFfDd")
+	if stripped == "" {
+		return false
+	}
+	for i, r := range stripped {
+		if r >= '0' && r <= '9' {
+			continue
+		}
+		if r == '.' || r == '_' {
+			continue
+		}
+		if (r == '-' || r == '+') && i == 0 {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 func parseAnnotationName(s string) (string, string, error) {

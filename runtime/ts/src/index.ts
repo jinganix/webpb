@@ -21,6 +21,37 @@ export interface WebpbMeta {
   path: string;
 }
 
+// Framework-neutral field validation rule emitted as
+// `<Message>Validation` descriptor objects when the
+// `(f_opts).ts.validation_object` option is enabled.
+// Only constraints declared in `(opts).opt.valid` are present.
+// Usage sites bridge it to zod / class-validator / form libs, e.g.
+// `{ code: { minLen: 1, maxLen: 64 } }`.
+export interface WebpbValidationRule {
+  required?: boolean;
+
+  notBlank?: boolean;
+
+  minLen?: number;
+
+  maxLen?: number;
+
+  min?: number | string;
+
+  max?: number | string;
+
+  pattern?: string;
+
+  patternFlags?: string;
+
+  email?: boolean;
+
+  // Cascaded validation for nested message fields.
+  valid?: boolean;
+}
+
+export type WebpbValidation = Record<string, WebpbValidationRule>;
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;

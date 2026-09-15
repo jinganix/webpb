@@ -6,12 +6,64 @@ import "webpb/WebpbExtend.proto";
 option (f_opts).java = {
   import: 'io.github.jinganix.webpb.runtime.Generated'
   import: 'jakarta.validation.Valid'
+  import: 'jakarta.validation.constraints.DecimalMax'
+  import: 'jakarta.validation.constraints.DecimalMin'
+  import: 'jakarta.validation.constraints.Email'
+  import: 'jakarta.validation.constraints.Max'
+  import: 'jakarta.validation.constraints.Min'
   import: 'jakarta.validation.constraints.NotBlank'
   import: 'jakarta.validation.constraints.NotNull'
+  import: 'jakarta.validation.constraints.Pattern'
+  import: 'jakarta.validation.constraints.Size'
   import: 'org.hibernate.validator.constraints.Length'
   import: 'org.hibernate.validator.constraints.Range'
+  # Language-agnostic (opts).opt.valid constraints render through these templates.
+  # Per-file (f_opts).java.validation can override individual templates.
+  validation: {
+    required_template: '@NotNull'
+    not_blank_template: '@NotBlank'
+    size_template: '@Size(min = {{min}}, max = {{max}})'
+    # min/max intentionally unset: built-ins pick @Min/@Max for integral
+    # fields and @DecimalMin/@DecimalMax for floating point ones.
+    # (A single '@Range(min/max)' template cannot merge both bounds.)
+    pattern_template: '@Pattern(regexp = "{{value}}")'
+    email_template: '@Email'
+    valid_template: '@Valid'
+  }
 };
 
 option (f_opts).ts = {
   int64_as_string: false
+  # Framework-neutral `<Message>Validation` descriptor objects
+  # (e.g. `{ code: { minLen: 1, maxLen: 64 } }`). Usage sites bridge
+  # them to zod / class-validator / form libs; no extra dependencies.
+  # Decorators stay off: they need experimentalDecorators + class-validator.
+  validation_object: true
+  validation: {
+    required_template: '@IsDefined()'
+    not_blank_template: '@IsNotEmpty()'
+    length_template: '@Length({{min}}, {{max}})'
+    min_length_template: '@MinLength({{value}})'
+    max_length_template: '@MaxLength({{value}})'
+    array_min_size_template: '@ArrayMinSize({{value}})'
+    array_max_size_template: '@ArrayMaxSize({{value}})'
+    min_template: '@Min({{value}})'
+    max_template: '@Max({{value}})'
+    pattern_template: '@Matches(/{{value}}/{{flags}})'
+    email_template: '@IsEmail()'
+    valid_template: '@ValidateNested()'
+  }
+};
+
+option (f_opts).go = {
+  validation: {
+    required_template: 'required'
+    not_blank_template: 'required'
+    min_len_template: 'min={{value}}'
+    max_len_template: 'max={{value}}'
+    min_template: 'gte={{value}}'
+    max_template: 'lte={{value}}'
+    email_template: 'email'
+    valid_template: 'dive'
+  }
 };

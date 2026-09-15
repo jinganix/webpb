@@ -452,10 +452,16 @@ func renderMessage(
 
 	fmt.Fprintf(&b, "type %s struct {\n", name)
 	rendered := make([]protoreflect.FieldDescriptor, 0, len(fields))
+	goValidation := core.ResolveGoValidationMapping(message.ParentFile())
 	for _, field := range fields {
 		fieldGo := core.GetFieldOpts(field, core.HasFieldGo).GetGo()
 		if fieldGo.GetOmitted() {
 			continue
+		}
+		if valid := core.GetFieldValidation(field); valid != nil {
+			if err := core.ValidateFieldValidation(field, valid); err != nil {
+				return "", err
+			}
 		}
 		rendered = append(rendered, field)
 		alias := fieldGo.GetAlias()
@@ -465,13 +471,17 @@ func renderMessage(
 		if alias == "" {
 			alias = string(field.Name())
 		}
+		validateTag := core.RenderGoValidateTag(field, core.GetFieldValidation(field), goValidation)
+		tag := fmt.Sprintf("webpb:%q json:%q", alias, alias)
+		if validateTag != "" {
+			tag += fmt.Sprintf(" validate:%q", validateTag)
+		}
 		fmt.Fprintf(
 			&b,
-			"\t%s %s `webpb:%q json:%q`\n",
+			"\t%s %s `%s`\n",
 			goName(string(field.Name())),
 			fieldType(field, settings.int64AsString || fieldGo.GetAsString()),
-			alias,
-			alias,
+			tag,
 		)
 	}
 	b.WriteString("}\n\n")
