@@ -501,13 +501,13 @@ Apply the [protobuf Gradle plugin](https://github.com/google/protobuf-gradle-plu
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.java") version "0.0.40"
+  id("io.github.jinganix.webpb.java") version "0.0.41"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.40")
-  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.40")
-  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.40")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.41")
+  implementation("io.github.jinganix.webpb:webpb-runtime:0.0.41")
+  annotationProcessor("io.github.jinganix.webpb:webpb-processor:0.0.41")
   // your .proto module or files
   protobuf(project(":your-proto-module"))
 }
@@ -518,11 +518,11 @@ dependencies {
 ```kotlin
 plugins {
   id("com.google.protobuf") version "0.9.6"
-  id("io.github.jinganix.webpb.ts") version "0.0.40"
+  id("io.github.jinganix.webpb.ts") version "0.0.41"
 }
 
 dependencies {
-  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.40")
+  protobuf("io.github.jinganix.webpb:webpb-proto:0.0.41")
 }
 ```
 
@@ -530,8 +530,8 @@ Optional configuration:
 
 ```kotlin
 webpb {
-  webpbVersion = "0.0.40"      // defaults to the Gradle plugin version
-  protobufVersion = "4.36.1"   // com.google.protobuf:protoc version
+  webpbVersion = "0.0.41"      // defaults to the Gradle plugin version
+  protobufVersion = "4.36.2"   // com.google.protobuf:protoc version
   cleanOutput = false          // default true: delete output dir before generation
   localPluginPath = "/path/to/webpb-protoc-java" // skip Maven resolution
 }
@@ -544,11 +544,11 @@ Manual setup (without the convention plugin) is also supported:
 ```kotlin
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:4.36.1"
+    artifact = "com.google.protobuf:protoc:4.36.2"
   }
   plugins {
     id("ts") {
-      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.40:all@jar"
+      artifact = "io.github.jinganix.webpb:webpb-protoc-ts:0.0.41:all@jar"
     }
   }
   generateProtoTasks {
@@ -566,8 +566,8 @@ Use [protobuf-maven-plugin](https://www.xolstice.org/protobuf-maven-plugin/) wit
 
 ```xml
 <properties>
-  <webpb.version>0.0.40</webpb.version>
-  <protobuf.version>4.36.1</protobuf.version>
+  <webpb.version>0.0.41</webpb.version>
+  <protobuf.version>4.36.2</protobuf.version>
 </properties>
 
 <dependencies>
