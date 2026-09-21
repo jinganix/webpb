@@ -10,6 +10,8 @@ export interface IUserPb {
   username: string;
   staffId?: number | null;
   displayName?: string | null;
+  status?: AugmentStatus | null;
+  extra: IAugmentExtraPb[];
 }
 
 export class UserPb implements IUserPb, Webpb.WebpbMessage {
@@ -17,6 +19,8 @@ export class UserPb implements IUserPb, Webpb.WebpbMessage {
   username!: string;
   staffId?: number | null;
   displayName?: string | null;
+  status?: AugmentStatus | null;
+  extra!: IAugmentExtraPb[];
   webpbMeta: () => Webpb.WebpbMeta;
 
   static CLASS = "UserPb";
@@ -26,6 +30,7 @@ export class UserPb implements IUserPb, Webpb.WebpbMessage {
 
   protected constructor(p?: IUserPb) {
     Webpb.assign(p, this, []);
+    p?.extra && (this.extra = p.extra.map((x) => AugmentExtraPb.create(x)));
     this.webpbMeta = () =>
       ({
         class: "UserPb",

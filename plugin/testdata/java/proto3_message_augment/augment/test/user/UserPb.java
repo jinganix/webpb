@@ -6,6 +6,7 @@ package augment.test.user;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbMeta;
+import java.util.List;
 
 public class UserPb implements WebpbMessage {
 
@@ -31,14 +32,11 @@ public class UserPb implements WebpbMessage {
 
   private String displayName;
 
-  public UserPb() {}
+  private AugmentStatus status;
 
-  public UserPb(Long id, String username, Long staffId, String displayName) {
-    this.id = id;
-    this.username = username;
-    this.staffId = staffId;
-    this.displayName = displayName;
-  }
+  private List<AugmentExtraPb> extra;
+
+  public UserPb() {}
 
   public Long getId() {
     return this.id;
@@ -73,6 +71,24 @@ public class UserPb implements WebpbMessage {
 
   public UserPb setDisplayName(String displayName) {
     this.displayName = displayName;
+    return this;
+  }
+
+  public AugmentStatus getStatus() {
+    return this.status;
+  }
+
+  public UserPb setStatus(AugmentStatus status) {
+    this.status = status;
+    return this;
+  }
+
+  public List<AugmentExtraPb> getExtra() {
+    return this.extra;
+  }
+
+  public UserPb setExtra(List<AugmentExtraPb> extra) {
+    this.extra = extra;
     return this;
   }
 }

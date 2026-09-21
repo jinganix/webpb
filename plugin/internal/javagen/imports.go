@@ -16,15 +16,22 @@ type Imports struct {
 	lookup      []ImportPath
 	mapper      *ImportMapper
 	rootFd      protoreflect.FileDescriptor
+	allFiles    []protoreflect.FileDescriptor
 }
 
 // NewImports creates an Imports instance.
-func NewImports(javaPackage string, lookup []ImportPath, rootFd protoreflect.FileDescriptor) *Imports {
+func NewImports(
+	javaPackage string,
+	lookup []ImportPath,
+	rootFd protoreflect.FileDescriptor,
+	allFiles []protoreflect.FileDescriptor,
+) *Imports {
 	return &Imports{
 		javaPackage: javaPackage,
 		lookup:      lookup,
 		mapper:      NewImportMapper(),
 		rootFd:      rootFd,
+		allFiles:    allFiles,
 	}
 }
 
@@ -124,6 +131,10 @@ func (i *Imports) ImportGenericDescriptor(descriptor protoreflect.Descriptor) (s
 	fd := descriptor.ParentFile()
 	if fd == nil {
 		fd = core.ResolveDescriptorFile(i.rootFd, descriptor)
+	}
+	if fd == nil {
+		// Augment fields may be typed by a file outside the augmented file's import closure.
+		fd = core.ResolveDeclaringFile(i.allFiles, descriptor)
 	}
 	if fd == nil {
 		return i.ImportClassOrInterface(string(descriptor.Name()))

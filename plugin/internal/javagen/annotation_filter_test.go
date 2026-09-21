@@ -9,7 +9,7 @@ import (
 
 func TestAnnotationDistinctFilterAllow(t *testing.T) {
 	t.Run("should panic when annotation is invalid", func(t *testing.T) {
-		imports := NewImports("test", nil, nil)
+		imports := NewImports("test", nil, nil, nil)
 		filter := NewAnnotationDistinctFilter(imports, nil)
 		defer func() {
 			if r := recover(); r == nil {

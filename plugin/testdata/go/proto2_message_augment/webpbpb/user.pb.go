@@ -11,10 +11,12 @@ const (
 )
 
 type UserPb struct {
-	Id          *int64  `webpb:"id" json:"id"`
-	Username    *string `webpb:"username" json:"username"`
-	StaffId     *int64  `webpb:"staffId" json:"staffId"`
-	DisplayName *string `webpb:"displayName" json:"displayName"`
+	Id          *int64            `webpb:"id" json:"id"`
+	Username    *string           `webpb:"username" json:"username"`
+	StaffId     *int64            `webpb:"staffId" json:"staffId"`
+	DisplayName *string           `webpb:"displayName" json:"displayName"`
+	Status      *AugmentStatus    `webpb:"status" json:"status"`
+	Extra       []*AugmentExtraPb `webpb:"extra" json:"extra"`
 }
 
 func NewUserPb() *UserPb {
@@ -33,11 +35,13 @@ const (
 )
 
 type UserDetailsPb struct {
-	Id          *int64  `webpb:"id" json:"id"`
-	Username    *string `webpb:"username" json:"username"`
-	StaffId     *int64  `webpb:"staffId" json:"staffId"`
-	DisplayName *string `webpb:"displayName" json:"displayName"`
-	RoleIds     []int64 `webpb:"roleIds" json:"roleIds"`
+	Id          *int64            `webpb:"id" json:"id"`
+	Username    *string           `webpb:"username" json:"username"`
+	StaffId     *int64            `webpb:"staffId" json:"staffId"`
+	DisplayName *string           `webpb:"displayName" json:"displayName"`
+	Status      *AugmentStatus    `webpb:"status" json:"status"`
+	Extra       []*AugmentExtraPb `webpb:"extra" json:"extra"`
+	RoleIds     []int64           `webpb:"roleIds" json:"roleIds"`
 }
 
 func NewUserDetailsPb() *UserDetailsPb {

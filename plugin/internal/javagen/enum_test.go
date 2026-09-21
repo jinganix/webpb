@@ -119,7 +119,7 @@ func TestGetAnnotationsReturnsErrorForInvalidAnnotation(t *testing.T) {
 	}
 	generator := &EnumGenerator{
 		fileDescriptor: ctx.TargetDescriptors[0],
-		imports:        NewImports(GetJavaPackage(ctx.TargetDescriptors[0]), lookup, ctx.TargetDescriptors[0]),
+		imports:        NewImports(GetJavaPackage(ctx.TargetDescriptors[0]), lookup, ctx.TargetDescriptors[0], nil),
 		webpbOpts:      &webpb.JavaFileOpts{Annotation: []string{"@Bad(class..name)"}},
 		fileOpts:       &webpb.JavaFileOpts{},
 	}
