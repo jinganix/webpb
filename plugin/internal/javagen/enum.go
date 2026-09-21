@@ -27,7 +27,7 @@ func NewEnumGenerator(fd protoreflect.FileDescriptor) (*EnumGenerator, error) {
 	}
 	return &EnumGenerator{
 		fileDescriptor: fd,
-		imports:        NewImports(GetJavaPackage(fd), lookup, fd),
+		imports:        NewImports(GetJavaPackage(fd), lookup, fd, nil),
 		webpbOpts:      core.GetWebpbFileOpts(fd, core.HasFileJava).GetJava(),
 		fileOpts:       core.GetFileOpts(fd, core.HasFileJava).GetJava(),
 	}, nil

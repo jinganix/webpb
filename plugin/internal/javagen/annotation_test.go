@@ -29,7 +29,7 @@ func testAnnotationImports(t *testing.T) *Imports {
 	if err != nil {
 		t.Fatalf("newImportPaths: %v", err)
 	}
-	return NewImports("test", lookup, nil)
+	return NewImports("test", lookup, nil, nil)
 }
 
 func newImportPaths(paths []string) ([]ImportPath, error) {

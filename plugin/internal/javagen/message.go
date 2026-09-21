@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jinganix/webpb/plugin/internal/core"
 	webpb "github.com/jinganix/webpb/plugin/gen/webpb"
+	"github.com/jinganix/webpb/plugin/internal/core"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -46,7 +46,7 @@ func NewMessageGenerator(fd protoreflect.FileDescriptor, allFiles []protoreflect
 	return &MessageGenerator{
 		fileDescriptor: fd,
 		allFiles:       allFiles,
-		imports:        NewImports(GetJavaPackage(fd), lookup, fd),
+		imports:        NewImports(GetJavaPackage(fd), lookup, fd, allFiles),
 		webpbOpts:      core.GetWebpbFileOpts(fd, core.HasFileJava).GetJava(),
 		fileOpts:       core.GetFileOpts(fd, core.HasFileJava).GetJava(),
 	}, nil
@@ -273,7 +273,11 @@ func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) (str
 		if err != nil {
 			return "", err
 		}
-		return g.imports.ImportClassOrInterface("Map<" + keyType + ", " + valueType + ">")
+		container, err := g.imports.ImportClassOrInterface("Map")
+		if err != nil {
+			return "", err
+		}
+		return container + "<" + keyType + ", " + valueType + ">", nil
 	}
 	if field.Cardinality() == protoreflect.Repeated {
 		elemType, err := g.toType(field)
@@ -287,17 +291,17 @@ func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) (str
 			}
 		}
 		javaOpts := core.GetFieldOpts(field, core.HasFieldJava).GetJava()
-		var containerType string
+		container := "List"
 		if javaOpts.GetAsSet() {
-			containerType, err = g.imports.ImportClassOrInterface("Set<" + elemType + ">")
+			container = "Set"
 		} else if javaOpts.GetAsCollection() {
-			containerType, err = g.imports.ImportClassOrInterface("Collection<" + elemType + ">")
-		} else {
-			containerType, err = g.imports.ImportClassOrInterface("List<" + elemType + ">")
+			container = "Collection"
 		}
+		containerName, err := g.imports.ImportClassOrInterface(container)
 		if err != nil {
 			return "", err
 		}
+		containerType := containerName + "<" + elemType + ">"
 		if moveValid {
 			containerType = strings.Replace(containerType, "<", "<@Valid ", 1)
 		}

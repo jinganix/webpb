@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package UserAugmentProto;
+
+option java_package = "augment.test.user";
+
+// Enum declared in a file that is NOT imported by the augmented (target) file.
+// Augment fields may reference types declared by the augmenting file, so webpb
+// must resolve them from the augment declaration site, not from the target file.
+enum AugmentStatus {
+  AUGMENT_UNKNOWN = 0;
+  AUGMENT_ACTIVE = 1;
+}
+
+message AugmentExtraPb {
+  optional int64 value = 1;
+}

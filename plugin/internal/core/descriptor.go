@@ -207,6 +207,38 @@ func ResolveDescriptorFile(root protoreflect.FileDescriptor, descriptor protoref
 	return search(root)
 }
 
+// ResolveDeclaringFile returns the file that declares descriptor, searching the given file set
+// without following imports. Placeholder descriptors (e.g. a field type referenced by an augment
+// message) have no parent file, and they may be declared outside the augmented file's import
+// closure, so the caller must search every input file instead of one root file.
+func ResolveDeclaringFile(files []protoreflect.FileDescriptor, descriptor protoreflect.Descriptor) protoreflect.FileDescriptor {
+	if descriptor == nil {
+		return nil
+	}
+	if fd := descriptor.ParentFile(); fd != nil {
+		return fd
+	}
+	target := string(descriptor.FullName())
+	for _, fd := range files {
+		if fd == nil {
+			continue
+		}
+		for i := 0; i < fd.Messages().Len(); i++ {
+			for _, d := range ResolveNestedTypes(fd.Messages().Get(i)) {
+				if string(d.FullName()) == target {
+					return fd
+				}
+			}
+		}
+		for i := 0; i < fd.Enums().Len(); i++ {
+			if string(fd.Enums().Get(i).FullName()) == target {
+				return fd
+			}
+		}
+	}
+	return nil
+}
+
 // ResolveFile finds a file descriptor by regex name match.
 func ResolveFile(descriptors []protoreflect.FileDescriptor, regex string) protoreflect.FileDescriptor {
 	pattern := regexp.MustCompile(regex)

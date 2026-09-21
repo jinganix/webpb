@@ -5,6 +5,7 @@ package UserAugmentProto;
 option java_package = "augment.test.user";
 
 import "webpb/WebpbExtend.proto";
+import "AugmentStatus.proto";
 import "User.proto";
 
 message AugmentUserPb {
@@ -12,4 +13,6 @@ message AugmentUserPb {
 
   optional int64 staffId = 1000;
   optional string displayName = 1001;
+  optional AugmentStatus status = 1002;
+  repeated AugmentExtraPb extra = 1003;
 }
