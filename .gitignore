@@ -1,5 +1,6 @@
 *.iml
 .DS_Store
+.tmp/
 .gradle
 .idea/
 .kotlin/
