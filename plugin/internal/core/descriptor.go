@@ -40,6 +40,17 @@ func ResolveNestedTypes(descriptor protoreflect.Descriptor) []protoreflect.Descr
 
 // ResolveTopLevelTypes returns top-level messages and enums recursively including dependencies.
 func ResolveTopLevelTypes(fd protoreflect.FileDescriptor) []protoreflect.Descriptor {
+	return resolveTopLevelTypesVisited(fd, map[string]struct{}{})
+}
+
+func resolveTopLevelTypesVisited(fd protoreflect.FileDescriptor, visited map[string]struct{}) []protoreflect.Descriptor {
+	if fd == nil {
+		return nil
+	}
+	if _, ok := visited[fd.Path()]; ok {
+		return nil
+	}
+	visited[fd.Path()] = struct{}{}
 	var result []protoreflect.Descriptor
 	msgs := fd.Messages()
 	for i := 0; i < msgs.Len(); i++ {
@@ -51,7 +62,7 @@ func ResolveTopLevelTypes(fd protoreflect.FileDescriptor) []protoreflect.Descrip
 	}
 	deps := fd.Imports()
 	for i := 0; i < deps.Len(); i++ {
-		result = append(result, ResolveTopLevelTypes(deps.Get(i).FileDescriptor)...)
+		result = append(result, resolveTopLevelTypesVisited(deps.Get(i).FileDescriptor, visited)...)
 	}
 	return result
 }
@@ -72,7 +83,18 @@ func endsWithName(fullName, name string) bool {
 
 // ResolveMessage finds a message descriptor by suffix name.
 func ResolveMessage(descriptors []protoreflect.FileDescriptor, name string) protoreflect.MessageDescriptor {
+	return resolveMessageVisited(descriptors, name, map[string]struct{}{})
+}
+
+func resolveMessageVisited(descriptors []protoreflect.FileDescriptor, name string, visited map[string]struct{}) protoreflect.MessageDescriptor {
 	for _, fd := range descriptors {
+		if fd == nil {
+			continue
+		}
+		if _, ok := visited[fd.Path()]; ok {
+			continue
+		}
+		visited[fd.Path()] = struct{}{}
 		msgs := fd.Messages()
 		for i := 0; i < msgs.Len(); i++ {
 			if endsWithName(string(msgs.Get(i).FullName()), name) {
@@ -83,7 +105,7 @@ func ResolveMessage(descriptors []protoreflect.FileDescriptor, name string) prot
 		for i := 0; i < fd.Imports().Len(); i++ {
 			deps[i] = fd.Imports().Get(i).FileDescriptor
 		}
-		if found := ResolveMessage(deps, name); found != nil {
+		if found := resolveMessageVisited(deps, name, visited); found != nil {
 			return found
 		}
 	}
@@ -92,7 +114,18 @@ func ResolveMessage(descriptors []protoreflect.FileDescriptor, name string) prot
 
 // ResolveEnum finds an enum descriptor by suffix name.
 func ResolveEnum(descriptors []protoreflect.FileDescriptor, name string) protoreflect.EnumDescriptor {
+	return resolveEnumVisited(descriptors, name, map[string]struct{}{})
+}
+
+func resolveEnumVisited(descriptors []protoreflect.FileDescriptor, name string, visited map[string]struct{}) protoreflect.EnumDescriptor {
 	for _, fd := range descriptors {
+		if fd == nil {
+			continue
+		}
+		if _, ok := visited[fd.Path()]; ok {
+			continue
+		}
+		visited[fd.Path()] = struct{}{}
 		enums := fd.Enums()
 		for i := 0; i < enums.Len(); i++ {
 			if endsWithName(string(enums.Get(i).FullName()), name) {
@@ -103,7 +136,7 @@ func ResolveEnum(descriptors []protoreflect.FileDescriptor, name string) protore
 		for i := 0; i < fd.Imports().Len(); i++ {
 			deps[i] = fd.Imports().Get(i).FileDescriptor
 		}
-		if found := ResolveEnum(deps, name); found != nil {
+		if found := resolveEnumVisited(deps, name, visited); found != nil {
 			return found
 		}
 	}
@@ -112,7 +145,18 @@ func ResolveEnum(descriptors []protoreflect.FileDescriptor, name string) protore
 
 // ResolveEnumValue finds an enum value descriptor by suffix name.
 func ResolveEnumValue(descriptors []protoreflect.FileDescriptor, name string) protoreflect.EnumValueDescriptor {
+	return resolveEnumValueVisited(descriptors, name, map[string]struct{}{})
+}
+
+func resolveEnumValueVisited(descriptors []protoreflect.FileDescriptor, name string, visited map[string]struct{}) protoreflect.EnumValueDescriptor {
 	for _, fd := range descriptors {
+		if fd == nil {
+			continue
+		}
+		if _, ok := visited[fd.Path()]; ok {
+			continue
+		}
+		visited[fd.Path()] = struct{}{}
 		for _, enum := range collectFileEnums(fd) {
 			values := enum.Values()
 			for j := 0; j < values.Len(); j++ {
@@ -136,7 +180,7 @@ func ResolveEnumValue(descriptors []protoreflect.FileDescriptor, name string) pr
 		for i := 0; i < fd.Imports().Len(); i++ {
 			deps[i] = fd.Imports().Get(i).FileDescriptor
 		}
-		if found := ResolveEnumValue(deps, name); found != nil {
+		if found := resolveEnumValueVisited(deps, name, visited); found != nil {
 			return found
 		}
 	}
@@ -181,10 +225,15 @@ func ResolveDescriptorFile(root protoreflect.FileDescriptor, descriptor protoref
 	}
 	target := string(descriptor.FullName())
 	var search func(protoreflect.FileDescriptor) protoreflect.FileDescriptor
+	visited := map[string]struct{}{}
 	search = func(fd protoreflect.FileDescriptor) protoreflect.FileDescriptor {
 		if fd == nil {
 			return nil
 		}
+		if _, ok := visited[fd.Path()]; ok {
+			return nil
+		}
+		visited[fd.Path()] = struct{}{}
 		for i := 0; i < fd.Messages().Len(); i++ {
 			for _, d := range ResolveNestedTypes(fd.Messages().Get(i)) {
 				if string(d.FullName()) == target {
@@ -242,7 +291,18 @@ func ResolveDeclaringFile(files []protoreflect.FileDescriptor, descriptor protor
 // ResolveFile finds a file descriptor by regex name match.
 func ResolveFile(descriptors []protoreflect.FileDescriptor, regex string) protoreflect.FileDescriptor {
 	pattern := regexp.MustCompile(regex)
+	return resolveFileVisited(descriptors, pattern, map[string]struct{}{})
+}
+
+func resolveFileVisited(descriptors []protoreflect.FileDescriptor, pattern *regexp.Regexp, visited map[string]struct{}) protoreflect.FileDescriptor {
 	for _, fd := range descriptors {
+		if fd == nil {
+			continue
+		}
+		if _, ok := visited[fd.Path()]; ok {
+			continue
+		}
+		visited[fd.Path()] = struct{}{}
 		if pattern.MatchString(fd.Path()) {
 			return fd
 		}
@@ -250,7 +310,7 @@ func ResolveFile(descriptors []protoreflect.FileDescriptor, regex string) protor
 		for i := 0; i < fd.Imports().Len(); i++ {
 			deps[i] = fd.Imports().Get(i).FileDescriptor
 		}
-		if found := ResolveFile(deps, regex); found != nil {
+		if found := resolveFileVisited(deps, pattern, visited); found != nil {
 			return found
 		}
 	}

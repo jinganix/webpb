@@ -153,11 +153,16 @@ func CheckAugmentTarget(all []protoreflect.FileDescriptor, msg protoreflect.Mess
 func collectTopLevelMessages(all []protoreflect.FileDescriptor) []protoreflect.MessageDescriptor {
 	var messages []protoreflect.MessageDescriptor
 	seen := map[protoreflect.FullName]struct{}{}
+	visited := map[string]struct{}{}
 	var walk func(protoreflect.FileDescriptor)
 	walk = func(fd protoreflect.FileDescriptor) {
 		if fd == nil {
 			return
 		}
+		if _, ok := visited[fd.Path()]; ok {
+			return
+		}
+		visited[fd.Path()] = struct{}{}
 		for i := 0; i < fd.Messages().Len(); i++ {
 			msg := fd.Messages().Get(i)
 			if _, ok := seen[msg.FullName()]; ok {
