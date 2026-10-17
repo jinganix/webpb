@@ -33,15 +33,80 @@ JaCoCo XML reports are written under each Java module's `build/reports/jacoco/te
 
 ## Conventional Commits
 
-Check if your commit messages meet the [conventional commit format](https://conventionalcommits.org).
+Commit messages must meet the [conventional commit format](https://conventionalcommits.org):
 
-The conventional config extends from [config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional).
+```
+<type>[optional scope]: <subject>
+
+[optional body, explain why rather than what]
+```
+
+- **subject**: imperative, short; header total length ≤ 100 characters.
+- **scope**: optional; when present, use one of the table below.
+- PR titles must follow the same format (validated by workflow).
+
+### type
+
+| type | When to use |
+|------|-------------|
+| `feat` | New feature or module |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `style` | Formatting, no semantic change |
+| `refactor` | Restructuring, no semantic change |
+| `perf` | Performance related |
+| `test` | Tests only |
+| `build` | Build, Gradle, dependency versions |
+| `ci` | CI, git hooks |
+| `chore` | Miscellaneous maintenance |
+| `revert` | Revert a previous commit |
+
+### scope
+
+| scope | Area |
+|-------|------|
+| `deps` | Third-party dependency bumps |
+| `lib` | `lib/` shared libraries |
+| `plugin` | `plugin/` protoc plugins |
+| `runtime` | `runtime/` client runtimes |
+| `sample` | `sample/` examples |
+| `java` | Java codegen output |
+| `docs` | `README.md`, `CONTRIBUTING.md`, `ai-kit/` |
+| `ci` | `.githooks/`, `scripts/`, `.github/` |
+| `build` | `build.gradle.kts`, `settings.gradle.kts`, Gradle wrapper |
+
+### Examples
+
+```
+feat(plugin): support host-defined types in augment fields
+
+fix(deps): update all non-major dependencies
+
+chore: bump version to 0.0.41-SNAPSHOT
+```
 
 ## Create a commit
 
-Run `npm install` in root directory, then you will get [Commitizen](https://github.com/commitizen-tools/commitizen) installed.
+No npm install is needed at the repository root. The TypeScript runtime
+(`runtime/ts`) and sample frontend (`sample/frontend`) manage their own
+`node_modules` via their local `package.json`.
 
-Use `npm run cz` or `npx cz` create a commit.
+## Local git hooks (shell, no npm)
+
+Clone or update, then enable once (by a human, not by Agent):
+
+```bash
+./scripts/setup-git-hooks.sh
+```
+
+Trial run:
+
+```bash
+echo "feat(plugin): test message" | ./scripts/validate-commit-msg.sh /dev/stdin
+```
+
+- `commit-msg` validates the message via `scripts/validate-commit-msg.sh`.
+- `pre-commit` / `pre-push` refuse direct commits/pushes to `master`.
 
 ## Workflow validation
 
