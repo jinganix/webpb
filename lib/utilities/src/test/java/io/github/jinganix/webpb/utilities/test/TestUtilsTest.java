@@ -91,10 +91,8 @@ class TestUtilsTest {
     // Given
     try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
       fileUtils
-          .when(
-              () ->
-                  FileUtils.writeStringToFile(
-                      any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
+          .when(() ->
+              FileUtils.writeStringToFile(any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
           .thenAnswer(x -> null);
 
       // When / Then
@@ -109,10 +107,8 @@ class TestUtilsTest {
     // Given
     try (MockedStatic<FileUtils> fileUtils = Mockito.mockStatic(FileUtils.class)) {
       fileUtils
-          .when(
-              () ->
-                  FileUtils.writeStringToFile(
-                      any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
+          .when(() ->
+              FileUtils.writeStringToFile(any(File.class), anyString(), eq(StandardCharsets.UTF_8)))
           .thenThrow(new IOException());
 
       // When / Then

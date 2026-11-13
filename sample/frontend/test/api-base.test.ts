@@ -18,7 +18,7 @@ describe("api-base", () => {
 
   it("should return window origin in development when env is unset", () => {
     // Given
-    vi.stubEnv("DEV", "true");
+    vi.stubEnv("DEV", true);
     vi.stubEnv("VITE_API_BASE_URL", "");
 
     // When / Then
@@ -28,7 +28,7 @@ describe("api-base", () => {
 
   it("should return empty base url in production when env is unset", () => {
     // Given
-    vi.stubEnv("DEV", "");
+    vi.stubEnv("DEV", false);
     vi.stubEnv("VITE_API_BASE_URL", "");
 
     // When / Then

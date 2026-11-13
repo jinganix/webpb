@@ -107,20 +107,19 @@ public class WebpbClient {
       WebpbMessage message, Class<T> responseType) {
     MessageContext context = WebpbUtils.getContext(message);
     return Mono.just(transportMapper.writeValue(message))
-        .flatMap(
-            body -> {
-              String url = WebpbUtils.formatUrl(urlObjectMapper, message);
-              RequestHeadersSpec<?> spec =
-                  webClient.method(context.getMethod()).uri(url).bodyValue(body);
-              if (headers != null) {
-                spec.headers(headers);
-              }
-              spec.attributes(attributes);
-              return spec.retrieve()
-                  .onStatus(status -> status.isError(), this::createException)
-                  .bodyToMono(byte[].class)
-                  .map(data -> transportMapper.readValue(data, responseType));
-            });
+        .flatMap(body -> {
+          String url = WebpbUtils.formatUrl(urlObjectMapper, message);
+          RequestHeadersSpec<?> spec =
+              webClient.method(context.getMethod()).uri(url).bodyValue(body);
+          if (headers != null) {
+            spec.headers(headers);
+          }
+          spec.attributes(attributes);
+          return spec.retrieve()
+              .onStatus(status -> status.isError(), this::createException)
+              .bodyToMono(byte[].class)
+              .map(data -> transportMapper.readValue(data, responseType));
+        });
   }
 
   /**

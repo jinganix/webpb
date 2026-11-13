@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch:
@@ -90,11 +91,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Setup protoc
         shell: bash
-        run: bash .github/scripts/setup-protoc.sh 27.3
+        run: bash .github/scripts/setup-protoc.sh 36.2
 
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true
@@ -179,11 +180,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Setup protoc
         shell: bash
-        run: bash .github/scripts/setup-protoc.sh 27.3
+        run: bash .github/scripts/setup-protoc.sh 36.2
 
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon -PskipGoTest=true

@@ -318,13 +318,11 @@ class WebpbUtilsTest {
     WebpbUtils.clearContextCache();
 
     // When / Then
-    assertThatThrownBy(
-            () ->
-                WebpbUtils.formatUrl(
-                    null,
-                    objectMapper,
-                    new FooRequest(
-                        WebpbMeta.builder().method("GET").path("https://a/{b}/c").build())))
+    assertThatThrownBy(() ->
+            WebpbUtils.formatUrl(
+                null,
+                objectMapper,
+                new FooRequest(WebpbMeta.builder().method("GET").path("https://a/{b}/c").build())))
         .isInstanceOf(RuntimeException.class);
   }
 

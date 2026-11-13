@@ -74,10 +74,9 @@ public class WebpbReactiveRequestBodyAdvice extends JacksonJsonDecoder {
   }
 
   private Mono<Object> mergeBodyAsync(Object body) {
-    return Mono.deferContextual(
-        contextView ->
-            Mono.just(
-                WebpbRequestBodySupport.mergeBody(
-                    body, ReactiveVariablesResolver.getVariableMap(contextView))));
+    return Mono.deferContextual(contextView ->
+        Mono.just(
+            WebpbRequestBodySupport.mergeBody(
+                body, ReactiveVariablesResolver.getVariableMap(contextView))));
   }
 }
