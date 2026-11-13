@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly PROTOC_VERSION="${1:-27.3}"
+readonly PROTOC_VERSION="${1:-36.2}"
 
 case "$(uname -s)/$(uname -m)" in
   Linux/x86_64)
