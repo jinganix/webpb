@@ -54,21 +54,19 @@ public class WebpbReactiveHandlerMethodArgumentResolver implements HandlerMethod
               Map<String, String> variablesMap = ReactiveVariablesResolver.getVariableMap(exchange);
               return WebpbUtils.updateMessage((WebpbMessage) object, variablesMap);
             })
-        .flatMap(
-            arg -> {
-              Object[] validationHints = extractValidationHints(parameter);
-              if (validationHints == null) {
-                return Mono.just(arg);
-              }
-              String name = Conventions.getVariableNameForParameter(parameter);
-              WebExchangeDataBinder binder = bindingContext.createDataBinder(exchange, arg, name);
-              binder.validate(validationHints);
-              if (binder.getBindingResult().hasErrors()) {
-                return Mono.error(
-                    new WebExchangeBindException(parameter, binder.getBindingResult()));
-              }
-              return Mono.just(arg);
-            });
+        .flatMap(arg -> {
+          Object[] validationHints = extractValidationHints(parameter);
+          if (validationHints == null) {
+            return Mono.just(arg);
+          }
+          String name = Conventions.getVariableNameForParameter(parameter);
+          WebExchangeDataBinder binder = bindingContext.createDataBinder(exchange, arg, name);
+          binder.validate(validationHints);
+          if (binder.getBindingResult().hasErrors()) {
+            return Mono.error(new WebExchangeBindException(parameter, binder.getBindingResult()));
+          }
+          return Mono.just(arg);
+        });
   }
 
   private Object[] extractValidationHints(MethodParameter parameter) {

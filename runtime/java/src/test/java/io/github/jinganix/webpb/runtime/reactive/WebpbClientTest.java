@@ -51,10 +51,8 @@ class WebpbClientTest {
     // Given
     WebClient webClient =
         WebClient.builder()
-            .exchangeFunction(
-                clientRequest ->
-                    Mono.just(
-                        ClientResponse.create(HttpStatus.OK).body("{\"id\": \"456\"}").build()))
+            .exchangeFunction(clientRequest ->
+                Mono.just(ClientResponse.create(HttpStatus.OK).body("{\"id\": \"456\"}").build()))
             .build();
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(webClient, attributes -> attributes.put("key", "value"));
@@ -74,10 +72,8 @@ class WebpbClientTest {
     // Given
     WebClient webClient =
         WebClient.builder()
-            .exchangeFunction(
-                clientRequest ->
-                    Mono.just(
-                        ClientResponse.create(HttpStatus.OK).body("{\"id\": \"123\"}").build()))
+            .exchangeFunction(clientRequest ->
+                Mono.just(ClientResponse.create(HttpStatus.OK).body("{\"id\": \"123\"}").build()))
             .build();
     WebpbUtils.clearContextCache();
     WebpbClient client = new WebpbClient(webClient);

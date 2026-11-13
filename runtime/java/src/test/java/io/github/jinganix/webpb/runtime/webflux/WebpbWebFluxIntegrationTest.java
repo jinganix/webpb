@@ -46,12 +46,10 @@ class WebpbWebFluxIntegrationTest {
     client =
         WebTestClient.bindToController(bodyQueryController, getFooController)
             .webFilter(new WebpbExchangeWebFilter())
-            .argumentResolvers(
-                configurer ->
-                    configurer.addCustomResolver(new WebpbReactiveHandlerMethodArgumentResolver()))
-            .httpMessageCodecs(
-                configurer ->
-                    configurer.customCodecs().register(new WebpbReactiveRequestBodyAdvice()))
+            .argumentResolvers(configurer ->
+                configurer.addCustomResolver(new WebpbReactiveHandlerMethodArgumentResolver()))
+            .httpMessageCodecs(configurer ->
+                configurer.customCodecs().register(new WebpbReactiveRequestBodyAdvice()))
             .build();
   }
 
@@ -68,14 +66,13 @@ class WebpbWebFluxIntegrationTest {
         .expectStatus()
         .isOk()
         .expectBody(BodyQueryRequest.class)
-        .consumeWith(
-            result -> {
-              BodyQueryRequest request = result.getResponseBody();
-              assertThat(request).isNotNull();
-              assertThat(request.getName()).isEqualTo("demo");
-              assertThat(request.getId()).isEqualTo(42);
-              assertThat(request.isTenantOnly()).isTrue();
-            });
+        .consumeWith(result -> {
+          BodyQueryRequest request = result.getResponseBody();
+          assertThat(request).isNotNull();
+          assertThat(request.getName()).isEqualTo("demo");
+          assertThat(request.getId()).isEqualTo(42);
+          assertThat(request.isTenantOnly()).isTrue();
+        });
   }
 
   @Test
@@ -89,14 +86,13 @@ class WebpbWebFluxIntegrationTest {
         .expectStatus()
         .isOk()
         .expectBody(FooRequest.class)
-        .consumeWith(
-            result -> {
-              FooRequest request = result.getResponseBody();
-              assertThat(request).isNotNull();
-              assertThat(request.getId()).isEqualTo(42);
-              assertThat(request.isPagination()).isTrue();
-              assertThat(request.getPageable().getPage()).isEqualTo(1);
-              assertThat(request.getPageable().getSize()).isEqualTo(5);
-            });
+        .consumeWith(result -> {
+          FooRequest request = result.getResponseBody();
+          assertThat(request).isNotNull();
+          assertThat(request.getId()).isEqualTo(42);
+          assertThat(request.isPagination()).isTrue();
+          assertThat(request.getPageable().getPage()).isEqualTo(1);
+          assertThat(request.getPageable().getSize()).isEqualTo(5);
+        });
   }
 }
