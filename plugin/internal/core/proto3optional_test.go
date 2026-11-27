@@ -132,7 +132,7 @@ func TestProto3OptionalEmittersTreatAsNullable(t *testing.T) {
 	for _, content := range javaFiles {
 		javaJoined += content + "\n"
 	}
-	if !strings.Contains(javaJoined, "S status") {
+	if !strings.Contains(javaJoined, "private S status;") {
 		t.Fatalf("expected Java boxed enum field, got\n%s", javaJoined)
 	}
 	if !strings.Contains(javaJoined, "@NotNull") {

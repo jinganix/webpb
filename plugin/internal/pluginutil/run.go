@@ -13,6 +13,10 @@ var (
 	stdout io.Writer = os.Stdout
 )
 
+// SupportedFeatures is the protoc feature bitmask advertised by every
+// webpb plugin. Keep it in one place so all plugins stay in sync.
+const SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
+
 // GenerateFunc produces generated files from a protoc request.
 type GenerateFunc func(req *pluginpb.CodeGeneratorRequest) ([]*pluginpb.CodeGeneratorResponse_File, error)
 
@@ -35,7 +39,7 @@ func Run(generate GenerateFunc) {
 }
 
 func writeResponse(resp *pluginpb.CodeGeneratorResponse) {
-	resp.SupportedFeatures = proto.Uint64(uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL))
+	resp.SupportedFeatures = proto.Uint64(resp.GetSupportedFeatures() | SupportedFeatures)
 	out, err := proto.Marshal(resp)
 	if err != nil {
 		panic(err)

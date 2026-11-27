@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/jinganix/webpb/plugin/internal/pluginutil"
 	"google.golang.org/protobuf/proto"
 	pluginpb "google.golang.org/protobuf/types/pluginpb"
 )
@@ -19,7 +20,7 @@ func main() {
 	}
 	content := string(data)
 	resp := &pluginpb.CodeGeneratorResponse{
-		SupportedFeatures: proto.Uint64(uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)),
+		SupportedFeatures: proto.Uint64(pluginutil.SupportedFeatures),
 		File: []*pluginpb.CodeGeneratorResponse_File{
 			{
 				Name:    proto.String("test.dump"),
