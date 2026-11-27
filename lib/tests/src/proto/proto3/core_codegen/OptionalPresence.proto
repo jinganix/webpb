@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package TestProtoOptional;
+
+option java_package = "test.optional";
+
+// buf:lint:ignore IMPORT_USED_ONLY_FOR_EXTENSIONS
+import "imports/WebpbOptions.proto";
+import "webpb/WebpbExtend.proto";
+
+enum TenantStatusEnum {
+  TENANT_STATUS_UNSPECIFIED = 0;
+  TENANT_STATUS_ACTIVE = 1;
+  TENANT_STATUS_SUSPENDED = 2;
+}
+
+message OptionalPresence {
+  option (m_opts).opt = {
+    method: "GET"
+    context: "test"
+    path: "/optional-presence/{status}"
+  };
+
+  optional TenantStatusEnum status = 2 [(opts).opt = {valid: {required: true}}];
+}
