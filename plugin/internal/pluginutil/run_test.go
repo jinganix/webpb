@@ -9,6 +9,64 @@ import (
 	pluginpb "google.golang.org/protobuf/types/pluginpb"
 )
 
+func TestRunAdvertisesProto3Optional(t *testing.T) {
+	req := &pluginpb.CodeGeneratorRequest{}
+	reqData, err := proto.Marshal(req)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+
+	var out bytes.Buffer
+	oldStdin, oldStdout := stdin, stdout
+	stdin = bytes.NewReader(reqData)
+	stdout = &out
+	t.Cleanup(func() {
+		stdin = oldStdin
+		stdout = oldStdout
+	})
+
+	Run(func(req *pluginpb.CodeGeneratorRequest) ([]*pluginpb.CodeGeneratorResponse_File, error) {
+		return []*pluginpb.CodeGeneratorResponse_File{NewFile("out.txt", "ok")}, nil
+	})
+
+	resp := &pluginpb.CodeGeneratorResponse{}
+	if err := proto.Unmarshal(out.Bytes(), resp); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+	if resp.GetSupportedFeatures()&uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL) == 0 {
+		t.Fatalf("expected FEATURE_PROTO3_OPTIONAL, got %d", resp.GetSupportedFeatures())
+	}
+}
+
+func TestRunAdvertisesProto3OptionalOnError(t *testing.T) {
+	req := &pluginpb.CodeGeneratorRequest{}
+	reqData, err := proto.Marshal(req)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+
+	var out bytes.Buffer
+	oldStdin, oldStdout := stdin, stdout
+	stdin = bytes.NewReader(reqData)
+	stdout = &out
+	t.Cleanup(func() {
+		stdin = oldStdin
+		stdout = oldStdout
+	})
+
+	Run(func(req *pluginpb.CodeGeneratorRequest) ([]*pluginpb.CodeGeneratorResponse_File, error) {
+		return nil, io.ErrClosedPipe
+	})
+
+	resp := &pluginpb.CodeGeneratorResponse{}
+	if err := proto.Unmarshal(out.Bytes(), resp); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+	if resp.GetSupportedFeatures()&uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL) == 0 {
+		t.Fatalf("expected FEATURE_PROTO3_OPTIONAL on error, got %d", resp.GetSupportedFeatures())
+	}
+}
+
 func TestNewFile(t *testing.T) {
 	file := NewFile("a.java", "content")
 	if file.GetName() != "a.java" || file.GetContent() != "content" {

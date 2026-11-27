@@ -35,6 +35,7 @@ func Run(generate GenerateFunc) {
 }
 
 func writeResponse(resp *pluginpb.CodeGeneratorResponse) {
+	resp.SupportedFeatures = proto.Uint64(uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL))
 	out, err := proto.Marshal(resp)
 	if err != nil {
 		panic(err)
