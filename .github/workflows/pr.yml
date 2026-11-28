@@ -87,7 +87,7 @@ jobs:
           # sample/backend/pom.xml tracks the dev snapshot line (see scripts/sync-versions.mjs),
           # which is not on Maven Central; pin the last release (consumer docs in README.md)
           # for Central resolution here. The current snapshot is covered by the Gradle build above.
-          release_version=$(grep -oPm1 '(?<=<webpb.version>)[^<]+' README.md)
+          release_version=$(sed -n 's/.*<webpb.version>\([^<]*\)<.*/\1/p' README.md | head -n 1)
           mvn -f sample/backend/pom.xml generate-sources -Dwebpb.version="${release_version}"
 
       - name: Install runtime/ts dependencies
@@ -158,5 +158,5 @@ jobs:
       - name: Build sample backend with Maven-resolved plugin
         shell: bash
         run: |
-          release_version=$(grep -oPm1 '(?<=<webpb.version>)[^<]+' README.md)
+          release_version=$(sed -n 's/.*<webpb.version>\([^<]*\)<.*/\1/p' README.md | head -n 1)
           ./gradlew :sample:backend:compileJava --no-daemon -PskipGoTest=true "-PwebpbVersion=${release_version}" -x :plugin:buildGoJava
