@@ -142,6 +142,6 @@ class OptionsControllerTest {
     // When / Then
     mvc.perform(request(new EnumStringRequest(StatusPb.ACTIVE)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status", is("ACTIVE")));
+        .andExpect(jsonPath("$.status", is("active")));
   }
 }

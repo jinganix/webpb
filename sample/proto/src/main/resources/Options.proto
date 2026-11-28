@@ -10,7 +10,12 @@ import "WebpbOptions.proto";
 
 option (f_opts).java = {
   annotation: '@Generated'
+  import: 'com.fasterxml.jackson.annotation.JsonAlias'
   import: 'com.fasterxml.jackson.annotation.JsonProperty'
+  import: 'tools.jackson.databind.annotation.JsonDeserialize'
+  import: 'tools.jackson.databind.annotation.JsonSerialize'
+  import: 'io.github.jinganix.webpb.runtime.enumeration.EnumerationDeserializer'
+  import: 'io.github.jinganix.webpb.runtime.enumeration.EnumerationSerializer'
 };
 
 // Demonstrates (m_opts).opt method + path.
@@ -93,7 +98,8 @@ message ValidationErrorsResponse {
   map<string, string> errors = 1;
 }
 
-// Demonstrates (opts).ts.as_string.
+// Demonstrates (opts).ts.as_string. Only for snowflake / distributed IDs;
+// timestamps, counts, amounts and byte sizes must stay JSON numbers (no as_string).
 message Int64StringRequest {
   option (m_opts).opt = {
     method: "POST"
@@ -138,7 +144,10 @@ message FieldAliasRequest {
     path: "/options/field-alias"
   };
 
-  required string title = 1 [(opts).ts = {alias: 't'}];
+  required string title = 1 [
+    (opts).ts = {alias: 't'},
+    (opts).java = {annotation: '@JsonAlias("t")'}
+  ];
 }
 
 message FieldAliasResponse {
@@ -147,6 +156,10 @@ message FieldAliasResponse {
 
 enum StatusPb {
   option (e_opts).opt = {string_value: true};
+  option (e_opts).java = {
+    annotation: '@JsonDeserialize(using = EnumerationDeserializer.class)'
+    annotation: '@JsonSerialize(using = EnumerationSerializer.class)'
+  };
 
   UNKNOWN = 0 [(v_opts).opt = {value: "unknown"}];
   ACTIVE = 1 [(v_opts).opt = {value: "active"}];
