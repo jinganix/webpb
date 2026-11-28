@@ -19,12 +19,15 @@
 package io.github.jinganix.webpb.runtime.mvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 import io.github.jinganix.webpb.runtime.model.BadRequest;
 import io.github.jinganix.webpb.runtime.model.FooController;
 import io.github.jinganix.webpb.runtime.model.FooRequest;
+import io.github.jinganix.webpb.runtime.support.WebpbRequestBodySupport;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -34,6 +37,7 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.MockedStatic;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.ObjectToStringHttpMessageConverter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -200,6 +204,66 @@ class WebpbRequestBodyAdviceTest {
 
       // Then
       assertThat(body).isEqualTo(request);
+    }
+  }
+
+  @Test
+  @DisplayName("should throw 400 when query value is invalid (?id=not-a-number)")
+  void shouldThrowWhenQueryValueIsInvalid() {
+    // Given
+    WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
+    MethodParameter methodParameter = getMethodParameter(advice);
+    FooRequest request = new FooRequest();
+
+    // When / Then invalid int query must surface as 400, not 500
+    try (MockedStatic<RequestContextHolder> holder = mockStatic(RequestContextHolder.class)) {
+      MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+      servletRequest.setParameter("id", "not-a-number");
+      servletRequest.setAttribute(
+          HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.emptyMap());
+      ServletRequestAttributes attributes = new ServletRequestAttributes(servletRequest);
+      holder.when(RequestContextHolder::getRequestAttributes).thenReturn(attributes);
+
+      assertThatThrownBy(() ->
+              advice.afterBodyRead(
+                  request,
+                  mock(HttpInputMessage.class),
+                  methodParameter,
+                  mock(Type.class),
+                  ObjectToStringHttpMessageConverter.class))
+          .isInstanceOf(HttpMessageNotReadableException.class);
+    }
+  }
+
+  @Test
+  @DisplayName("should rethrow readable exception without wrapping")
+  void shouldRethrowReadableExceptionWithoutWrapping() {
+    // Given mergeBody throws HttpMessageNotReadableException directly (passthrough branch)
+    WebpbRequestBodyAdvice advice = new WebpbRequestBodyAdvice();
+    MethodParameter methodParameter = getMethodParameter(advice);
+    FooRequest request = new FooRequest();
+    HttpMessageNotReadableException expected =
+        new HttpMessageNotReadableException("direct", mock(HttpInputMessage.class));
+
+    // When / Then the same instance passes through unwrapped
+    try (MockedStatic<RequestContextHolder> holder = mockStatic(RequestContextHolder.class);
+        MockedStatic<WebpbRequestBodySupport> mocked = mockStatic(WebpbRequestBodySupport.class)) {
+      MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+      servletRequest.setParameter("id", "42");
+      servletRequest.setAttribute(
+          HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.emptyMap());
+      ServletRequestAttributes attributes = new ServletRequestAttributes(servletRequest);
+      holder.when(RequestContextHolder::getRequestAttributes).thenReturn(attributes);
+      mocked.when(() -> WebpbRequestBodySupport.mergeBody(any(), any())).thenThrow(expected);
+
+      assertThatThrownBy(() ->
+              advice.afterBodyRead(
+                  request,
+                  mock(HttpInputMessage.class),
+                  methodParameter,
+                  mock(Type.class),
+                  ObjectToStringHttpMessageConverter.class))
+          .isSameAs(expected);
     }
   }
 }

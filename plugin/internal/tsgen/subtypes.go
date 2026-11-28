@@ -12,13 +12,13 @@ import (
 type SubTypesGenerator struct{}
 
 // Generate generates SubTypeTypes files.
-func (g *SubTypesGenerator) Generate(descriptors []protoreflect.FileDescriptor) (map[string]string, error) {
+func (g *SubTypesGenerator) Generate(all, targets []protoreflect.FileDescriptor) (map[string]string, error) {
 	engine, err := sharedTSEngine()
 	if err != nil {
 		return nil, err
 	}
 	extendsMap := map[string][]protoreflect.MessageDescriptor{}
-	for _, fileDescriptor := range descriptors {
+	for _, fileDescriptor := range targets {
 		messages := fileDescriptor.Messages()
 		for i := 0; i < messages.Len(); i++ {
 			descriptor := messages.Get(i)
@@ -26,16 +26,21 @@ func (g *SubTypesGenerator) Generate(descriptors []protoreflect.FileDescriptor) 
 			if opt.GetExtends() == "" || len(opt.GetSubValues()) == 0 {
 				continue
 			}
-			extendsMap[opt.GetExtends()] = append(extendsMap[opt.GetExtends()], descriptor)
+			key := opt.GetExtends()
+			if resolved := core.ResolveMessage(all, opt.GetExtends()); resolved != nil {
+				key = string(resolved.FullName())
+			}
+			extendsMap[key] = append(extendsMap[key], descriptor)
 		}
 	}
 	fileMap := map[string]string{}
 	for typeName, descs := range extendsMap {
-		content, err := g.genContent(engine, typeName, descs)
+		simple := simpleTypeName(typeName)
+		content, err := g.genContent(engine, simple, descs)
 		if err != nil {
 			return nil, err
 		}
-		fileMap[typeName+"Types.ts"] = content
+		fileMap[simple+"Types.ts"] = content
 	}
 	return fileMap, nil
 }

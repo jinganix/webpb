@@ -22,7 +22,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>21</java.version>
-    <webpb.version>0.0.43</webpb.version>
+    <webpb.version>0.0.44-SNAPSHOT</webpb.version>
     <protobuf.version>4.36.2</protobuf.version>
     <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
     <os.maven.plugin.version>1.7.1</os.maven.plugin.version>
@@ -55,10 +55,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -109,22 +105,14 @@
           <protocArtifact>
             com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
           </protocArtifact>
+          <pluginId>webpb</pluginId>
+          <pluginArtifact>io.github.jinganix.webpb:webpb-protoc-java:${webpb.version}:exe:${os.detected.classifier}</pluginArtifact>
           <protoSourceRoot>${project.basedir}/../proto/src/main/resources</protoSourceRoot>
           <includes>
             <include>Common.proto</include>
             <include>Options.proto</include>
             <include>Store.proto</include>
           </includes>
-          <protocPlugins>
-            <protocPlugin>
-              <id>webpb</id>
-              <groupId>io.github.jinganix.webpb</groupId>
-              <artifactId>webpb-protoc-java</artifactId>
-              <version>${webpb.version}</version>
-              <classifier>all</classifier>
-              <mainClass>io.github.jinganix.webpb.java.Main</mainClass>
-            </protocPlugin>
-          </protocPlugins>
         </configuration>
         <executions>
           <execution>

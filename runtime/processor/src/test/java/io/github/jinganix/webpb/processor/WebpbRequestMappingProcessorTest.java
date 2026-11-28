@@ -139,6 +139,32 @@ class WebpbRequestMappingProcessorTest {
   }
 
   @Test
+  @DisplayName("should preserve explicit path when user sets path")
+  void shouldPreserveExplicitPathWhenUserSetsPath() {
+    // When
+    Compilation compilation =
+        javac()
+            .withProcessors(new WebpbRequestMappingProcessor())
+            .compile(forResource("request/Sample9.java"));
+
+    // Then
+    assertThat(compilation).succeeded();
+  }
+
+  @Test
+  @DisplayName("should resolve message from superclass when inherited")
+  void shouldResolveMessageFromSuperclassWhenInherited() {
+    // When
+    Compilation compilation =
+        javac()
+            .withProcessors(new WebpbRequestMappingProcessor())
+            .compile(forResource("request/Sample10.java"));
+
+    // Then
+    assertThat(compilation).succeeded();
+  }
+
+  @Test
   @DisplayName("should fail compilation when processing invalid sample")
   void shouldFailCompilationWhenProcessingInvalidSample() {
     // When
@@ -146,6 +172,32 @@ class WebpbRequestMappingProcessorTest {
         javac()
             .withProcessors(new WebpbRequestMappingProcessor())
             .compile(forResource("request/SampleFailed1.java"));
+
+    // Then
+    assertThat(compilation).failed();
+  }
+
+  @Test
+  @DisplayName("should fail compilation when value and path conflict")
+  void shouldFailCompilationWhenValueAndPathConflict() {
+    // When
+    Compilation compilation =
+        javac()
+            .withProcessors(new WebpbRequestMappingProcessor())
+            .compile(forResource("request/SampleFailed2.java"));
+
+    // Then
+    assertThat(compilation).failed();
+  }
+
+  @Test
+  @DisplayName("should fail compilation when ambiguous messages")
+  void shouldFailCompilationWhenAmbiguousMessages() {
+    // When
+    Compilation compilation =
+        javac()
+            .withProcessors(new WebpbRequestMappingProcessor())
+            .compile(forResource("request/SampleFailed3.java"));
 
     // Then
     assertThat(compilation).failed();

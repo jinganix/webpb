@@ -139,6 +139,19 @@ class WebpbMessageMappingProcessorTest {
   }
 
   @Test
+  @DisplayName("should resolve message from superclass when inherited")
+  void shouldResolveMessageFromSuperclassWhenInherited() {
+    // When
+    Compilation compilation =
+        javac()
+            .withProcessors(new WebpbMessageMappingProcessor())
+            .compile(forResource("message/Sample9.java"));
+
+    // Then
+    assertThat(compilation).succeeded();
+  }
+
+  @Test
   @DisplayName("should fail compilation when processing invalid sample")
   void shouldFailCompilationWhenProcessingInvalidSample() {
     // When
@@ -146,6 +159,19 @@ class WebpbMessageMappingProcessorTest {
         javac()
             .withProcessors(new WebpbMessageMappingProcessor())
             .compile(forResource("message/SampleFailed1.java"));
+
+    // Then
+    assertThat(compilation).failed();
+  }
+
+  @Test
+  @DisplayName("should fail compilation when ambiguous messages")
+  void shouldFailCompilationWhenAmbiguousMessages() {
+    // When
+    Compilation compilation =
+        javac()
+            .withProcessors(new WebpbMessageMappingProcessor())
+            .compile(forResource("message/SampleFailed2.java"));
 
     // Then
     assertThat(compilation).failed();

@@ -19,7 +19,9 @@
 package io.github.jinganix.webpb.runtime.mvc;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** Utilities to update a {@link WebpbMessage}. */
@@ -34,13 +36,29 @@ public class WebpbRequestUtils {
    * @param parameters multimap of parameters
    * @return map of variables
    */
-  public static Map<String, String> mergeVariables(
+  public static Map<String, List<String>> mergeVariables(
       Map<String, String> attributes, Map<String, String[]> parameters) {
-    Map<String, String> variablesMap =
-        attributes == null ? new HashMap<>() : new HashMap<>(attributes);
-    for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
-      if (entry.getValue() != null && entry.getValue().length > 0) {
-        variablesMap.put(entry.getKey(), entry.getValue()[0]);
+    Map<String, List<String>> variablesMap = new HashMap<>();
+    if (attributes != null) {
+      for (Map.Entry<String, String> entry : attributes.entrySet()) {
+        if (entry.getValue() != null) {
+          variablesMap.put(entry.getKey(), List.of(entry.getValue()));
+        }
+      }
+    }
+    if (parameters != null) {
+      for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
+        if (entry.getValue() != null && entry.getValue().length > 0) {
+          List<String> values = new ArrayList<>();
+          for (String value : entry.getValue()) {
+            if (value != null) {
+              values.add(value);
+            }
+          }
+          if (!values.isEmpty()) {
+            variablesMap.putIfAbsent(entry.getKey(), List.copyOf(values));
+          }
+        }
       }
     }
     return variablesMap;

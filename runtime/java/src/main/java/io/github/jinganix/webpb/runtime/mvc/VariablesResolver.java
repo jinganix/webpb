@@ -22,6 +22,7 @@ import static io.github.jinganix.webpb.runtime.mvc.WebpbRequestUtils.mergeVariab
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -38,7 +39,7 @@ public class VariablesResolver {
    *
    * @return map of variables
    */
-  public static Map<String, String> getVariableMap() {
+  public static Map<String, List<String>> getVariableMap() {
     RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
     if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
       HttpServletRequest request = servletRequestAttributes.getRequest();

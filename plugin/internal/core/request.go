@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"strings"
 
 	"google.golang.org/protobuf/reflect/protodesc"
@@ -65,7 +66,11 @@ func BuildDescriptors(req *pluginpb.CodeGeneratorRequest) ([]protoreflect.FileDe
 
 	var targets []protoreflect.FileDescriptor
 	for _, name := range req.FileToGenerate {
-		targets = append(targets, filesMap[normalizeProtoPath(name)])
+		fd, ok := filesMap[normalizeProtoPath(name)]
+		if !ok {
+			return nil, nil, fmt.Errorf("file to generate not found: %s", name)
+		}
+		targets = append(targets, fd)
 	}
 	return all, targets, nil
 }

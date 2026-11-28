@@ -1,6 +1,8 @@
 package pluginutil
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -21,32 +23,55 @@ const SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_O
 type GenerateFunc func(req *pluginpb.CodeGeneratorRequest) ([]*pluginpb.CodeGeneratorResponse_File, error)
 
 // Run executes a protoc plugin using the standard stdin/stdout protocol.
+// It never panics: internal failures and panics from generate are reported
+// via CodeGeneratorResponse.Error.
 func Run(generate GenerateFunc) {
+	resp := run(generate)
+	if err := writeResponse(resp); err != nil {
+		writeResponse(&pluginpb.CodeGeneratorResponse{Error: proto.String(err.Error())})
+	}
+}
+
+func run(generate GenerateFunc) (resp *pluginpb.CodeGeneratorResponse) {
+	defer func() {
+		if r := recover(); r != nil {
+			var err error
+			switch v := r.(type) {
+			case error:
+				err = v
+			case string:
+				err = errors.New(v)
+			default:
+				err = fmt.Errorf("%v", v)
+			}
+			resp = &pluginpb.CodeGeneratorResponse{Error: proto.String(err.Error())}
+		}
+	}()
 	data, err := io.ReadAll(stdin)
 	if err != nil {
-		panic(err)
+		return &pluginpb.CodeGeneratorResponse{Error: proto.String(err.Error())}
 	}
 	req := &pluginpb.CodeGeneratorRequest{}
 	if err := proto.Unmarshal(data, req); err != nil {
-		panic(err)
+		return &pluginpb.CodeGeneratorResponse{Error: proto.String(err.Error())}
 	}
 	files, err := generate(req)
 	if err != nil {
-		writeResponse(&pluginpb.CodeGeneratorResponse{Error: proto.String(err.Error())})
-		return
+		return &pluginpb.CodeGeneratorResponse{Error: proto.String(err.Error())}
 	}
-	writeResponse(&pluginpb.CodeGeneratorResponse{File: files})
+	return &pluginpb.CodeGeneratorResponse{File: files}
 }
 
-func writeResponse(resp *pluginpb.CodeGeneratorResponse) {
+func writeResponse(resp *pluginpb.CodeGeneratorResponse) error {
 	resp.SupportedFeatures = proto.Uint64(resp.GetSupportedFeatures() | SupportedFeatures)
 	out, err := proto.Marshal(resp)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if _, err := stdout.Write(out); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 // NewFile creates a generated file entry.

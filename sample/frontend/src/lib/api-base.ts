@@ -1,5 +1,3 @@
-const DEFAULT_DEV_BACKEND = "http://127.0.0.1:8181";
-
 export function resolveApiBaseUrl(): string {
   const configured = import.meta.env.VITE_API_BASE_URL?.trim();
   if (configured) {
@@ -12,12 +10,4 @@ export function resolveApiBaseUrl(): string {
     return "http://127.0.0.1:4200";
   }
   return "";
-}
-
-export function resolveDirectBackendUrl(): string {
-  const configured = import.meta.env.VITE_API_BASE_URL?.trim();
-  if (configured) {
-    return configured.replace(/\/$/, "");
-  }
-  return DEFAULT_DEV_BACKEND;
 }

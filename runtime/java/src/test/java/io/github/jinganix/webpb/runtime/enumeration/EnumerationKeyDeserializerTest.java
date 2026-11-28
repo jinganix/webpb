@@ -19,6 +19,7 @@
 package io.github.jinganix.webpb.runtime.enumeration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -60,5 +61,30 @@ class EnumerationKeyDeserializerTest {
     assertThat(data).hasSize(2);
     assertThat(data.get(StringEnum.A)).isEqualTo(1);
     assertThat(data.get(StringEnum.B)).isEqualTo(2);
+  }
+
+  @Test
+  @DisplayName("should throw when enum key is unknown")
+  void shouldThrowWhenEnumKeyIsUnknown() {
+    // Given
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    // When / Then
+    assertThatThrownBy(() ->
+            objectMapper.readValue(
+                "{\"unknown\":1}", new TypeReference<Map<StringEnum, Integer>>() {}))
+        .isInstanceOf(tools.jackson.databind.exc.InvalidFormatException.class);
+  }
+
+  @Test
+  @DisplayName("should throw with object target when context is null")
+  void shouldThrowWithObjectTargetWhenContextIsNull() {
+    // Given a deserializer with no value map and no context (fallback branches)
+    EnumerationKeyDeserializer deserializer = new EnumerationKeyDeserializer();
+
+    // When / Then
+    assertThatThrownBy(() -> deserializer.deserializeKey("unknown", null))
+        .isInstanceOf(tools.jackson.databind.exc.InvalidFormatException.class)
+        .hasMessageContaining("Unknown enumeration key");
   }
 }

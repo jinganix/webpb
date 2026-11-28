@@ -21,6 +21,7 @@ package io.github.jinganix.webpb.runtime.webflux;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,10 +43,12 @@ class ReactiveVariablesResolverTest {
         .put(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.singletonMap("id", "42"));
 
     // When
-    Map<String, String> variables = ReactiveVariablesResolver.getVariableMap(exchange);
+    Map<String, List<String>> variables = ReactiveVariablesResolver.getVariableMap(exchange);
 
     // Then
-    assertThat(variables).containsEntry("id", "42").containsEntry("tenantOnly", "true");
+    assertThat(variables)
+        .containsEntry("id", List.of("42"))
+        .containsEntry("tenantOnly", List.of("true"));
   }
 
   @Test
@@ -53,5 +56,44 @@ class ReactiveVariablesResolverTest {
   void shouldReturnEmptyMapWhenExchangeIsNull() {
     // When / Then
     assertThat(ReactiveVariablesResolver.getVariableMap((MockServerWebExchange) null)).isEmpty();
+  }
+
+  @Test
+  @DisplayName("should prefer path variable when query collides on GET /domain/42/action?id=999")
+  void shouldPreferPathVariableWhenQueryCollides() {
+    // Given path id=42 and colliding query id=999 (MVC WebpbRequestUtils parity, reactive exchange
+    // level)
+    MockServerWebExchange exchange =
+        MockServerWebExchange.from(MockServerHttpRequest.get("/domain/42/action?id=999").build());
+    exchange
+        .getAttributes()
+        .put(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.singletonMap("id", "42"));
+
+    // When
+    Map<String, List<String>> variables = ReactiveVariablesResolver.getVariableMap(exchange);
+
+    // Then path value wins and is used for the message field
+    assertThat(variables.get("id")).containsExactly("42");
+    io.github.jinganix.webpb.runtime.model.FooRequest message =
+        io.github.jinganix.webpb.runtime.WebpbUtils.updateMessage(
+            new io.github.jinganix.webpb.runtime.model.FooRequest(), variables);
+    assertThat(message.getId()).isEqualTo(42);
+  }
+
+  @Test
+  @DisplayName("should preserve all values when duplicate query keys exist")
+  void shouldPreserveAllValuesWhenDuplicateQueryKeysExist() {
+    // Given
+    MockServerWebExchange exchange =
+        MockServerWebExchange.from(MockServerHttpRequest.get("/posts/42?id=1&id=2").build());
+    exchange
+        .getAttributes()
+        .put(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.emptyMap());
+
+    // When
+    Map<String, List<String>> variables = ReactiveVariablesResolver.getVariableMap(exchange);
+
+    // Then
+    assertThat(variables.get("id")).containsExactly("1", "2");
   }
 }

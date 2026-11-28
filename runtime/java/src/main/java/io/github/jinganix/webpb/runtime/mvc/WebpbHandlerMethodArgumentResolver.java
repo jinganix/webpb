@@ -23,10 +23,12 @@ import static io.github.jinganix.webpb.runtime.mvc.WebpbRequestUtils.mergeVariab
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbUtils;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.springframework.core.Conventions;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.WebDataBinder;
@@ -66,8 +68,20 @@ public class WebpbHandlerMethodArgumentResolver
         (Map<String, String>)
             webRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, 0);
     Map<String, String[]> parameters = webRequest.getParameterMap();
-    Map<String, String> variablesMap = mergeVariables(attributes, parameters);
-    Object arg = WebpbUtils.updateMessage((WebpbMessage) object, variablesMap);
+    Map<String, List<String>> variablesMap = mergeVariables(attributes, parameters);
+    Object arg;
+    try {
+      arg = WebpbUtils.updateMessage((WebpbMessage) object, variablesMap);
+    } catch (Exception e) {
+      if (e instanceof MethodArgumentNotValidException validException) {
+        throw validException;
+      }
+      String name = Conventions.getVariableNameForParameter(parameter);
+      BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(object, name);
+      Throwable cause = e.getCause() != null ? e.getCause() : e;
+      bindingResult.reject("typeMismatch", "Invalid query value: " + cause.getMessage());
+      throw new MethodArgumentNotValidException(parameter, bindingResult);
+    }
 
     if (binderFactory != null) {
       String name = Conventions.getVariableNameForParameter(parameter);

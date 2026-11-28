@@ -23,7 +23,7 @@ func (g *FromAliasGenerator) Generate(ctx *GeneratorContext) (map[string]string,
 		if err != nil {
 			return nil, err
 		}
-		fileMap[baseType+"FromAlias.ts"] = content
+		fileMap[simpleTypeName(baseType)+"FromAlias.ts"] = content
 	}
 	return fileMap, nil
 }
@@ -58,13 +58,23 @@ func (g *FromAliasGenerator) genContent(engine interface {
 	return normalizeTsTemplateOutput(content), nil
 }
 
+func simpleTypeName(fullName string) string {
+	if idx := strings.LastIndex(fullName, "."); idx >= 0 {
+		return fullName[idx+1:]
+	}
+	return fullName
+}
+
 func (g *FromAliasGenerator) getSubValues(imports *Imports, descriptor protoreflect.MessageDescriptor) []string {
 	var values []string
 	for _, subValue := range core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt().GetSubValues() {
 		if valueDescriptor := core.ResolveEnumValue([]protoreflect.FileDescriptor{descriptor.ParentFile()}, subValue); valueDescriptor != nil {
-			enum := valueDescriptor.Parent().(protoreflect.EnumDescriptor)
-			fullName := string(enum.FullName()) + "." + string(valueDescriptor.Name())
-			values = append(values, imports.ImportType(fullName))
+			if enum, ok := valueDescriptor.Parent().(protoreflect.EnumDescriptor); ok {
+				fullName := string(enum.FullName()) + "." + string(valueDescriptor.Name())
+				values = append(values, imports.ImportType(fullName))
+				continue
+			}
+			values = append(values, `"`+subValue+`"`)
 			continue
 		}
 		values = append(values, `"`+subValue+`"`)

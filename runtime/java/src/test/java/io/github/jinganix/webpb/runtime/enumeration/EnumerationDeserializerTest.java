@@ -19,6 +19,7 @@
 package io.github.jinganix.webpb.runtime.enumeration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,29 +95,36 @@ class EnumerationDeserializerTest {
     }
 
     @Test
-    @DisplayName("should return null when unknown value")
-    void shouldReturnNullWhenUnknownValue() throws Exception {
+    @DisplayName("should throw when unknown value")
+    void shouldThrowWhenUnknownValue() {
       // Given
       EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
 
-      // When
-      IntegerEnum result = deserialize(deserializer, "\"unknown\"");
-
-      // Then
-      assertThat(result).isNull();
+      // When / Then
+      assertThatThrownBy(() -> deserialize(deserializer, "\"unknown\""))
+          .isInstanceOf(tools.jackson.databind.exc.InvalidFormatException.class);
     }
 
     @Test
-    @DisplayName("should return null when unsupported token")
-    void shouldReturnNullWhenUnsupportedToken() throws Exception {
+    @DisplayName("should throw when unknown numeric value")
+    void shouldThrowWhenUnknownNumericValue() {
       // Given
       EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
 
-      // When
-      IntegerEnum result = deserialize(deserializer, "true");
+      // When / Then
+      assertThatThrownBy(() -> deserialize(deserializer, "999"))
+          .isInstanceOf(tools.jackson.databind.exc.InvalidFormatException.class);
+    }
 
-      // Then
-      assertThat(result).isNull();
+    @Test
+    @DisplayName("should throw when unsupported token")
+    void shouldThrowWhenUnsupportedToken() {
+      // Given
+      EnumerationDeserializer<IntegerEnum> deserializer = new EnumerationDeserializer<>(valueMap());
+
+      // When / Then
+      assertThatThrownBy(() -> deserialize(deserializer, "true"))
+          .isInstanceOf(tools.jackson.databind.exc.InvalidFormatException.class);
     }
   }
 

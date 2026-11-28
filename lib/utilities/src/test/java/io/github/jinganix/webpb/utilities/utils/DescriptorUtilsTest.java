@@ -230,4 +230,18 @@ class DescriptorUtilsTest {
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Invalid accessor notExists");
   }
+
+  @Test
+  @DisplayName("should throw when accessor traverses scalar field")
+  void shouldThrowWhenAccessorTraversesScalarField() {
+    // Given
+    RequestContext context = createRequest(Dump.proto2_core_codegen);
+    Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
+    SegmentGroup group = SegmentGroup.of("/{test1.test1}");
+
+    // When / Then
+    assertThatThrownBy(() -> validation(group, descriptor))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Invalid accessor test1.test1");
+  }
 }

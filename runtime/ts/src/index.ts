@@ -87,9 +87,49 @@ function toAliasedValue(value: unknown): unknown {
   return convert ? convert() : value;
 }
 
+// Recursively converts nested message values inside plain objects, Maps and
+// arrays, matching Go toAliasValue which recurses into slices/maps.
+// Scalars and non-message class instances are returned unchanged.
+function toAliasDeep(value: unknown): unknown {
+  if (hasAliasMethod(value)) {
+    return toAliasedValue(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(toAliasDeep);
+  }
+  if (value instanceof Map) {
+    const out = new Map<unknown, unknown>();
+    for (const [mapKey, mapValue] of value.entries()) {
+      if (typeof mapKey === "string" && isUnsafeKey(mapKey)) {
+        continue;
+      }
+      out.set(mapKey, toAliasDeep(mapValue));
+    }
+    return out;
+  }
+  if (isPlainObject(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [plainKey, plainValue] of Object.entries(value)) {
+      if (isUnsafeKey(plainKey)) {
+        continue;
+      }
+      out[plainKey] = toAliasDeep(plainValue);
+    }
+    return out;
+  }
+  return value;
+}
+
+function isUnsafeKey(key: string): boolean {
+  return key === "__proto__" || key === "constructor" || key === "prototype";
+}
+
 function unwrapMessage(src: object): Record<string, unknown> {
   const plain: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(src)) {
+    if (key === "webpbMeta" || isUnsafeKey(key)) {
+      continue;
+    }
     if (typeof value !== "function") {
       plain[key] = value;
     }
@@ -128,6 +168,9 @@ export function assign(
   }
   const skip = new Set(excludes);
   for (const [key, value] of Object.entries(normalized)) {
+    if (isUnsafeKey(key)) {
+      continue;
+    }
     if (value !== undefined && !skip.has(key)) {
       dest[key] = value;
     }
@@ -144,7 +187,13 @@ export function getter(data: unknown, path: string): unknown {
   }
   let current: unknown = data;
   for (const key of keys) {
+    if (isUnsafeKey(key)) {
+      return null;
+    }
     if (!isObject(current)) {
+      return null;
+    }
+    if (!Object.prototype.hasOwnProperty.call(current, key)) {
       return null;
     }
     current = current[key];
@@ -162,7 +211,8 @@ export function query(pre: string, params: { [key: string]: unknown }): string {
       queries.push(`${key}=${encodeURIComponent(value)}`);
     }
   };
-  for (const [key, value] of Object.entries(params)) {
+  for (const key of Object.keys(params).sort()) {
+    const value = params[key];
     if (value === null || value === undefined || typeof value === "function") {
       continue;
     }
@@ -173,7 +223,7 @@ export function query(pre: string, params: { [key: string]: unknown }): string {
       continue;
     }
     if (isPlainObject(value)) {
-      for (const mapKey of Object.keys(value)) {
+      for (const mapKey of Object.keys(value).sort()) {
         const mapValue = value[mapKey];
         if (mapValue === undefined || mapValue === null || mapValue === "") {
           mapKey && pushQuery(key, mapKey);
@@ -192,18 +242,34 @@ export function toAlias(
   data: unknown,
   aliases: { [key: string]: string },
 ): unknown {
-  if (!isPlainObject(data)) {
+  // Empty-value semantics (S3 parity note): TS keeps null (e.g.
+  // toAlias({a:null}, {a:"a_"}) yields {a_:null}) and only skips undefined
+  // and functions. Go ToAlias drops nil pointer/interface/map/slice fields
+  // (see Go isUnset). So TS null vs Go nil is a documented gap: TS preserves
+  // explicit null, Go omits nil.
+  // Nested messages inside plain-object/Map/array values are converted
+  // recursively via toAliasDeep, matching Go toAliasValue recursion (S2).
+  if (!isObject(data)) {
     return data;
   }
+  const src = isPlainObject(data) ? data : unwrapMessage(data);
   const obj: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data)) {
-    if (hasAliasMethod(value)) {
-      obj[key] = toAliasedValue(value);
-    } else if (aliases[key]) {
-      obj[aliases[key]] = value;
-    } else {
-      obj[key] = value;
+  for (const [key, value] of Object.entries(src)) {
+    if (key === "webpbMeta" || isUnsafeKey(key)) {
+      continue;
     }
+    if (typeof value === "function") {
+      continue;
+    }
+    let outKey = key;
+    if (Object.prototype.hasOwnProperty.call(aliases, key) && aliases[key]) {
+      const alias = aliases[key];
+      if (isUnsafeKey(alias)) {
+        continue;
+      }
+      outKey = alias;
+    }
+    obj[outKey] = toAliasDeep(value);
   }
   return obj;
 }
@@ -216,6 +282,9 @@ export function mapValues(
     return {};
   }
   return Object.entries(record).reduce((acc, [key, value]) => {
+    if (isUnsafeKey(key)) {
+      return acc;
+    }
     acc[key] = mapping(value);
     return acc;
   }, {} as AnyObject);

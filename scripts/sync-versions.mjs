@@ -25,8 +25,14 @@ function readGradleVersions() {
     return line.split("=")[1].trim();
   };
 
+  // webpb is the stripped release-style version for npm; webpbRaw keeps the
+  // -SNAPSHOT suffix for Maven (sample/backend/pom.xml tracks the dev line).
+  // The consumer pin (--consumer-version, last release) still wins for pom
+  // and READMEs so Maven Central resolution keeps working mid-cycle.
+  const webpbRaw = readProperty("version");
   return {
-    webpb: readProperty("version").replace(/-SNAPSHOT$/, ""),
+    webpb: webpbRaw.replace(/-SNAPSHOT$/, ""),
+    webpbRaw,
     protobuf: readProperty("versionProtobufJava"),
   };
 }
@@ -174,12 +180,13 @@ const gradleVersions = readGradleVersions();
 const { consumerVersion, syncConsumerFiles } = parseArgs();
 const devWebpbVersion = gradleVersions.webpb;
 const consumerWebpbVersion = consumerVersion ?? devWebpbVersion;
+// pom tracks the Maven dev line (with -SNAPSHOT) unless the release
+// automation pins a consumer version explicitly.
+const pomWebpbVersion = consumerVersion ?? gradleVersions.webpbRaw;
 const protobufVersion = gradleVersions.protobuf;
 
 const runtimeChanged = syncRuntimeTs(devWebpbVersion, protobufVersion);
-const pomChanged = syncConsumerFiles
-  ? syncPomXml(consumerWebpbVersion, protobufVersion)
-  : syncPomXml(consumerWebpbVersion, protobufVersion, { webpb: false });
+const pomChanged = syncPomXml(pomWebpbVersion, protobufVersion);
 const readmeChanged = syncConsumerFiles
   ? syncReadme(consumerWebpbVersion, protobufVersion)
   : false;
@@ -187,13 +194,13 @@ const readmeChanged = syncConsumerFiles
 if (runtimeChanged || pomChanged || readmeChanged) {
   if (syncConsumerFiles) {
     console.log(
-      `sync-versions: dev ${devWebpbVersion}, consumer ${consumerWebpbVersion}, protobuf ${protobufVersion}`,
+      `sync-versions: dev ${devWebpbVersion}, consumer ${consumerWebpbVersion}, pom ${pomWebpbVersion}, protobuf ${protobufVersion}`,
     );
   } else {
     console.log(
-      `sync-versions: dev ${devWebpbVersion}, protobuf ${protobufVersion}`,
+      `sync-versions: dev ${devWebpbVersion}, pom ${pomWebpbVersion}, protobuf ${protobufVersion}`,
     );
   }
 } else {
-  console.log(`sync-versions: dev ${devWebpbVersion} (unchanged)`);
+  console.log(`sync-versions: dev ${devWebpbVersion}, pom ${pomWebpbVersion} (unchanged)`);
 }

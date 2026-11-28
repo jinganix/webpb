@@ -20,17 +20,13 @@ package io.github.jinganix.webpb.sample.backend.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbUtils;
-import io.github.jinganix.webpb.runtime.reactive.WebpbClient;
 import io.github.jinganix.webpb.sample.proto.common.PageablePb;
 import io.github.jinganix.webpb.sample.proto.store.StoreGreetingRequest;
-import io.github.jinganix.webpb.sample.proto.store.StoreGreetingResponse;
 import io.github.jinganix.webpb.sample.proto.store.StoreListRequest;
 import io.github.jinganix.webpb.sample.proto.store.StoreVisitRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +37,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -55,8 +50,6 @@ import tools.jackson.databind.ObjectMapper;
 class StoreControllerTest {
 
   @Autowired private MockMvc mvc;
-
-  @MockitoBean private WebpbClient webpbClient;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -73,8 +66,6 @@ class StoreControllerTest {
     // Given
     int storeId = 123;
     String customer = "fakeName";
-    when(webpbClient.request(any(), any()))
-        .thenReturn(new StoreGreetingResponse("Welcome, " + customer));
 
     // When / Then
     mvc.perform(

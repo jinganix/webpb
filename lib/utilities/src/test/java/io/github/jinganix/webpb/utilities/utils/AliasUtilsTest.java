@@ -68,4 +68,18 @@ class AliasUtilsTest {
             "`alias_reserve` must be greater than max field number 1 in message"
                 + " `InvalidAliasReserveProto.InvalidAliasReserve`");
   }
+
+  @Test
+  @DisplayName("should exclude omitted fields when generating auto aliases")
+  void shouldExcludeOmittedFieldsWhenGeneratingAutoAliases() {
+    // Given
+    RequestContext context = TestUtils.createRequest(Dump.proto3_core_codegen);
+    Descriptor descriptor = resolveMessage(context.getDescriptors(), "Test");
+
+    // When
+    var aliases = AliasUtils.getAutoAliases(descriptor);
+
+    // Then
+    assertThat(aliases).doesNotContainKey("test9");
+  }
 }

@@ -281,8 +281,11 @@ func accessorExpr(receiver, accessor string) string {
 }
 
 // pathExpr renders a URL template into a Go format string plus arguments.
-func pathExpr(receiver, rawPath string) (string, []string) {
-	group := commons.Of(core.Normalize(rawPath))
+func pathExpr(receiver, rawPath string) (string, []string, error) {
+	group, err := commons.Of(core.Normalize(rawPath))
+	if err != nil {
+		return "", nil, err
+	}
 	var b strings.Builder
 	var args []string
 	for _, segment := range group.PathSegments() {
@@ -313,7 +316,7 @@ func pathExpr(receiver, rawPath string) (string, []string) {
 		}
 		b.WriteString(strings.Join(parts, "&"))
 	}
-	return b.String(), args
+	return b.String(), args, nil
 }
 
 func collectEnums(fd protoreflect.FileDescriptor) []protoreflect.EnumDescriptor {
@@ -514,7 +517,10 @@ func renderMessage(
 	fmt.Fprintf(&b, "func (m *%s) WebpbMethod() string { return %sMethod }\n", name, name)
 	fmt.Fprintf(&b, "func (m *%s) WebpbContext() string { return %sContext }\n", name, name)
 
-	format, args := pathExpr("m", options.GetPath())
+	format, args, err := pathExpr("m", options.GetPath())
+	if err != nil {
+		return "", err
+	}
 	if len(args) == 0 {
 		fmt.Fprintf(&b, "func (m *%s) WebpbPath() string { return %q }\n", name, format)
 	} else {
@@ -555,7 +561,12 @@ func renderMessage(
 		fmt.Fprintf(&b, "\nvar _ %s = (*%s)(nil)\n", iface, name)
 	}
 	if extends := options.GetExtends(); extends != "" {
-		if base := core.ResolveMessage(all, extends); base != nil {
+		base := core.ResolveMessage(all, extends)
+		if base == nil {
+			if strings.Contains(extends, ".") || len(options.GetSubValues()) > 0 {
+				return "", fmt.Errorf("extends target not found: %s", extends)
+			}
+		} else {
 			baseIface := core.GetMessageOpts(base, core.HasMessageGo).GetGo().GetImplementsInterface()
 			if baseIface != "" {
 				fmt.Fprintf(&b, "\nvar _ %s = (*%s)(nil)\n", baseIface, name)
@@ -617,6 +628,9 @@ func renderSubTypes(
 					break
 				}
 			}
+		}
+		if _, ok := bases[baseName]; !ok && base == nil {
+			return nil, fmt.Errorf("extends target not found: %s", options.GetExtends())
 		}
 		for _, value := range options.GetSubValues() {
 			registrations[baseName] = append(registrations[baseName], registration{
@@ -703,7 +717,9 @@ func (g *Generator) Generate(
 	}
 	messages := collectMessages(fd)
 	for _, message := range messages {
-		if _, args := pathExpr("m", core.GetMessageOpts(message, core.HasMessageOpt).GetOpt().GetPath()); len(args) > 0 {
+		if _, args, err := pathExpr("m", core.GetMessageOpts(message, core.HasMessageOpt).GetOpt().GetPath()); err != nil {
+			return nil, err
+		} else if len(args) > 0 {
 			usesFmt = true
 		}
 		rendered, err := renderMessage(all, message, settings)

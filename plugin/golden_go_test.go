@@ -2,6 +2,7 @@ package goplugin_test
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -84,6 +85,32 @@ func TestGoGolden(t *testing.T) {
 				// struct tag alignment), so compare normalized tokens.
 				if normalizeGolden(content) != normalizeGolden(expected) {
 					t.Fatalf("mismatch for %s/%s", dump, key)
+				}
+			}
+			if !isErrorDump(dump) {
+				root := filepath.Join(testutil.RepoRoot(), "plugin", "testdata", "go", dump)
+				var expectedKeys []string
+				err := filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+					if err != nil {
+						return err
+					}
+					if d.IsDir() {
+						return nil
+					}
+					rel, err := filepath.Rel(root, path)
+					if err != nil {
+						return err
+					}
+					expectedKeys = append(expectedKeys, filepath.ToSlash(rel))
+					return nil
+				})
+				if err != nil {
+					t.Fatalf("list expected %s: %v", dump, err)
+				}
+				for _, key := range expectedKeys {
+					if _, ok := formatted[key]; !ok {
+						t.Fatalf("orphan golden without generator output %s/%s", dump, key)
+					}
 				}
 			}
 		})

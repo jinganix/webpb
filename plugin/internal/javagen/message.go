@@ -175,7 +175,11 @@ func (g *MessageGenerator) getMessageAnnotations(descriptor protoreflect.Message
 			if err != nil {
 				return nil, err
 			}
-			if filter.Allow(imported) {
+			allow, err := filter.Allow(imported)
+			if err != nil {
+				return nil, err
+			}
+			if allow {
 				annos = append(annos, imported)
 			}
 		}
@@ -209,11 +213,9 @@ func (g *MessageGenerator) getExtend(descriptor protoreflect.MessageDescriptor) 
 		return nil, nil
 	}
 	extends := opts.GetExtends()
-	for _, d := range core.ResolveTopLevelTypes(descriptor.ParentFile()) {
-		for _, nested := range core.ResolveNestedTypes(d) {
-			if string(nested.FullName()) == extends {
-				return g.imports.ImportGenericDescriptor(nested)
-			}
+	if strings.Contains(extends, ".") {
+		if resolved := core.ResolveMessage(g.allFiles, extends); resolved != nil {
+			return g.imports.ImportGenericDescriptor(resolved)
 		}
 	}
 	return g.imports.ImportClassOrInterface(extends)
@@ -368,7 +370,11 @@ func (g *MessageGenerator) getFieldAnnotations(descriptor protoreflect.MessageDe
 		if err != nil {
 			return nil, err
 		}
-		if filter.Allow(imported) {
+		allow, err := filter.Allow(imported)
+		if err != nil {
+			return nil, err
+		}
+		if allow {
 			out = append(out, imported)
 		}
 	}

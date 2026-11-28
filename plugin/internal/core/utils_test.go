@@ -9,6 +9,7 @@ func TestNormalize(t *testing.T) {
 	t.Parallel()
 	cases := map[string]string{
 		"":                    "",
+		"/":                   "/",
 		"/foo/":               "/foo",
 		"foo/bar/":            "/foo/bar",
 		"http://example.com/": "http://example.com",

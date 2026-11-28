@@ -19,6 +19,7 @@
 package io.github.jinganix.webpb.runtime.webflux;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,6 +95,46 @@ class WebpbReactiveHandlerMethodArgumentResolverTest {
     assertThat(argument).isNotNull();
     assertThat(argument.getId()).isEqualTo(42);
     assertThat(argument.isPagination()).isTrue();
+  }
+
+  @Test
+  @DisplayName("should throw 400 when query value is invalid")
+  void shouldThrowWhenQueryValueIsInvalid() throws Exception {
+    // Given
+    WebpbReactiveHandlerMethodArgumentResolver resolver =
+        new WebpbReactiveHandlerMethodArgumentResolver();
+    MockServerWebExchange exchange =
+        MockServerWebExchange.from(
+            MockServerHttpRequest.get("/domain/abc/action?pagination=true").build());
+    exchange
+        .getAttributes()
+        .put(
+            HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE,
+            Collections.singletonMap("id", "not-a-number"));
+
+    // When / Then
+    assertThatThrownBy(() ->
+            resolver.resolveArgument(webpbParameter(), new BindingContext(), exchange).block())
+        .isInstanceOf(org.springframework.web.bind.support.WebExchangeBindException.class);
+  }
+
+  @Test
+  @DisplayName("should throw 400 when duplicate keys for single-value field")
+  void shouldThrowWhenDuplicateKeysForSingleValueField() throws Exception {
+    // Given
+    WebpbReactiveHandlerMethodArgumentResolver resolver =
+        new WebpbReactiveHandlerMethodArgumentResolver();
+    MockServerWebExchange exchange =
+        MockServerWebExchange.from(
+            MockServerHttpRequest.get("/domain/42/action?id=1&id=2").build());
+    exchange
+        .getAttributes()
+        .put(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, Collections.emptyMap());
+
+    // When / Then
+    assertThatThrownBy(() ->
+            resolver.resolveArgument(webpbParameter(), new BindingContext(), exchange).block())
+        .isInstanceOf(org.springframework.web.bind.support.WebExchangeBindException.class);
   }
 
   @Test

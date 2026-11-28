@@ -62,7 +62,7 @@ message StoreVisitRequest {
     path: "/stores/{id}"
   };
 
-  required int64 id = 1 [(opts).opt = {in_query: true}, (opts).ts = {as_string: true}, (opts).java = {annotation: '@NotNull'}];
+  required int64 id = 1 [(opts).ts = {as_string: true}, (opts).java = {annotation: '@NotNull'}];
   required string customer = 2 [(opts).java = {annotation: '@NotBlank'}];
 }
 

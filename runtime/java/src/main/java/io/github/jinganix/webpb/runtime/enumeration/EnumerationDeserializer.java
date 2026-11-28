@@ -25,6 +25,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Jackson deserializer for {@link Enumeration} values.
@@ -60,19 +61,47 @@ public class EnumerationDeserializer<E extends Enumeration<?>> extends ValueDese
   @Override
   public E deserialize(JsonParser p, DeserializationContext ctx) throws JacksonException {
     if (p.hasToken(JsonToken.VALUE_STRING)) {
-      return valueMap.get(p.getString());
-    }
-    if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-      E result = valueMap.get(p.getIntValue());
+      String text = p.getString();
+      E result = valueMap == null ? null : valueMap.get(text);
       if (result == null) {
-        result = valueMap.get(p.getLongValue());
-      }
-      if (result == null) {
-        result = valueMap.get(p.getText());
+        throw InvalidFormatException.from(
+            p, "Unknown enumeration value: " + text, text, targetType(ctx));
       }
       return result;
     }
-    return null;
+    if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+      E result = null;
+      String text = p.getText();
+      if (valueMap != null) {
+        result = valueMap.get(p.getIntValue());
+        if (result == null) {
+          result = valueMap.get(p.getLongValue());
+        }
+        if (result == null) {
+          result = valueMap.get(text);
+        }
+      }
+      if (result == null) {
+        throw InvalidFormatException.from(
+            p, "Unknown enumeration value: " + text, text, targetType(ctx));
+      }
+      return result;
+    }
+    throw InvalidFormatException.from(
+        p, "Unexpected token for enumeration: " + p.currentToken(), p.getText(), targetType(ctx));
+  }
+
+  private Class<?> targetType(DeserializationContext ctx) {
+    if (ctx != null && ctx.getContextualType() != null) {
+      return ctx.getContextualType().getRawClass();
+    }
+    if (valueMap != null && !valueMap.isEmpty()) {
+      Object first = valueMap.values().iterator().next();
+      if (first != null) {
+        return first.getClass();
+      }
+    }
+    return Object.class;
   }
 
   /**

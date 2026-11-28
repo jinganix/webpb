@@ -21,9 +21,11 @@ package io.github.jinganix.webpb.runtime.webflux;
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbUtils;
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Map;
 import org.springframework.core.Conventions;
 import org.springframework.core.MethodParameter;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.annotation.ValidationAnnotationUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -51,8 +53,20 @@ public class WebpbReactiveHandlerMethodArgumentResolver implements HandlerMethod
     return Mono.fromCallable(
             () -> {
               Object object = parameter.getParameterType().getDeclaredConstructor().newInstance();
-              Map<String, String> variablesMap = ReactiveVariablesResolver.getVariableMap(exchange);
-              return WebpbUtils.updateMessage((WebpbMessage) object, variablesMap);
+              Map<String, List<String>> variablesMap =
+                  ReactiveVariablesResolver.getVariableMap(exchange);
+              try {
+                return WebpbUtils.updateMessage((WebpbMessage) object, variablesMap);
+              } catch (WebExchangeBindException e) {
+                throw e;
+              } catch (Exception e) {
+                String name = Conventions.getVariableNameForParameter(parameter);
+                BeanPropertyBindingResult bindingResult =
+                    new BeanPropertyBindingResult(object, name);
+                Throwable cause = e.getCause() != null ? e.getCause() : e;
+                bindingResult.reject("typeMismatch", "Invalid query value: " + cause.getMessage());
+                throw new WebExchangeBindException(parameter, bindingResult);
+              }
             })
         .flatMap(arg -> {
           Object[] validationHints = extractValidationHints(parameter);

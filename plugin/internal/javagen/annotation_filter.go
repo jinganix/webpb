@@ -25,20 +25,20 @@ func NewAnnotationDistinctFilter(imports *Imports, repeatable []string) *Annotat
 }
 
 // Allow reports whether an annotation should be kept.
-func (f *AnnotationDistinctFilter) Allow(str string) bool {
+func (f *AnnotationDistinctFilter) Allow(str string) (bool, error) {
 	name, err := parseAnnotationSimpleName(str)
 	if err != nil {
-		panic(fmt.Sprintf("Bad annotation: %s", str))
+		return false, fmt.Errorf("Bad annotation: %s", str)
 	}
 	qualified := f.imports.ImportedQualifiedName(name)
 	for _, r := range f.repeat {
 		if r == qualified {
-			return true
+			return true, nil
 		}
 	}
 	if _, ok := f.existing[qualified]; ok {
-		return false
+		return false, nil
 	}
 	f.existing[qualified] = struct{}{}
-	return true
+	return true, nil
 }

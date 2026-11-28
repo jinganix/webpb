@@ -28,11 +28,16 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriUtils;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -40,7 +45,9 @@ import tools.jackson.databind.node.ObjectNode;
 /** Utilities for webpb java runtime. */
 public class WebpbUtils {
 
-  private static final Map<Class<?>, MessageContext> contextCache = new ConcurrentHashMap<>();
+  private record ContextKey(Class<?> type, String method, String context, String path) {}
+
+  private static final Map<ContextKey, MessageContext> contextCache = new ConcurrentHashMap<>();
 
   private static final ObjectMapper urlObjectMapper = JacksonConfig.createUrlObjectMapper();
 
@@ -185,11 +192,23 @@ public class WebpbUtils {
    * @return {@link MessageContext}
    */
   public static MessageContext getContext(WebpbMessage message) {
+    WebpbMeta meta = message.webpbMeta();
+    ContextKey key;
+    if (meta == null) {
+      key = new ContextKey(message.getClass(), null, null, null);
+    } else {
+      String method = meta.getMethod();
+      key =
+          new ContextKey(
+              message.getClass(),
+              method == null ? null : method.toUpperCase(Locale.ROOT),
+              meta.getContext(),
+              meta.getPath());
+    }
     MessageContext context =
         contextCache.computeIfAbsent(
-            message.getClass(),
+            key,
             k -> {
-              WebpbMeta meta = message.webpbMeta();
               if (meta == null) {
                 return MessageContext.NULL_CONTEXT;
               }
@@ -200,7 +219,7 @@ public class WebpbUtils {
                 return MessageContext.NULL_CONTEXT;
               }
               return new MessageContext()
-                  .setMethod(HttpMethod.valueOf(meta.getMethod().toUpperCase()))
+                  .setMethod(HttpMethod.valueOf(meta.getMethod().toUpperCase(Locale.ROOT)))
                   .setContext(meta.getContext())
                   .setPath(meta.getPath())
                   .setSegmentGroup(SegmentGroup.of(meta.getPath()));
@@ -220,7 +239,7 @@ public class WebpbUtils {
         throw new RuntimeException(
             String.format("Path variable '%s' not found", segment.getValue()));
       }
-      builder.append(value);
+      builder.append(UriUtils.encodePathSegment(value, StandardCharsets.UTF_8));
     }
     builder.append(group.getSuffix());
     String link = "?";
@@ -232,7 +251,11 @@ public class WebpbUtils {
       if (segment.isAccessor()) {
         String value = resolve(data, segment.getValue());
         if (hasLength(value) && !"null".equals(value)) {
-          builder.append(link).append(segment.getKey()).append("=").append(value);
+          builder
+              .append(link)
+              .append(segment.getKey())
+              .append("=")
+              .append(UriUtils.encodeQueryParam(value, StandardCharsets.UTF_8));
           link = "&";
         }
       } else if (StringUtils.hasLength(segment.getKey())) {
@@ -265,7 +288,7 @@ public class WebpbUtils {
    * @return T
    */
   public static <T extends WebpbMessage> T updateMessage(
-      T message, Map<String, String> variablesMap) {
+      T message, Map<String, List<String>> variablesMap) {
     if (CollectionUtils.isEmpty(variablesMap)) {
       return message;
     }
@@ -282,11 +305,35 @@ public class WebpbUtils {
       }
       String key = segment.getKey();
       String accessor = segment.getValue();
-      String value = variablesMap.get(StringUtils.hasLength(key) ? key : accessor);
-      if (value != null) {
-        String[] accessors = accessor.split("\\.");
-        ObjectNode targetNode = findNode(objectNode, accessors);
-        targetNode.put(accessors[accessors.length - 1], value);
+      List<String> values = variablesMap.get(StringUtils.hasLength(key) ? key : accessor);
+      if (values == null || values.isEmpty()) {
+        continue;
+      }
+      String[] accessors = accessor.split("\\.");
+      ObjectNode targetNode = findNode(objectNode, accessors);
+      String fieldName = accessors[accessors.length - 1];
+      boolean collection = isCollectionField(message.getClass(), accessors);
+      if (collection) {
+        var arrayNode = urlObjectMapper.createArrayNode();
+        for (String value : values) {
+          if (value != null) {
+            arrayNode.add(value);
+          }
+        }
+        targetNode.set(fieldName, arrayNode);
+      } else {
+        if (values.size() > 1) {
+          throw new IllegalArgumentException(
+              "Duplicate query parameter '"
+                  + (StringUtils.hasLength(key) ? key : accessor)
+                  + "' for single-value field '"
+                  + accessor
+                  + "'");
+        }
+        String value = values.get(0);
+        if (value != null) {
+          targetNode.put(fieldName, value);
+        }
       }
     }
     try {
@@ -294,6 +341,39 @@ public class WebpbUtils {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static boolean isCollectionField(Class<?> messageClass, String[] accessors) {
+    Class<?> current = messageClass;
+    for (int i = 0; i < accessors.length; i++) {
+      Field field = findField(current, accessors[i]);
+      if (field == null) {
+        return false;
+      }
+      if (i == accessors.length - 1) {
+        Class<?> type = field.getType();
+        return Collection.class.isAssignableFrom(type) || type.isArray();
+      }
+      current = field.getType();
+      if (current == null) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  private static Field findField(Class<?> clazz, String name) {
+    Class<?> current = clazz;
+    while (current != null && current != Object.class) {
+      try {
+        Field field = current.getDeclaredField(name);
+        field.setAccessible(true);
+        return field;
+      } catch (NoSuchFieldException e) {
+        current = current.getSuperclass();
+      }
+    }
+    return null;
   }
 
   /**

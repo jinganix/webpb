@@ -47,6 +47,10 @@ public class StoreController {
   /**
    * Request a store data.
    *
+   * <p>Path variable {@code id} is merged into the request body by {@link
+   * io.github.jinganix.webpb.runtime.mvc.WebpbRequestBodyAdvice}, so {@code @RequestBody} stays
+   * valid alongside the {@code /stores/{id}} path parameter.
+   *
    * @param request {@link StoreVisitRequest}
    * @return {@link StoreVisitResponse}
    */

@@ -93,7 +93,7 @@ func (g *Generator) Generate(ctx *GeneratorContext, fd protoreflect.FileDescript
 		messages = append(messages, content)
 		opt := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
 		if opt.GetSubType() != "" {
-			if _, ok := ctx.SubTypes[string(descriptor.Name())]; ok {
+			if _, ok := ctx.SubTypes[string(descriptor.FullName())]; ok {
 				dynamicImports = append(dynamicImports, string(descriptor.Name()))
 			}
 		}
