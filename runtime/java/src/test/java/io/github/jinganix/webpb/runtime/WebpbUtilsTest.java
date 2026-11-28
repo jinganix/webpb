@@ -27,6 +27,7 @@ import io.github.jinganix.webpb.runtime.model.Pageable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when base url is provided")
   void shouldFormatUrlWhenBaseUrlIsProvided() throws MalformedURLException {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url = WebpbUtils.formatUrl(new URL("https://abc"), objectMapper, new FooRequest());
@@ -83,7 +83,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when pageable fields are null")
   void shouldFormatUrlWhenPageableFieldsAreNull() throws MalformedURLException {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -100,7 +99,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when no base url is provided")
   void shouldFormatUrlWhenNoBaseUrlIsProvided() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url = WebpbUtils.formatUrl(null, objectMapper, new FooRequest());
@@ -113,7 +111,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when base url already has query parameters")
   void shouldFormatUrlWhenBaseUrlAlreadyHasQueryParameters() throws MalformedURLException {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url = WebpbUtils.formatUrl(new URL("https://a?a=1"), objectMapper, new FooRequest());
@@ -126,7 +123,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when path contains only query parameters")
   void shouldFormatUrlWhenPathContainsOnlyQueryParameters() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -147,7 +143,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when path is root and base url is provided")
   void shouldFormatUrlWhenPathIsRootAndBaseUrlIsProvided() throws MalformedURLException {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -164,7 +159,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when context is set and base url is provided")
   void shouldFormatUrlWhenContextIsSetAndBaseUrlIsProvided() throws MalformedURLException {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -181,7 +175,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when context is set and no base url is provided")
   void shouldFormatUrlWhenContextIsSetAndNoBaseUrlIsProvided() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -196,7 +189,6 @@ class WebpbUtilsTest {
   @DisplayName("should format url when path is absolute and no base url is provided")
   void shouldFormatUrlWhenPathIsAbsoluteAndNoBaseUrlIsProvided() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -212,7 +204,6 @@ class WebpbUtilsTest {
   @DisplayName("should format absolute path when no base url is provided")
   void shouldFormatAbsolutePathWhenNoBaseUrlIsProvided() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -229,7 +220,6 @@ class WebpbUtilsTest {
   @DisplayName("should throw when path is absolute url and base url is provided")
   void shouldThrowWhenPathIsAbsoluteUrlAndBaseUrlIsProvided() {
     // Given
-    WebpbUtils.clearContextCache();
     FooRequest request =
         new FooRequest(WebpbMeta.builder().method("GET").path("https://domain").build());
 
@@ -242,7 +232,6 @@ class WebpbUtilsTest {
   @DisplayName("should omit missing query values when request field is absent")
   void shouldOmitMissingQueryValuesWhenRequestFieldIsAbsent() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -259,7 +248,6 @@ class WebpbUtilsTest {
   @DisplayName("should preserve query suffix when placeholder has trailing text")
   void shouldPreserveQuerySuffixWhenPlaceholderHasTrailingText() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -277,7 +265,6 @@ class WebpbUtilsTest {
   @DisplayName("should preserve static query suffix when no placeholders are present")
   void shouldPreserveStaticQuerySuffixWhenNoPlaceholdersArePresent() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -294,7 +281,6 @@ class WebpbUtilsTest {
   @DisplayName("should substitute multiple path variables when all values exist")
   void shouldSubstituteMultiplePathVariablesWhenAllValuesExist() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When
     String url =
@@ -315,7 +301,6 @@ class WebpbUtilsTest {
   @DisplayName("should throw when path variable is not found on message")
   void shouldThrowWhenPathVariableIsNotFoundOnMessage() {
     // Given
-    WebpbUtils.clearContextCache();
 
     // When / Then
     assertThatThrownBy(() ->
@@ -330,10 +315,10 @@ class WebpbUtilsTest {
   @DisplayName("should update message fields when parameters are provided")
   void shouldUpdateMessageFieldsWhenParametersAreProvided() {
     // Given
-    Map<String, String> map = new HashMap<>();
-    map.put("id", "12345678");
-    map.put("size", "111");
-    map.put("page", "222");
+    Map<String, List<String>> map = new HashMap<>();
+    map.put("id", List.of("12345678"));
+    map.put("size", List.of("111"));
+    map.put("page", List.of("222"));
     map.put("fake1", null);
 
     // When
@@ -342,6 +327,32 @@ class WebpbUtilsTest {
     // Then
     assertThat(message.getId()).isEqualTo(12345678);
     assertThat(message.getPageable().getSize()).isEqualTo(111);
+  }
+
+  @Test
+  @DisplayName("should build array node when collection field has duplicate keys")
+  void shouldBuildArrayNodeWhenCollectionFieldHasDuplicateKeys() {
+    // Given
+    Map<String, List<String>> map = Map.of("tag", List.of("a", "b", "c"));
+
+    // When
+    io.github.jinganix.webpb.runtime.model.CollectionRequest message =
+        WebpbUtils.updateMessage(
+            new io.github.jinganix.webpb.runtime.model.CollectionRequest(), map);
+
+    // Then
+    assertThat(message.getTags()).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  @DisplayName("should throw when duplicate keys for single-value field")
+  void shouldThrowWhenDuplicateKeysForSingleValueField() {
+    // Given
+    Map<String, List<String>> map = Map.of("id", List.of("1", "2"));
+
+    // When / Then
+    assertThatThrownBy(() -> WebpbUtils.updateMessage(new FooRequest(), map))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -359,5 +370,56 @@ class WebpbUtilsTest {
 
     // Then
     assertThat(message.getData()).isEqualTo("data123");
+  }
+
+  @Test
+  @DisplayName("should isolate context cache when same class has different meta")
+  void shouldIsolateContextCacheWhenSameClassHasDifferentMeta() {
+    // Given no cache clearing between requests with different meta
+    FooRequest defaultRequest = new FooRequest();
+    FooRequest customRequest =
+        new FooRequest(WebpbMeta.builder().method("GET").path("/other/{id}").build());
+
+    // When
+    String defaultUrl = WebpbUtils.formatUrl(null, objectMapper, defaultRequest);
+    String customUrl = WebpbUtils.formatUrl(null, objectMapper, customRequest);
+    String defaultUrlAgain = WebpbUtils.formatUrl(null, objectMapper, new FooRequest());
+
+    // Then each meta resolves its own path without cross-contamination
+    assertThat(defaultUrl).isEqualTo("/domain/123/action?p=true&size=20&page=10");
+    assertThat(customUrl).isEqualTo("/other/123");
+    assertThat(defaultUrlAgain).isEqualTo(defaultUrl);
+    assertThat(WebpbUtils.getContext(defaultRequest).getPath()).contains("/domain/");
+    assertThat(WebpbUtils.getContext(customRequest).getPath()).isEqualTo("/other/{id}");
+  }
+
+  @Test
+  @DisplayName("should encode path segment when value contains special characters")
+  void shouldEncodePathSegmentWhenValueContainsSpecialCharacters() {
+    // Given
+    FooRequest request =
+        new FooRequest(WebpbMeta.builder().method("GET").path("/files/{data}").build())
+            .setData("a b/\u4e2d\u6587");
+
+    // When
+    String url = WebpbUtils.formatUrl(null, objectMapper, request);
+
+    // Then space, slash and Chinese are percent-encoded as a single segment
+    assertThat(url).isEqualTo("/files/a%20b%2F%E4%B8%AD%E6%96%87");
+  }
+
+  @Test
+  @DisplayName("should encode query value when value contains special characters")
+  void shouldEncodeQueryValueWhenValueContainsSpecialCharacters() {
+    // Given
+    FooRequest request =
+        new FooRequest(WebpbMeta.builder().method("GET").path("/search?q={data}").build())
+            .setData("a b&c\u4e2d\u6587");
+
+    // When
+    String url = WebpbUtils.formatUrl(null, objectMapper, request);
+
+    // Then space, ampersand and Chinese are percent-encoded in query value
+    assertThat(url).isEqualTo("/search?q=a%20b%26c%E4%B8%AD%E6%96%87");
   }
 }

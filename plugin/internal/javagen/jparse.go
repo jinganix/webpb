@@ -138,6 +138,22 @@ func (p *annotationParser) importAnnotationValue(value string) (string, error) {
 	if trimmed == "" || strings.HasPrefix(trimmed, "\"") || strings.HasPrefix(trimmed, "'") {
 		return value, nil
 	}
+	if strings.HasPrefix(trimmed, "{") && strings.HasSuffix(trimmed, "}") {
+		inner := strings.TrimSpace(trimmed[1 : len(trimmed)-1])
+		if inner == "" {
+			return value, nil
+		}
+		parts := splitAnnotationPairs(inner)
+		out := make([]string, 0, len(parts))
+		for _, part := range parts {
+			imported, err := p.importAnnotationValue(strings.TrimSpace(part))
+			if err != nil {
+				return "", err
+			}
+			out = append(out, imported)
+		}
+		return "{" + strings.Join(out, ", ") + "}", nil
+	}
 	if isJavaNumericLiteral(trimmed) {
 		return value, nil
 	}
@@ -201,9 +217,9 @@ func splitAnnotationPairs(s string) []string {
 		case '"', '\'':
 			inString = true
 			quote = ch
-		case '(':
+		case '(', '{', '[', '<':
 			depth++
-		case ')':
+		case ')', '}', ']', '>':
 			depth--
 		case ',':
 			if depth == 0 {

@@ -40,7 +40,7 @@ public final class ReactiveVariablesResolver {
    * @param exchange current exchange
    * @return map of variables
    */
-  public static Map<String, String> getVariableMap(ServerWebExchange exchange) {
+  public static Map<String, List<String>> getVariableMap(ServerWebExchange exchange) {
     if (exchange == null) {
       return Collections.emptyMap();
     }
@@ -69,7 +69,7 @@ public final class ReactiveVariablesResolver {
    * @param contextView current context
    * @return map of variables
    */
-  public static Map<String, String> getVariableMap(ContextView contextView) {
+  public static Map<String, List<String>> getVariableMap(ContextView contextView) {
     if (contextView == null || !contextView.hasKey(WebpbExchangeWebFilter.EXCHANGE_CONTEXT_KEY)) {
       return Collections.emptyMap();
     }

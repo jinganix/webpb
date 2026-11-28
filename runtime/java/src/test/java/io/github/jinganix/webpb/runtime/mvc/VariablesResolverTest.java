@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,10 +49,12 @@ class VariablesResolverTest {
           .thenReturn(new ServletRequestAttributes(servletRequest));
 
       // When
-      Map<String, String> variables = VariablesResolver.getVariableMap();
+      Map<String, List<String>> variables = VariablesResolver.getVariableMap();
 
       // Then
-      assertThat(variables).containsEntry("id", "123").containsEntry("name", "foo");
+      assertThat(variables)
+          .containsEntry("id", List.of("123"))
+          .containsEntry("name", List.of("foo"));
     }
   }
 

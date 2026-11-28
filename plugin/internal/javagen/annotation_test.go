@@ -257,12 +257,15 @@ func TestParseAnnotationSignupFieldAnnotations(t *testing.T) {
 	}
 }
 
-func TestParseAnnotationUnsupportedArrayInitializer(t *testing.T) {
+func TestParseAnnotationArrayInitializer(t *testing.T) {
 	imports := testAnnotationImports(t)
 	parser := &annotationParser{imports: imports}
-	_, err := parser.parseAnnotation(`@JsonIgnoreProperties(value = {"a", "b"})`)
-	if err == nil {
-		t.Fatal("expected error for array initializer with comma")
+	got, err := parser.parseAnnotation(`@JsonIgnoreProperties(value = {"a", "b"})`)
+	if err != nil {
+		t.Fatalf("parse array initializer: %v", err)
+	}
+	if !strings.Contains(got, `{"a", "b"}`) {
+		t.Fatalf("array initializer = %q, want braces preserved", got)
 	}
 }
 

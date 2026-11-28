@@ -19,6 +19,7 @@
 package io.github.jinganix.webpb.runtime.mvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -89,6 +90,35 @@ class WebpbHandlerMethodArgumentResolverTest {
     // Then
     assertThat(argument).isInstanceOf(FooRequest.class);
     assertThat(((FooRequest) argument).getId()).isEqualTo(42);
+  }
+
+  @Test
+  @DisplayName("should throw 400 when query value is invalid")
+  void shouldThrowWhenQueryValueIsInvalid() throws Exception {
+    // Given
+    WebpbHandlerMethodArgumentResolver resolver = new WebpbHandlerMethodArgumentResolver();
+    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    servletRequest.setParameter("id", "not-a-number");
+    NativeWebRequest webRequest = new ServletWebRequest(servletRequest);
+
+    // When / Then
+    assertThatThrownBy(() -> resolver.resolveArgument(webpbParameter(), null, webRequest, null))
+        .isInstanceOf(org.springframework.web.bind.MethodArgumentNotValidException.class);
+  }
+
+  @Test
+  @DisplayName("should throw 400 when duplicate keys for single-value field")
+  void shouldThrowWhenDuplicateKeysForSingleValueField() throws Exception {
+    // Given
+    WebpbHandlerMethodArgumentResolver resolver = new WebpbHandlerMethodArgumentResolver();
+    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    servletRequest.addParameter("id", "1");
+    servletRequest.addParameter("id", "2");
+    NativeWebRequest webRequest = new ServletWebRequest(servletRequest);
+
+    // When / Then
+    assertThatThrownBy(() -> resolver.resolveArgument(webpbParameter(), null, webRequest, null))
+        .isInstanceOf(org.springframework.web.bind.MethodArgumentNotValidException.class);
   }
 
   @Test

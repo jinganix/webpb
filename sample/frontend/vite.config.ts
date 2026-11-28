@@ -17,6 +17,10 @@ const proxy = {
     changeOrigin: true,
     target: backendTarget,
   },
+  "/stores": {
+    changeOrigin: true,
+    target: backendTarget,
+  },
 };
 
 export default defineConfig({

@@ -21,6 +21,7 @@ package io.github.jinganix.webpb.processor;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -77,11 +78,57 @@ public class WebpbRequestMappingProcessor extends AbstractWebpbMappingProcessor 
         }
       }
     }
+    if (hasExplicitValueOrPath(args)) {
+      if (hasConflictingValueAndPath(args)) {
+        logError("Conflicting value and path in WebpbRequestMapping");
+      }
+      return;
+    }
     String path = webpbMappingPath(messageSymbol);
     if (path != null) {
       args.add(
           treeMaker()
               .Assign(treeMaker().Ident(names().fromString("path")), treeMaker().Literal(path)));
     }
+  }
+
+  private static boolean hasExplicitValueOrPath(ArrayList<JCExpression> args) {
+    for (JCExpression arg : args) {
+      if (!(arg instanceof JCTree.JCAssign assign)) {
+        return true;
+      }
+      if (assign.lhs instanceof JCTree.JCIdent ident) {
+        String name = ident.name.toString();
+        if ("value".equals(name) || "path".equals(name)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static boolean hasConflictingValueAndPath(ArrayList<JCExpression> args) {
+    String value = null;
+    String path = null;
+    boolean hasValue = false;
+    boolean hasPath = false;
+    for (JCExpression arg : args) {
+      if (!(arg instanceof JCTree.JCAssign assign)) {
+        value = arg.toString();
+        hasValue = true;
+        continue;
+      }
+      if (assign.lhs instanceof JCTree.JCIdent ident) {
+        String name = ident.name.toString();
+        if ("value".equals(name)) {
+          value = assign.rhs.toString();
+          hasValue = true;
+        } else if ("path".equals(name)) {
+          path = assign.rhs.toString();
+          hasPath = true;
+        }
+      }
+    }
+    return hasValue && hasPath && value != null && path != null && !value.equals(path);
   }
 }

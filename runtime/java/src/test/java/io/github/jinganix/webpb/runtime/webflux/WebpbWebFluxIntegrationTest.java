@@ -76,6 +76,36 @@ class WebpbWebFluxIntegrationTest {
   }
 
   @Test
+  @DisplayName("should return 400 when request body path variable is invalid")
+  void shouldReturnBadRequestWhenRequestBodyPathVariableIsInvalid() {
+    // Given POST /posts/not-a-number: path id cannot bind to long id (MVC parity 400)
+    // When / Then
+    client
+        .post()
+        .uri("/posts/not-a-number?tenantOnly=true")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue("{\"name\":\"demo\"}")
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("should return 400 when request body has duplicate query keys")
+  void shouldReturnBadRequestWhenRequestBodyHasDuplicateQueryKeys() {
+    // Given duplicate single-value query keys: ?tenantOnly=true&tenantOnly=false
+    // When / Then
+    client
+        .post()
+        .uri("/posts/42?tenantOnly=true&tenantOnly=false")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue("{\"name\":\"demo\"}")
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
   @DisplayName("should resolve query only request without request body annotation")
   void shouldResolveQueryOnlyRequestWithoutRequestBodyAnnotation() {
     // When / Then

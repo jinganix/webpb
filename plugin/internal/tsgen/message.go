@@ -1,6 +1,7 @@
 package tsgen
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -70,16 +71,20 @@ func (g *MessageGenerator) Generate(descriptor protoreflect.MessageDescriptor) (
 	if err != nil {
 		return "", err
 	}
-	return g.generate(func() map[string]any {
+	return g.generate(func() (map[string]any, error) {
 		return g.getMessageData(descriptor, 0)
 	}, "message", 0, engine)
 }
 
-func (g *MessageGenerator) generate(supplier func() map[string]any, tmpl string, level int, engine interface {
+func (g *MessageGenerator) generate(supplier func() (map[string]any, error), tmpl string, level int, engine interface {
 	Process(string, map[string]any) (string, error)
 }) (string, error) {
+	data, err := supplier()
+	if err != nil {
+		return "", err
+	}
 	g.imports.ImportPath(NewImportPathOrdered("Webpb", "webpb", -1<<31))
-	content, err := engine.Process(tmpl, supplier())
+	content, err := engine.Process(tmpl, data)
 	if err != nil {
 		return "", err
 	}
@@ -106,20 +111,34 @@ func validationConstBlock(className string, fields []map[string]any) string {
 	return "export const " + className + "Validation = {\n" + strings.Join(lines, "\n") + "\n} as const;"
 }
 
-func (g *MessageGenerator) getMessageData(descriptor protoreflect.MessageDescriptor, level int) map[string]any {
+func (g *MessageGenerator) getMessageData(descriptor protoreflect.MessageDescriptor, level int) (map[string]any, error) {
 	opts := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
-	extend := g.getExtend(descriptor)
-	fields := g.getFields(descriptor)
+	extend, err := g.getExtend(descriptor)
+	if err != nil {
+		return nil, err
+	}
+	fields, err := g.getFields(descriptor)
+	if err != nil {
+		return nil, err
+	}
+	path, err := g.getPath(descriptor, core.Normalize(opts.GetPath()))
+	if err != nil {
+		return nil, err
+	}
+	nested, err := g.getNestedMessages(descriptor, level+1)
+	if err != nil {
+		return nil, err
+	}
 	return map[string]any{
 		"extendI":       ToInterfaceName(extend),
 		"extend":        extend,
 		"className":     string(descriptor.Name()),
 		"method":        opts.GetMethod(),
 		"context":       core.Normalize(opts.GetContext()),
-		"path":          g.getPath(descriptor, core.Normalize(opts.GetPath())),
+		"path":          path,
 		"fields":        fields,
 		"validationConst": validationConstBlock(string(descriptor.Name()), fields),
-		"nestedMsgs":    g.getNestedMessages(descriptor, level+1),
+		"nestedMsgs":    nested,
 		"omitted":       g.getOmitted(descriptor),
 		"hasAlias":      g.hasAlias(map[protoreflect.MessageDescriptor]struct{}{}, descriptor),
 		"aliases":       g.getAliases(descriptor),
@@ -127,7 +146,7 @@ func (g *MessageGenerator) getMessageData(descriptor protoreflect.MessageDescrip
 		"sub_type":      g.getSubType(descriptor),
 		"sub_type_prop": g.getSubTypeProp(descriptor),
 		"sub_values":    g.getSubValues(descriptor),
-	}
+	}, nil
 }
 
 func (g *MessageGenerator) getOmitted(descriptor protoreflect.MessageDescriptor) []string {
@@ -201,12 +220,44 @@ func (g *MessageGenerator) getAliases(descriptor protoreflect.MessageDescriptor)
 	return aliases
 }
 
-func (g *MessageGenerator) getExtend(descriptor protoreflect.MessageDescriptor) string {
-	extends := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt().GetExtends()
+func (g *MessageGenerator) getExtend(descriptor protoreflect.MessageDescriptor) (string, error) {
+	opts := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
+	extends := opts.GetExtends()
 	if extends == "" {
-		return ""
+		return "", nil
 	}
-	return g.imports.ImportType(extends)
+	if !isValidExtendsRef(extends) {
+		return "", fmt.Errorf("extends target not found: %s", extends)
+	}
+	if core.ResolveMessage(g.allFiles, extends) != nil {
+		return g.imports.ImportType(extends), nil
+	}
+	if !strings.Contains(extends, ".") {
+		if g.imports.HasLookup(extends) || g.imports.HasRawIdentifier(extends) {
+			return g.imports.ImportType(extends), nil
+		}
+		// Plain single-part bases without sub_values may be ambient globals
+		// (e.g. AbstractClass, Custom) needing no import.
+		if len(opts.GetSubValues()) == 0 {
+			return g.imports.ImportType(extends), nil
+		}
+	}
+	return "", fmt.Errorf("extends target not found: %s", extends)
+}
+
+func isValidExtendsRef(extends string) bool {
+	if extends == "" {
+		return false
+	}
+	if strings.HasPrefix(extends, ".") || strings.HasSuffix(extends, ".") || strings.Contains(extends, "..") {
+		return false
+	}
+	for _, part := range strings.Split(extends, ".") {
+		if part == "" {
+			return false
+		}
+	}
+	return true
 }
 
 func (g *MessageGenerator) getSubType(descriptor protoreflect.MessageDescriptor) any {
@@ -232,7 +283,9 @@ func (g *MessageGenerator) getSubValues(descriptor protoreflect.MessageDescripto
 	var values []string
 	for _, subValue := range core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt().GetSubValues() {
 		if valueDescriptor := core.ResolveEnumValue([]protoreflect.FileDescriptor{descriptor.ParentFile()}, subValue); valueDescriptor != nil {
-			g.imports.ImportType(string(valueDescriptor.Parent().(protoreflect.EnumDescriptor).FullName()))
+			if enum, ok := valueDescriptor.Parent().(protoreflect.EnumDescriptor); ok {
+				g.imports.ImportType(string(enum.FullName()))
+			}
 			values = append(values, subValue)
 			continue
 		}
@@ -274,18 +327,23 @@ func (g *MessageGenerator) getAliasMsgs(descriptor protoreflect.MessageDescripto
 	return aliasMsgs
 }
 
-func (g *MessageGenerator) getPath(descriptor protoreflect.MessageDescriptor, path string) map[string]any {
+func (g *MessageGenerator) getPath(descriptor protoreflect.MessageDescriptor, path string) (map[string]any, error) {
 	if path == "" {
-		return map[string]any{}
+		return map[string]any{}, nil
 	}
-	group := commons.Of(path)
-	core.Validation(group, descriptor, g.allFiles)
+	group, err := commons.Of(path)
+	if err != nil {
+		return nil, err
+	}
+	if err := core.Validation(group, descriptor, g.allFiles); err != nil {
+		return nil, err
+	}
 	queries := g.getQueries(group)
 	data := map[string]any{"raw": path, "url": g.formatURL(group)}
 	if len(queries) > 0 {
 		data["queries"] = queries
 	}
-	return data
+	return data, nil
 }
 
 func (g *MessageGenerator) formatURL(group commons.SegmentGroup) string {
@@ -322,17 +380,17 @@ func (g *MessageGenerator) getter(value string) string {
 	return "p?." + value
 }
 
-func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) []map[string]any {
+func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) ([]map[string]any, error) {
 	var fields []map[string]any
 	fd := descriptor.ParentFile()
 	mapping := core.ResolveTsValidationMapping(fd)
 	decoratorsEnabled := core.ResolveTsValidationDecoratorsEnabled(fd)
 	objectEnabled := core.ResolveTsValidationObjectEnabled(fd)
-	appendField := func(field protoreflect.FieldDescriptor) {
+	appendField := func(field protoreflect.FieldDescriptor) error {
 		var decorators []string
 		if valid := core.GetFieldValidation(field); valid != nil {
 			if err := core.ValidateFieldValidation(field, valid); err != nil {
-				panic(err)
+				return err
 			}
 			if decoratorsEnabled {
 				decorators = core.RenderTsFieldValidation(field, valid, mapping)
@@ -381,14 +439,19 @@ func (g *MessageGenerator) getFields(descriptor protoreflect.MessageDescriptor) 
 			}
 		}
 		fields = append(fields, data)
+		return nil
 	}
 	for i := 0; i < descriptor.Fields().Len(); i++ {
-		appendField(descriptor.Fields().Get(i))
+		if err := appendField(descriptor.Fields().Get(i)); err != nil {
+			return nil, err
+		}
 	}
 	for _, field := range core.GetAugmentFields(g.allFiles, descriptor) {
-		appendField(field)
+		if err := appendField(field); err != nil {
+			return nil, err
+		}
 	}
-	return fields
+	return fields, nil
 }
 
 func (g *MessageGenerator) getFieldType(field protoreflect.FieldDescriptor) string {
@@ -460,7 +523,7 @@ func tsDecoratorNames(decorators []string) []string {
 	return out
 }
 
-func (g *MessageGenerator) getNestedMessages(descriptor protoreflect.MessageDescriptor, level int) []string {
+func (g *MessageGenerator) getNestedMessages(descriptor protoreflect.MessageDescriptor, level int) ([]string, error) {
 	mapFields := map[string]struct{}{}
 	for i := 0; i < descriptor.Fields().Len(); i++ {
 		field := descriptor.Fields().Get(i)
@@ -468,20 +531,23 @@ func (g *MessageGenerator) getNestedMessages(descriptor protoreflect.MessageDesc
 			mapFields[core.Capitalize(string(field.Name()))+"Entry"] = struct{}{}
 		}
 	}
-	engine, _ := sharedTSEngine()
+	engine, err := sharedTSEngine()
+	if err != nil {
+		return nil, err
+	}
 	var nested []string
 	for i := 0; i < descriptor.Messages().Len(); i++ {
 		msg := descriptor.Messages().Get(i)
 		if _, skip := mapFields[string(msg.Name())]; skip {
 			continue
 		}
-		content, err := g.generate(func() map[string]any {
+		content, err := g.generate(func() (map[string]any, error) {
 			return g.getMessageData(msg, level)
 		}, "nested.message", level, engine)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		nested = append(nested, content)
 	}
-	return nested
+	return nested, nil
 }

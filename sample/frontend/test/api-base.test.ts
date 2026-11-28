@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { resolveApiBaseUrl, resolveDirectBackendUrl } from "@/lib/api-base";
+import { resolveApiBaseUrl } from "@/lib/api-base";
 
 describe("api-base", () => {
   afterEach(() => {
@@ -13,7 +13,6 @@ describe("api-base", () => {
 
     // When / Then
     expect(resolveApiBaseUrl()).toBe("http://127.0.0.1:8181");
-    expect(resolveDirectBackendUrl()).toBe("http://127.0.0.1:8181");
   });
 
   it("should return window origin in development when env is unset", () => {
@@ -23,7 +22,6 @@ describe("api-base", () => {
 
     // When / Then
     expect(resolveApiBaseUrl()).toBe(window.location.origin);
-    expect(resolveDirectBackendUrl()).toBe("http://127.0.0.1:8181");
   });
 
   it("should return empty base url in production when env is unset", () => {

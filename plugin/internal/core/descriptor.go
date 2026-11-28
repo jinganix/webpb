@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -367,12 +368,13 @@ func GetMapValueDescriptor(field protoreflect.FieldDescriptor) protoreflect.Fiel
 }
 
 // Validation validates path variable accessors against a message descriptor.
-func Validation(group commons.SegmentGroup, descriptor protoreflect.MessageDescriptor, files []protoreflect.FileDescriptor) {
+func Validation(group commons.SegmentGroup, descriptor protoreflect.MessageDescriptor, files []protoreflect.FileDescriptor) error {
 	for _, segment := range group.Segments() {
 		if segment.IsAccessor() && !validateAccessor(segment.Value(), descriptor, files) {
-			panic("Invalid accessor " + segment.Value())
+			return fmt.Errorf("invalid accessor %s", segment.Value())
 		}
 	}
+	return nil
 }
 
 func validateAccessor(accessor string, descriptor protoreflect.MessageDescriptor, files []protoreflect.FileDescriptor) bool {

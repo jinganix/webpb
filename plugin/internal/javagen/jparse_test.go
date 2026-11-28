@@ -81,3 +81,44 @@ func TestSplitGenericArgsErrors(t *testing.T) {
 		t.Fatal("expected error for unbalanced generics")
 	}
 }
+
+func TestSplitAnnotationPairsIgnoresBrackets(t *testing.T) {
+	pairs := splitAnnotationPairs(`value = {1, 2}, other = 3`)
+	if len(pairs) != 2 {
+		t.Fatalf("expected 2 pairs, got %d: %#v", len(pairs), pairs)
+	}
+	list := splitAnnotationPairs(`value = [1, 2], other = 3`)
+	if len(list) != 2 {
+		t.Fatalf("expected 2 pairs, got %d: %#v", len(list), list)
+	}
+	generic := splitAnnotationPairs(`value = Map<String, List<Integer>>, other = 3`)
+	if len(generic) != 2 {
+		t.Fatalf("expected 2 pairs, got %d: %#v", len(generic), generic)
+	}
+}
+
+func TestParseAnnotationWithEnumArray(t *testing.T) {
+	lookup, err := GetLookup(nil)
+	if err != nil {
+		t.Fatalf("lookup: %v", err)
+	}
+	for _, p := range []string{"com.example.Include", "com.example.Foo", "com.fasterxml.jackson.annotation.JsonInclude"} {
+		ip, err := NewImportPath(p)
+		if err != nil {
+			t.Fatalf("import path: %v", err)
+		}
+		lookup = append(lookup, ip)
+	}
+	imports := NewImports("test", lookup, nil, nil)
+	parser := &annotationParser{imports: imports}
+	out, err := parser.parseAnnotation(`@JsonInclude(value = {Include.NON_NULL, Foo.BAR})`)
+	if err != nil {
+		t.Fatalf("parse enum array: %v", err)
+	}
+	if !strings.Contains(out, "Include.NON_NULL") || !strings.Contains(out, "Foo.BAR") {
+		t.Fatalf("expected enum values preserved, got %q", out)
+	}
+	if !strings.Contains(out, "{") || !strings.Contains(out, "}") {
+		t.Fatalf("expected braces preserved, got %q", out)
+	}
+}

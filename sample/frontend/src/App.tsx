@@ -5,6 +5,7 @@ import {
   OPTION_EXAMPLES,
 } from "@/options/option-definitions";
 import { HttpService } from "@/services/http.service";
+import { STORE_EXAMPLES } from "@/stores/store-definitions";
 
 const httpService = new HttpService(resolveApiBaseUrl());
 
@@ -32,6 +33,19 @@ export function App(): React.JSX.Element {
               httpService={httpService}
             />
             {OPTION_EXAMPLES.map((example) => (
+              <ExampleCard
+                example={example}
+                httpService={httpService}
+                key={example.id}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Stores</h2>
+          <div className="grid gap-4">
+            {STORE_EXAMPLES.map((example) => (
               <ExampleCard
                 example={example}
                 httpService={httpService}

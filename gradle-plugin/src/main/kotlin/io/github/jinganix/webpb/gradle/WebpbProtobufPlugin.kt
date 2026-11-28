@@ -38,7 +38,12 @@ abstract class WebpbProtobufPlugin(
     val extension = project.extensions.create<WebpbExtension>("webpb")
 
     project.afterEvaluate {
-      val webpbVersion = extension.webpbVersion ?: WebpbVersions.pluginReleaseVersion()
+      // Resolution order: build script extension, then -PwebpbVersion (used by CI to pin a
+      // released artifact when local plugin binaries are unavailable), then the plugin release
+      // version bundled at build time.
+      val webpbVersion = extension.webpbVersion
+        ?: project.findProperty("webpbVersion") as String?
+        ?: WebpbVersions.pluginReleaseVersion()
       val protobufVersion = resolveProtobufVersion(project, extension)
       val localPath = extension.localPluginPath ?: detectLocalPluginPath(project, protocArtifactId)
 

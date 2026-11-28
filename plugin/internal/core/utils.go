@@ -15,7 +15,7 @@ func Normalize(path string) string {
 	}
 	tmp := strings.TrimLeft(path, "/")
 	if tmp == "" {
-		return ""
+		return "/"
 	}
 	return "/" + strings.TrimRight(tmp, "/")
 }

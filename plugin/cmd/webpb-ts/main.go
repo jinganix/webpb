@@ -28,7 +28,7 @@ func main() {
 				files[name] = content
 			}
 		}
-		subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.TargetDescriptors)
+		subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.Descriptors, ctx.TargetDescriptors)
 		if err != nil {
 			return nil, err
 		}

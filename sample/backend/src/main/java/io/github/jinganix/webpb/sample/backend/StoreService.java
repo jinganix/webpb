@@ -1,6 +1,5 @@
 package io.github.jinganix.webpb.sample.backend;
 
-import io.github.jinganix.webpb.runtime.reactive.WebpbClient;
 import io.github.jinganix.webpb.sample.proto.common.PageablePb;
 import io.github.jinganix.webpb.sample.proto.common.PagingPb;
 import io.github.jinganix.webpb.sample.proto.store.StoreGreetingRequest;
@@ -19,16 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class StoreService {
 
-  private final WebpbClient webpbClient;
-
-  /**
-   * Creates the store service.
-   *
-   * @param webpbClient webpb client
-   */
-  public StoreService(WebpbClient webpbClient) {
-    this.webpbClient = webpbClient;
-  }
+  /** Creates the store service. */
+  public StoreService() {}
 
   /**
    * Request a store data.
@@ -38,9 +29,7 @@ public class StoreService {
    */
   public StoreVisitResponse getStore(StoreVisitRequest request) {
     Long id = request.getId();
-    StoreGreetingResponse response =
-        this.webpbClient.request(
-            new StoreGreetingRequest(request.getCustomer()), StoreGreetingResponse.class);
+    StoreGreetingResponse response = greeting(new StoreGreetingRequest(request.getCustomer()));
     return new StoreVisitResponse(
         new StorePb(id, "store-" + id, "Chengdu"), response.getGreeting());
   }

@@ -20,8 +20,10 @@ package io.github.jinganix.webpb.runtime.support;
 
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.WebpbUtils;
+import java.util.List;
 import java.util.Map;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.server.ServerWebInputException;
 
 /** Shared helpers to merge path and query variables into a deserialized request body. */
 public final class WebpbRequestBodySupport {
@@ -37,12 +39,19 @@ public final class WebpbRequestBodySupport {
    * @return merged request body
    */
   @SuppressWarnings("unchecked")
-  public static <T> T mergeBody(T body, Map<String, String> variableMap) {
+  public static <T> T mergeBody(T body, Map<String, List<String>> variableMap) {
     if (body == null
         || CollectionUtils.isEmpty(variableMap)
         || !(body instanceof WebpbMessage message)) {
       return body;
     }
-    return (T) WebpbUtils.updateMessage(message, variableMap);
+    try {
+      return (T) WebpbUtils.updateMessage(message, variableMap);
+    } catch (ServerWebInputException e) {
+      throw e;
+    } catch (Exception e) {
+      Throwable cause = e.getCause() != null ? e.getCause() : e;
+      throw new ServerWebInputException("Invalid query value: " + cause.getMessage(), null, e);
+    }
   }
 }

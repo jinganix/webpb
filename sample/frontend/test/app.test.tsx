@@ -10,6 +10,7 @@ import {
   OPTION_EXAMPLES,
 } from "@/options/option-definitions";
 import { HttpService } from "@/services/http.service";
+import { STORE_EXAMPLES } from "@/stores/store-definitions";
 
 vi.mock("axios");
 
@@ -143,13 +144,55 @@ describe("option definitions", () => {
 
   it("should create requests for every example using defaults", () => {
     // Given / When / Then
-    for (const example of [FILE_OPTION_EXAMPLE, ...OPTION_EXAMPLES]) {
+    for (const example of [
+      FILE_OPTION_EXAMPLE,
+      ...OPTION_EXAMPLES,
+      ...STORE_EXAMPLES,
+    ]) {
       expect(example.createRequest({})).toBeDefined();
       for (const field of example.fields) {
         expect(
           example.createRequest({ [field.key]: field.defaultValue }),
         ).toBeDefined();
       }
+    }
+  });
+});
+
+describe("store definitions", () => {
+  it("should greet with default customer when values are empty", () => {
+    // Given / When
+    const request = STORE_EXAMPLES[0].createRequest({});
+
+    // Then
+    expect(request).toMatchObject({ customer: "webpb" });
+    expect(request.webpbMeta().path).toBe("/stores/greeting");
+  });
+
+  it("should fall back to defaults when paging values are invalid", () => {
+    // Given / When
+    const request = STORE_EXAMPLES[1].createRequest({ page: "x", size: "" });
+
+    // Then pageable rides in the query string (in_query), not the body.
+    expect(request.webpbMeta().path).toBe("/stores?page=1&size=2");
+  });
+
+  it("should visit store by path id when values are provided", () => {
+    // Given / When
+    const request = STORE_EXAMPLES[2].createRequest({
+      customer: "webpb",
+      id: "123",
+    });
+
+    // Then
+    expect(request).toMatchObject({ customer: "webpb", id: "123" });
+    expect(request.webpbMeta().path).toBe("/stores/123");
+  });
+
+  it("should create store requests for every example using defaults", () => {
+    // Given / When / Then
+    for (const example of STORE_EXAMPLES) {
+      expect(example.createRequest({})).toBeDefined();
     }
   });
 });
@@ -276,5 +319,16 @@ describe("App", () => {
     // Then
     expect(screen.getByText("Proto options")).toBeInTheDocument();
     expect(screen.getByText("File options (f_opts)")).toBeInTheDocument();
+  });
+
+  it("should render store examples when app mounts", () => {
+    // Given / When
+    render(<App />);
+
+    // Then
+    expect(screen.getByText("Stores")).toBeInTheDocument();
+    expect(screen.getByText("Store greeting")).toBeInTheDocument();
+    expect(screen.getByText("Store list")).toBeInTheDocument();
+    expect(screen.getByText("Store visit")).toBeInTheDocument();
   });
 });

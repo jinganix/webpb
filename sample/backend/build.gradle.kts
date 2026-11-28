@@ -1,6 +1,5 @@
 import utils.Vers.versionJacksonAnnotations
 import utils.Vers.versionLombok
-import utils.Vers.versionNetty
 import utils.hierarchicalGroup
 
 plugins {
@@ -19,10 +18,8 @@ dependencies {
   annotationProcessor(project(":runtime:processor"))
   compileOnly("org.projectlombok:lombok:${versionLombok}")
   implementation("com.fasterxml.jackson.core:jackson-annotations:${versionJacksonAnnotations}")
-  implementation("io.netty:netty-resolver-dns-native-macos:${versionNetty}:osx-aarch_64")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-web")
-  implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation(project(":runtime:java"))
   protobuf(project(":sample:proto"))
   testAnnotationProcessor("org.projectlombok:lombok:${versionLombok}")

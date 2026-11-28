@@ -1,13 +1,14 @@
 package commons
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
 
 var (
 	pathPattern  = regexp.MustCompile(`\{[^/]+}`)
-	queryPattern = regexp.MustCompile(`(?:(\w+)=)?([^/?&]+)&?`)
+	queryPattern = regexp.MustCompile(`(?:([\w\-.]+)=)?([^/?&]+)&?`)
 )
 
 // SegmentGroup groups UrlSegment values captured from a URL.
@@ -19,10 +20,13 @@ type SegmentGroup struct {
 }
 
 // Of parses a URL into a SegmentGroup.
-func Of(url string) SegmentGroup {
+func Of(url string) (SegmentGroup, error) {
 	group := SegmentGroup{}
 	if url == "" {
-		return group
+		return group, nil
+	}
+	if err := checkBraces(url); err != nil {
+		return SegmentGroup{}, err
 	}
 	parts := strings.SplitN(url, "?", 2)
 	path := parts[0]
@@ -62,7 +66,16 @@ func Of(url string) SegmentGroup {
 
 	group.segments = append(group.segments, group.pathSegments...)
 	group.segments = append(group.segments, group.querySegments...)
-	return group
+	return group, nil
+}
+
+// checkBraces rejects URLs with isolated { or } that form no valid placeholder.
+func checkBraces(url string) error {
+	cleaned := pathPattern.ReplaceAllString(url, "")
+	if strings.Contains(cleaned, "{") || strings.Contains(cleaned, "}") {
+		return fmt.Errorf("unbalanced braces in %q", url)
+	}
+	return nil
 }
 
 // IsEmpty reports whether the group has no segments.

@@ -126,6 +126,22 @@ func (i *Imports) resolveLookupPath(typeName string) (path string, order int, ok
 	return "", 0, false
 }
 
+// HasLookup reports whether a single-part type name resolves via lookup paths.
+func (i *Imports) HasLookup(typeName string) bool {
+	_, _, ok := i.resolveLookupPath(typeName)
+	return ok
+}
+
+// HasRawIdentifier reports whether a raw import line references name.
+func (i *Imports) HasRawIdentifier(name string) bool {
+	for _, line := range i.imports {
+		if strings.Contains(line, name) {
+			return true
+		}
+	}
+	return false
+}
+
 func (i *Imports) addImported(importPath ImportPath) {
 	for _, path := range i.imported {
 		if path.name == importPath.name {

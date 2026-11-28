@@ -297,14 +297,19 @@ public class DescriptorUtils {
   }
 
   private static boolean validate(String accessor, Descriptor descriptor) {
-    for (String name : accessor.split("\\.")) {
-      FieldDescriptor fieldDescriptor = descriptor.findFieldByName(name);
+    String[] names = accessor.split("\\.");
+    for (int i = 0; i < names.length; i++) {
+      FieldDescriptor fieldDescriptor = descriptor.findFieldByName(names[i]);
       if (fieldDescriptor == null) {
         return false;
       }
-      if (fieldDescriptor.getJavaType() == MESSAGE) {
-        descriptor = fieldDescriptor.getMessageType();
+      if (i == names.length - 1) {
+        return true;
       }
+      if (fieldDescriptor.getJavaType() != MESSAGE) {
+        return false;
+      }
+      descriptor = fieldDescriptor.getMessageType();
     }
     return true;
   }

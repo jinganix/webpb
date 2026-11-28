@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -38,6 +39,12 @@ func Of(message Message) Meta {
 }
 
 // ToAlias converts a generated message into its alias-keyed wire form.
+//
+// Empty-value semantics (S3 parity note): Go drops nil/unset fields (see
+// isUnset: nil pointer/interface/map/slice are omitted). TypeScript toAlias
+// keeps null (e.g. {a:null} with alias {a:"a_"} yields {a_:null}) and only
+// skips undefined and functions. So TS null and Go nil are a known gap:
+// TS preserves explicit null, Go omits nil.
 func ToAlias(message Message) map[string]any {
 	value := reflect.ValueOf(message)
 	if value.Kind() == reflect.Pointer {
@@ -69,8 +76,11 @@ func structToAlias(value reflect.Value) map[string]any {
 	return out
 }
 
-// isUnset reports whether an optional value carries no presence, matching the
-// TypeScript runtime where unset fields are omitted from the wire form.
+// isUnset reports whether an optional value carries no presence.
+// Go drops nil pointer/interface/map/slice fields from the wire form.
+// TypeScript toAlias keeps null (only undefined/functions are skipped), so
+// TS null vs Go nil is a documented parity gap (S3): TS preserves explicit
+// null, Go omits nil.
 func isUnset(value reflect.Value) bool {
 	switch value.Kind() {
 	case reflect.Pointer, reflect.Interface, reflect.Map, reflect.Slice:
@@ -117,9 +127,9 @@ func toAliasValue(value reflect.Value) any {
 			}
 			return out
 		}
-		out := make(map[any]any, value.Len())
+		out := make(map[string]any, value.Len())
 		for _, key := range value.MapKeys() {
-			out[key.Interface()] = toAliasValue(value.MapIndex(key))
+			out[fmt.Sprint(key.Interface())] = toAliasValue(value.MapIndex(key))
 		}
 		return out
 	case reflect.Struct:
@@ -217,7 +227,11 @@ func setValue(field reflect.Value, raw any) error {
 			if err := setValue(mapValue, item); err != nil {
 				return err
 			}
-			out.SetMapIndex(reflect.ValueOf(key).Convert(field.Type().Key()), mapValue)
+			parsedKey, err := parseMapKey(key, field.Type().Key())
+			if err != nil {
+				return err
+			}
+			out.SetMapIndex(parsedKey, mapValue)
 		}
 		field.Set(out)
 		return nil
@@ -289,16 +303,38 @@ func setMessage(field reflect.Value, message Message) error {
 }
 
 // Query renders query parameters, matching the TypeScript runtime semantics.
+//
+// Parity with TS query(): outer keys are sorted; plain objects expand to
+// repeated keys `k=inner` (nil/"" inner value) or `k=inner,value` (otherwise)
+// with inner keys sorted. Go expands any map with string-kind key via
+// reflection and Sprints arbitrary values (TS String(value)); outer func/
+// chan/unsafe-pointer values are skipped like TS skips functions.
 func Query(pre string, params map[string]any) string {
+	keys := make([]string, 0, len(params))
+	for key := range params {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
 	queries := make([]string, 0, len(params))
 	push := func(key, value string) {
 		if key != "" && value != "" {
 			queries = append(queries, key+"="+urlEncode(value))
 		}
 	}
-	for key, value := range params {
+	for _, key := range keys {
+		value := params[key]
 		if value == nil {
 			continue
+		}
+		rvOuter := reflect.ValueOf(value)
+		switch rvOuter.Kind() {
+		case reflect.Func, reflect.Chan, reflect.UnsafePointer:
+			// S1: skip functions (and chan/pointer) like TS skips functions.
+			continue
+		case reflect.Pointer, reflect.Interface, reflect.Map, reflect.Slice:
+			if rvOuter.IsNil() {
+				continue
+			}
 		}
 		switch typed := value.(type) {
 		case []string:
@@ -306,7 +342,13 @@ func Query(pre string, params map[string]any) string {
 				push(key, strings.Join(typed, ","))
 			}
 		case map[string]string:
-			for mapKey, mapValue := range typed {
+			innerKeys := make([]string, 0, len(typed))
+			for mapKey := range typed {
+				innerKeys = append(innerKeys, mapKey)
+			}
+			sort.Strings(innerKeys)
+			for _, mapKey := range innerKeys {
+				mapValue := typed[mapKey]
 				if mapValue == "" {
 					push(key, mapKey)
 				} else {
@@ -314,13 +356,73 @@ func Query(pre string, params map[string]any) string {
 				}
 			}
 		default:
-			push(key, fmt.Sprint(value))
+			rv := rvOuter
+			if rv.Kind() == reflect.Map && rv.Type().Key().Kind() == reflect.String {
+				// M1: generic map expansion, equivalent to TS isPlainObject branch.
+				// Key Kind==String, value arbitrary Sprint; nil/"" only pushes key.
+				if rv.Len() == 0 {
+					continue
+				}
+				innerKeys := make([]string, 0, rv.Len())
+				keyValues := make(map[string]reflect.Value, rv.Len())
+				for _, mk := range rv.MapKeys() {
+					ks := mk.String()
+					if _, ok := keyValues[ks]; !ok {
+						innerKeys = append(innerKeys, ks)
+					}
+					keyValues[ks] = mk
+				}
+				sort.Strings(innerKeys)
+				for _, mapKey := range innerKeys {
+					if mapKey == "" {
+						continue
+					}
+					mv := rv.MapIndex(keyValues[mapKey])
+					if !mv.IsValid() || isEmptyQueryValue(mv) {
+						push(key, mapKey)
+						continue
+					}
+					push(key, mapKey+","+fmt.Sprint(mv.Interface()))
+				}
+			} else if rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array {
+				if rv.Len() > 0 {
+					parts := make([]string, rv.Len())
+					for i := 0; i < rv.Len(); i++ {
+						parts[i] = fmt.Sprint(rv.Index(i).Interface())
+					}
+					push(key, strings.Join(parts, ","))
+				}
+			} else {
+				push(key, fmt.Sprint(value))
+			}
 		}
 	}
 	if len(queries) == 0 {
 		return ""
 	}
 	return pre + strings.Join(queries, "&")
+}
+
+// isEmptyQueryValue reports whether a generic-map inner value counts as empty
+// (nil or ""), matching TS `mapValue == null || mapValue === ""` which emits
+// key only. Non-empty values (including 0/false) are Sprinted by the caller.
+func isEmptyQueryValue(v reflect.Value) bool {
+	if !v.IsValid() {
+		return true
+	}
+	switch v.Kind() {
+	case reflect.Interface:
+		if v.IsNil() {
+			return true
+		}
+		return isEmptyQueryValue(v.Elem())
+	case reflect.Pointer, reflect.Map, reflect.Slice, reflect.Func, reflect.Chan, reflect.UnsafePointer:
+		return v.IsNil()
+	case reflect.String:
+		return v.Len() == 0
+	default:
+		return false
+	}
 }
 
 // Getter reads a dotted path from a nested object, returning nil when absent.
@@ -373,6 +475,39 @@ func toString(raw any) (string, error) {
 		return value.String(), nil
 	}
 	return "", fmt.Errorf("expected string, got %T", raw)
+}
+
+func parseMapKey(key string, keyType reflect.Type) (reflect.Value, error) {
+	switch keyType.Kind() {
+	case reflect.String:
+		return reflect.ValueOf(key).Convert(keyType), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		parsed, err := strconv.ParseInt(key, 10, keyType.Bits())
+		if err != nil {
+			return reflect.Value{}, err
+		}
+		value := reflect.New(keyType).Elem()
+		value.SetInt(parsed)
+		return value, nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		parsed, err := strconv.ParseUint(key, 10, keyType.Bits())
+		if err != nil {
+			return reflect.Value{}, err
+		}
+		value := reflect.New(keyType).Elem()
+		value.SetUint(parsed)
+		return value, nil
+	case reflect.Bool:
+		parsed, err := strconv.ParseBool(key)
+		if err != nil {
+			return reflect.Value{}, err
+		}
+		value := reflect.New(keyType).Elem()
+		value.SetBool(parsed)
+		return value, nil
+	default:
+		return reflect.Value{}, fmt.Errorf("unsupported map key type %s", keyType)
+	}
 }
 
 func toBool(raw any) (bool, error) {

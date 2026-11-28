@@ -165,18 +165,59 @@ abstract class AbstractWebpbMappingProcessor extends AbstractProcessor {
   }
 
   protected ClassSymbol resolveMessageFromParameters(JCMethodDecl method) {
+    java.util.ArrayList<ClassSymbol> candidates = new java.util.ArrayList<>();
     for (JCTree.JCVariableDecl parameter : method.getParameters()) {
+      if (parameter.sym == null || parameter.sym.type == null) {
+        continue;
+      }
       TypeSymbol typeSymbol = parameter.sym.type.tsym;
       if (!(typeSymbol instanceof ClassSymbol classSymbol)) {
         continue;
       }
-      for (Type type : classSymbol.getInterfaces()) {
-        if (Const.WebpbMessage.equals(type.tsym.getQualifiedName().toString())) {
-          return classSymbol;
+      if (isWebpbMessage(classSymbol, new java.util.HashSet<>())) {
+        candidates.add(classSymbol);
+      }
+    }
+    if (candidates.size() == 1) {
+      return candidates.get(0);
+    }
+    if (candidates.size() > 1) {
+      logError("Ambiguous WebpbMessage parameters, specify message explicitly");
+    }
+    return null;
+  }
+
+  private boolean isWebpbMessage(ClassSymbol symbol, java.util.Set<String> visited) {
+    if (symbol == null) {
+      return false;
+    }
+    String qualifiedName = symbol.getQualifiedName().toString();
+    if (Const.WebpbMessage.equals(qualifiedName)) {
+      return true;
+    }
+    if (!visited.add(qualifiedName)) {
+      return false;
+    }
+    for (Type iface : symbol.getInterfaces()) {
+      if (iface == null || iface.tsym == null) {
+        continue;
+      }
+      if (Const.WebpbMessage.equals(iface.tsym.getQualifiedName().toString())) {
+        return true;
+      }
+      if (iface.tsym instanceof ClassSymbol ifaceSymbol) {
+        if (isWebpbMessage(ifaceSymbol, visited)) {
+          return true;
         }
       }
     }
-    return null;
+    Type superclass = symbol.getSuperclass();
+    if (superclass != null && superclass.tsym instanceof ClassSymbol superSymbol) {
+      if (isWebpbMessage(superSymbol, visited)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   protected ClassSymbol classSymbolFromType(JCExpression expression) {
@@ -211,6 +252,7 @@ abstract class AbstractWebpbMappingProcessor extends AbstractProcessor {
       JCAnnotation annotation, ArrayList<JCExpression> args, String excludedAttribute) {
     for (JCExpression arg : annotation.args) {
       if (!(arg instanceof JCTree.JCAssign assign)) {
+        args.add(arg);
         continue;
       }
       if (!(assign.lhs instanceof JCTree.JCIdent ident)) {
@@ -275,7 +317,7 @@ abstract class AbstractWebpbMappingProcessor extends AbstractProcessor {
     return List.from(updated);
   }
 
-  private void logError(String message) {
+  protected void logError(String message) {
     processingEnv.getMessager().printMessage(ERROR, message);
   }
 }

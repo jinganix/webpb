@@ -113,7 +113,7 @@ func TestUpdateTSGolden(t *testing.T) {
 					files[path.Base(name)] = content
 				}
 			}
-			subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.TargetDescriptors)
+			subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.Descriptors, ctx.TargetDescriptors)
 			if err != nil {
 				t.Fatalf("generate subtypes: %v", err)
 			}

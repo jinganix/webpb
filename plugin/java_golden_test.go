@@ -1,6 +1,8 @@
 package goplugin_test
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -46,6 +48,30 @@ func TestJavaGolden(t *testing.T) {
 				}
 				if !testutil.GoldenEqual(content, expected) {
 					t.Fatalf("mismatch for %s/%s", dump, key)
+				}
+			}
+			root := filepath.Join(testutil.RepoRoot(), "plugin", "testdata", "java", dump)
+			var expectedKeys []string
+			err = filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				if d.IsDir() {
+					return nil
+				}
+				rel, err := filepath.Rel(root, path)
+				if err != nil {
+					return err
+				}
+				expectedKeys = append(expectedKeys, filepath.ToSlash(rel))
+				return nil
+			})
+			if err != nil {
+				t.Fatalf("list expected %s: %v", dump, err)
+			}
+			for _, key := range expectedKeys {
+				if _, ok := formatted[key]; !ok {
+					t.Fatalf("orphan golden without generator output %s/%s", dump, key)
 				}
 			}
 		})

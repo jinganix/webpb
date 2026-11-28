@@ -100,6 +100,15 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --info -PskipGoTest=true
 
+      - name: Verify Maven codegen
+        shell: bash
+        run: |
+          # sample/backend/pom.xml tracks the dev snapshot line (see scripts/sync-versions.mjs),
+          # which is not on Maven Central; pin the last release (consumer docs in README.md)
+          # for Central resolution here. The current snapshot is covered by the Gradle build above.
+          release_version=$(sed -n 's/.*<webpb.version>\([^<]*\)<.*/\1/p' README.md | head -n 1)
+          mvn -f sample/backend/pom.xml generate-sources -Dwebpb.version="${release_version}"
+
       - name: Install runtime/ts dependencies
         shell: bash
         working-directory: runtime/ts
@@ -134,6 +143,42 @@ jobs:
           npm run check
           npm run test:e2e:install:ci
           npm run test:e2e
+
+  gradle-plugin-artifact:
+    name: Gradle plugin via Maven artifact
+    needs: [commitlint]
+    if: ${{ needs.commitlint.outputs.skip != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: 25
+
+      - name: Setup protoc
+        shell: bash
+        run: bash .github/scripts/setup-protoc.sh 36.2
+
+      # No Setup Go here by design: with plugin/bin removed and the local Go
+      # build excluded (-x), the Gradle plugin must resolve the protoc binaries
+      # from Maven instead of building them from source.
+      # The dev snapshot line is not on Maven Central, so pin the last release
+      # (consumer docs in README.md) for remote resolution. The current snapshot
+      # is covered by the build job above.
+      - name: Remove local plugin binaries
+        shell: bash
+        run: |
+          rm -rf plugin/bin
+          test ! -d plugin/bin
+
+      - name: Build sample backend with Maven-resolved plugin
+        shell: bash
+        run: |
+          release_version=$(sed -n 's/.*<webpb.version>\([^<]*\)<.*/\1/p' README.md | head -n 1)
+          ./gradlew :sample:backend:compileJava --no-daemon -PskipGoTest=true "-PwebpbVersion=${release_version}" -x :plugin:buildGoJava
 
   codecov:
     name: Codecov

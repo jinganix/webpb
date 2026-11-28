@@ -21,10 +21,12 @@ package io.github.jinganix.webpb.runtime.mvc;
 import io.github.jinganix.webpb.runtime.WebpbMessage;
 import io.github.jinganix.webpb.runtime.support.WebpbRequestBodySupport;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
@@ -52,10 +54,17 @@ public class WebpbRequestBodyAdvice extends RequestBodyAdviceAdapter {
       Class<? extends HttpMessageConverter<?>> converterType) {
     Object object = super.afterBodyRead(body, inputMessage, parameter, targetType, converterType);
 
-    Map<String, String> variableMap = VariablesResolver.getVariableMap();
+    Map<String, List<String>> variableMap = VariablesResolver.getVariableMap();
     if (variableMap.isEmpty()) {
       return object;
     }
-    return WebpbRequestBodySupport.mergeBody((WebpbMessage) object, variableMap);
+    try {
+      return WebpbRequestBodySupport.mergeBody((WebpbMessage) object, variableMap);
+    } catch (HttpMessageNotReadableException e) {
+      throw e;
+    } catch (Exception e) {
+      // ServerWebInputException (reactive 400) would surface as 500 in MVC, convert to 400.
+      throw new HttpMessageNotReadableException(e.getMessage(), e, inputMessage);
+    }
   }
 }

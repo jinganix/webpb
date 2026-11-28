@@ -101,19 +101,30 @@ func TestValidation(t *testing.T) {
 		t.Fatalf("create context: %v", err)
 	}
 	msg := core.ResolveMessage(ctx.Descriptors, "Test")
-	group := commons.Of("/{test1}")
-	core.Validation(group, msg, ctx.Descriptors)
+	group, err := commons.Of("/{test1}")
+	if err != nil {
+		t.Fatalf("Of: %v", err)
+	}
+	if err := core.Validation(group, msg, ctx.Descriptors); err != nil {
+		t.Fatalf("Validation: %v", err)
+	}
 
 	test2 := core.ResolveMessage(ctx.Descriptors, "Test2")
-	nestedGroup := commons.Of("/{test3.test1}")
-	core.Validation(nestedGroup, test2, ctx.Descriptors)
+	nestedGroup, err := commons.Of("/{test3.test1}")
+	if err != nil {
+		t.Fatalf("Of: %v", err)
+	}
+	if err := core.Validation(nestedGroup, test2, ctx.Descriptors); err != nil {
+		t.Fatalf("Validation: %v", err)
+	}
 
-	defer func() {
-		if recover() == nil {
-			t.Fatal("expected panic for invalid accessor")
-		}
-	}()
-	core.Validation(commons.Of("/{missing}"), msg, ctx.Descriptors)
+	badGroup, err := commons.Of("/{missing}")
+	if err != nil {
+		t.Fatalf("Of: %v", err)
+	}
+	if err := core.Validation(badGroup, msg, ctx.Descriptors); err == nil {
+		t.Fatal("expected error for invalid accessor")
+	}
 }
 
 func TestResolveDescriptorFile(t *testing.T) {
@@ -260,7 +271,13 @@ func validateMessagePaths(t *testing.T, ctx *core.RequestContext, msg protorefle
 	t.Helper()
 	opts := core.GetMessageOpts(msg, core.HasMessageOpt)
 	if opts != nil && opts.GetOpt().GetPath() != "" {
-		core.Validation(commons.Of(opts.GetOpt().GetPath()), msg, ctx.Descriptors)
+		group, err := commons.Of(opts.GetOpt().GetPath())
+		if err != nil {
+			t.Fatalf("Of(%q): %v", opts.GetOpt().GetPath(), err)
+		}
+		if err := core.Validation(group, msg, ctx.Descriptors); err != nil {
+			t.Fatalf("Validation(%q): %v", opts.GetOpt().GetPath(), err)
+		}
 	}
 	for i := 0; i < msg.Messages().Len(); i++ {
 		validateMessagePaths(t, ctx, msg.Messages().Get(i))
@@ -331,5 +348,37 @@ func TestBuildDescriptorsNormalizesPaths(t *testing.T) {
 	}
 	if len(all) != 1 || len(targets) != 1 {
 		t.Fatalf("expected one file descriptor, got %d / %d", len(all), len(targets))
+	}
+}
+
+func TestNormalizeRootPath(t *testing.T) {
+	if got := core.Normalize("/"); got != "/" {
+		t.Fatalf("Normalize(\"/\") = %q, want \"/\"", got)
+	}
+}
+
+func TestBuildDescriptorsMissingFileToGenerate(t *testing.T) {
+	req, err := testutil.LoadRequest("proto3_core_codegen")
+	if err != nil {
+		t.Fatalf("load request: %v", err)
+	}
+	req.FileToGenerate = append(append([]string{}, req.FileToGenerate...), "missing.proto")
+	if _, _, err := core.BuildDescriptors(req); err == nil {
+		t.Fatal("expected error for missing FileToGenerate")
+	}
+}
+
+func TestValidationReturnsError(t *testing.T) {
+	ctx, err := testutil.CreateContext("proto3_core_codegen")
+	if err != nil {
+		t.Fatalf("create context: %v", err)
+	}
+	msg := core.ResolveMessage(ctx.Descriptors, "Test")
+	group, err := commons.Of("/{missing}")
+	if err != nil {
+		t.Fatalf("Of: %v", err)
+	}
+	if err := core.Validation(group, msg, ctx.Descriptors); err == nil {
+		t.Fatal("expected validation error")
 	}
 }

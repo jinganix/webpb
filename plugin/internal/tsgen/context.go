@@ -27,10 +27,14 @@ func NewGeneratorContext(all, targets []protoreflect.FileDescriptor) *GeneratorC
 			descriptor := messages.Get(i)
 			opt := core.GetMessageOpts(descriptor, core.HasMessageOpt).GetOpt()
 			if opt.GetSubType() != "" {
-				ctx.BaseTypes[string(descriptor.Name())] = descriptor
+				ctx.BaseTypes[string(descriptor.FullName())] = descriptor
 			}
 			if opt.GetExtends() != "" && len(opt.GetSubValues()) > 0 {
-				ctx.SubTypes[opt.GetExtends()] = append(ctx.SubTypes[opt.GetExtends()], descriptor)
+				key := opt.GetExtends()
+				if resolved := core.ResolveMessage(all, opt.GetExtends()); resolved != nil {
+					key = string(resolved.FullName())
+				}
+				ctx.SubTypes[key] = append(ctx.SubTypes[key], descriptor)
 			}
 		}
 	}

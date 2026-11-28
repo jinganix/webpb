@@ -20,6 +20,7 @@ package io.github.jinganix.webpb.utilities.utils;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.FieldOpts;
 import io.github.jinganix.webpb.utilities.descriptor.WebpbExtend.MessageOpts;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,6 +47,9 @@ public class AliasUtils {
     Set<String> names = new HashSet<>();
     for (Descriptor messageDescriptor : messages) {
       for (FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
+        if (isOmitted(fieldDescriptor)) {
+          continue;
+        }
         names.add(fieldDescriptor.getName());
       }
     }
@@ -54,7 +58,7 @@ public class AliasUtils {
     Set<String> usedAliases = new HashSet<>();
     int offset = 0;
     for (Descriptor messageDescriptor : messages) {
-      List<FieldDescriptor> fields = messageDescriptor.getFields();
+      List<FieldDescriptor> fields = getMemberFields(messageDescriptor);
       int maxIndex = offset;
       for (FieldDescriptor fieldDescriptor : fields) {
         int index = offset + fieldDescriptor.getNumber() - 1;
@@ -89,7 +93,7 @@ public class AliasUtils {
         continue;
       }
       int maxNumber = 0;
-      for (FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
+      for (FieldDescriptor fieldDescriptor : getMemberFields(messageDescriptor)) {
         maxNumber = Math.max(maxNumber, fieldDescriptor.getNumber());
       }
       if (reserve <= maxNumber) {
@@ -99,5 +103,20 @@ public class AliasUtils {
                 maxNumber, messageDescriptor.getFullName()));
       }
     }
+  }
+
+  private static List<FieldDescriptor> getMemberFields(Descriptor descriptor) {
+    List<FieldDescriptor> fields = new ArrayList<>();
+    for (FieldDescriptor fieldDescriptor : descriptor.getFields()) {
+      if (isOmitted(fieldDescriptor)) {
+        continue;
+      }
+      fields.add(fieldDescriptor);
+    }
+    return fields;
+  }
+
+  private static boolean isOmitted(FieldDescriptor fieldDescriptor) {
+    return OptionUtils.getOpts(fieldDescriptor, FieldOpts::hasOpt).getOpt().getOmitted();
   }
 }

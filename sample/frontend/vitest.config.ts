@@ -6,6 +6,12 @@ import { defineConfig } from "vitest/config";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
+// @testing-library/react needs the React dev build (React.act). An outer
+// NODE_ENV=production would resolve react-dom production (no act) and fail
+// test/app.test.tsx, so pin vitest to a dev-like env.
+process.env.NODE_ENV ??= "test";
+if (process.env.NODE_ENV === "production") process.env.NODE_ENV = "test";
+
 export default defineConfig({
   plugins: [react()],
   resolve: {

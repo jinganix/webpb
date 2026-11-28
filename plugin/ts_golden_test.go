@@ -3,6 +3,7 @@ package goplugin_test
 import (
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -22,6 +23,9 @@ var tsErrorFiles = map[string][]string{
 		"AugmentFieldReserve.proto",
 		"AugmentNotOpen.proto",
 		"AugmentUnknownTarget.proto",
+		"BadExtends.proto",
+		"ExtendsTargetNotFound.proto",
+		"BadClassOrInterface.proto",
 	},
 	"proto3_errors": {
 		"DuplicatedExtendsFields.proto",
@@ -29,6 +33,9 @@ var tsErrorFiles = map[string][]string{
 		"AugmentFieldReserve.proto",
 		"AugmentNotOpen.proto",
 		"AugmentUnknownTarget.proto",
+		"BadExtends.proto",
+		"ExtendsTargetNotFound.proto",
+		"BadClassOrInterface.proto",
 	},
 }
 
@@ -58,7 +65,7 @@ func TestTSGolden(t *testing.T) {
 					files[path.Base(name)] = content
 				}
 			}
-			subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.TargetDescriptors)
+			subFiles, err := (&tsgen.SubTypesGenerator{}).Generate(ctx.Descriptors, ctx.TargetDescriptors)
 			if err != nil {
 				t.Fatalf("generate subtypes: %v", err)
 			}
@@ -93,6 +100,21 @@ func TestTSGolden(t *testing.T) {
 				}
 				if !testutil.GoldenEqual(content, expected) {
 					t.Fatalf("mismatch for %s/%s", dump, key)
+				}
+			}
+			if !isErrorDump(dump) {
+				dir := filepath.Join(testutil.RepoRoot(), "plugin", "testdata", "ts", dump)
+				entries, err := os.ReadDir(dir)
+				if err != nil {
+					t.Fatalf("list expected %s: %v", dump, err)
+				}
+				for _, entry := range entries {
+					if entry.IsDir() {
+						continue
+					}
+					if _, ok := formatted[entry.Name()]; !ok {
+						t.Fatalf("orphan golden without generator output %s/%s", dump, entry.Name())
+					}
 				}
 			}
 		})

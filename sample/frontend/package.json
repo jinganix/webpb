@@ -10,7 +10,7 @@
     "dev": "node scripts/check-backend.mjs && vite",
     "dev:wait": "node scripts/wait-for-backend.mjs && vite",
     "lint": "eslint src",
-    "proto": "webpb generate -o generated/proto -I ../../sample/proto/src/main/resources ../../sample/proto/src/main/resources/Common.proto ../../sample/proto/src/main/resources/Options.proto",
+    "proto": "webpb generate -o generated/proto -I ../../sample/proto/src/main/resources ../../sample/proto/src/main/resources/Common.proto ../../sample/proto/src/main/resources/Options.proto ../../sample/proto/src/main/resources/Store.proto",
     "preview": "vite preview",
     "start": "npm run proto && node scripts/check-backend.mjs && vite",
     "start:all": "npm run proto && concurrently -k -n backend,frontend -c blue,green \"npm run backend\" \"npm run dev:wait\"",

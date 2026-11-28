@@ -19,10 +19,12 @@
 package io.github.jinganix.webpb.runtime.enumeration;
 
 import java.util.Map;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.deser.ContextualKeyDeserializer;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 /** Jackson key deserializer for {@link Enumeration} map keys. */
 public class EnumerationKeyDeserializer extends KeyDeserializer
@@ -47,8 +49,28 @@ public class EnumerationKeyDeserializer extends KeyDeserializer
    * @return {@link Enumeration}
    */
   @Override
-  public Object deserializeKey(String key, DeserializationContext ctx) {
-    return valueMap.get(key);
+  public Object deserializeKey(String key, DeserializationContext ctx) throws JacksonException {
+    Object result = valueMap == null ? null : valueMap.get(key);
+    if (result == null) {
+      throw InvalidFormatException.from(
+          null, "Unknown enumeration key: " + key, key, targetType(ctx));
+    }
+    return result;
+  }
+
+  private Class<?> targetType(DeserializationContext ctx) {
+    if (ctx != null
+        && ctx.getContextualType() != null
+        && ctx.getContextualType().getKeyType() != null) {
+      return ctx.getContextualType().getKeyType().getRawClass();
+    }
+    if (valueMap != null && !valueMap.isEmpty()) {
+      Object first = valueMap.values().iterator().next();
+      if (first != null) {
+        return first.getClass();
+      }
+    }
+    return Object.class;
   }
 
   /**
